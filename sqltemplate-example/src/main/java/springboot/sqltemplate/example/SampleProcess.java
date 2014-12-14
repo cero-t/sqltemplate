@@ -2,6 +2,7 @@ package springboot.sqltemplate.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import springboot.sqltemplate.core.SqlTemplate;
 import springboot.sqltemplate.example.entity.Emp;
 
 import java.util.HashMap;
