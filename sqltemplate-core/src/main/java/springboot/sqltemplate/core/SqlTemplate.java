@@ -8,6 +8,8 @@ import springboot.sqltemplate.core.mapper.BeanMapper;
 import springboot.sqltemplate.core.parameter.ArgsParameter;
 import springboot.sqltemplate.core.parameter.BeanParameter;
 import springboot.sqltemplate.core.parameter.MapParameter;
+import springboot.sqltemplate.core.template.NoEngine;
+import springboot.sqltemplate.core.template.TemplateEngine;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,9 +24,16 @@ public class SqlTemplate {
 
     protected final NamedParameterJdbcTemplate namedJdbcTemplate;
 
+    protected TemplateEngine templateEngine;
+
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.NO_ENGINE);
+    }
+
+    public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedJdbcTemplate = namedJdbcTemplate;
+        this.templateEngine = templateEngine;
     }
 
     public <T> T forObject(String fileName, Class<T> clazz, Object... args) {
