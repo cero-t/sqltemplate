@@ -1,12 +1,9 @@
-package springboot.sqltemplate.example;
+package springboot.sqltemplate.core;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
 import springboot.sqltemplate.core.mapper.BeanMapper;
 import springboot.sqltemplate.core.parameter.ArgsParameter;
 import springboot.sqltemplate.core.parameter.BeanParameter;
@@ -20,13 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
 public class SqlTemplate {
-    @Autowired
-    protected JdbcTemplate jdbcTemplate;
+    protected final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    protected NamedParameterJdbcTemplate namedJdbcTemplate;
+    protected final NamedParameterJdbcTemplate namedJdbcTemplate;
+
+    public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedJdbcTemplate = namedJdbcTemplate;
+    }
 
     public <T> T forObject(String fileName, Class<T> clazz, Object... args) {
         List<T> list = forList(fileName, clazz, args);
