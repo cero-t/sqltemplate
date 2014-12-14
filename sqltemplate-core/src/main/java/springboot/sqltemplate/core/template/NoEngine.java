@@ -1,6 +1,7 @@
 package springboot.sqltemplate.core.template;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,20 +12,18 @@ public class NoEngine implements TemplateEngine {
     /**
      * template cache
      */
-    protected ConcurrentMap<String, String> templateCache = new ConcurrentHashMap<>();
+    protected final ConcurrentMap<String, String> templateCache = new ConcurrentHashMap<>();
 
     @Override
     public String get(String fileName, Object[] args) throws IOException {
-        String text = templateCache.get(fileName);
-        if (text != null) {
-            return text;
-        }
-
-        text = Files.readAllLines(Paths.get(getClass().getResource("/" + fileName).getFile())).stream()
-                .collect(Collectors.joining("\n"));
-        templateCache.putIfAbsent(fileName, text);
-
-        return text;
+        return templateCache.computeIfAbsent(fileName, x -> {
+            try {
+                return Files.readAllLines(Paths.get(getClass().getResource("/" + x).getFile())).stream()
+                        .collect(Collectors.joining("\n"));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     @Override
