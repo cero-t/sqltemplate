@@ -8,16 +8,12 @@ import springboot.sqltemplate.core.mapper.BeanMapper;
 import springboot.sqltemplate.core.parameter.ArgsParameter;
 import springboot.sqltemplate.core.parameter.BeanParameter;
 import springboot.sqltemplate.core.parameter.MapParameter;
-import springboot.sqltemplate.core.template.NoEngine;
 import springboot.sqltemplate.core.template.TemplateEngine;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SqlTemplate {
     protected final JdbcTemplate jdbcTemplate;
@@ -91,10 +87,17 @@ public class SqlTemplate {
         return jdbcTemplate.update(sql, ArgsParameter.of(args));
     }
 
-    protected String get(String fileName, Object... args) {
+    protected String get(String fileName, Object[] args) {
         try {
-            return Files.readAllLines(Paths.get(getClass().getResource("/" + fileName).getFile())).stream()
-                    .collect(Collectors.joining("\n"));
+            return templateEngine.get(fileName, args);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
+    protected String get(String fileName, Object param) {
+        try {
+            return templateEngine.get(fileName, param);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
