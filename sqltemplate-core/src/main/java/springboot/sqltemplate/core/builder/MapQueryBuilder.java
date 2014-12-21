@@ -20,12 +20,6 @@ public class MapQueryBuilder<T> extends QueryBuilder<T> {
         this.namedJdbcTemplate = namedJdbcTemplate;
     }
 
-    public MapQueryBuilder(String fileName, Class<T> clazz, TemplateEngine templateEngine, NamedParameterJdbcTemplate namedJdbcTemplate, Map<String, Object> params) {
-        super(fileName, clazz, templateEngine);
-        this.params = params;
-        this.namedJdbcTemplate = namedJdbcTemplate;
-    }
-
     public MapQueryBuilder<T> add(String key, Object value) {
         params.put(key, value);
         return this;

@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import springboot.sqltemplate.core.builder.NoParamQueryBuilder;
 import springboot.sqltemplate.core.mapper.BeanMapper;
 import springboot.sqltemplate.core.parameter.ArgsParameter;
 import springboot.sqltemplate.core.parameter.BeanParameter;
@@ -85,6 +86,10 @@ public class SqlTemplate {
     public int update(String fileName, Object... args) {
         String sql = get(fileName, args);
         return jdbcTemplate.update(sql, ArgsParameter.of(args));
+    }
+
+    public <T> NoParamQueryBuilder<T> query(String fileName, Class<T> clazz) {
+        return new NoParamQueryBuilder<>(fileName, clazz, templateEngine, jdbcTemplate, namedJdbcTemplate);
     }
 
     protected String get(String fileName, Object[] args) {

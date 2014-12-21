@@ -20,12 +20,6 @@ public class ArgsQueryBuilder<T> extends QueryBuilder<T> {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public ArgsQueryBuilder(String fileName, Class<T> clazz, TemplateEngine templateEngine, JdbcTemplate jdbcTemplate, Object[] args) {
-        super(fileName, clazz, templateEngine);
-        this.params = Arrays.asList(args);
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     public ArgsQueryBuilder<T> add(Object param) {
         params.add(param);
         return this;
