@@ -1,4 +1,4 @@
-package springboot.sqltemplate.example;
+package ninja.cero.sqltemplate.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import springboot.sqltemplate.core.SqlTemplate;
+import ninja.cero.sqltemplate.core.SqlTemplate;
 
 @Configuration
 @ComponentScan

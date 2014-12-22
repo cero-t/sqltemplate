@@ -1,7 +1,6 @@
-package springboot.sqltemplate.core.template;
+package ninja.cero.sqltemplate.core.template;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  *

@@ -1,7 +1,7 @@
-package springboot.sqltemplate.core.parameter;
+package ninja.cero.sqltemplate.core.parameter;
 
+import ninja.cero.sqltemplate.core.util.BeanFields;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
-import springboot.sqltemplate.core.util.BeanFields;
 
 import java.lang.reflect.Field;
 import java.sql.Date;

@@ -1,9 +1,9 @@
-package springboot.sqltemplate.example;
+package ninja.cero.sqltemplate.example;
 
+import ninja.cero.sqltemplate.example.entity.Emp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import springboot.sqltemplate.core.SqlTemplate;
-import springboot.sqltemplate.example.entity.Emp;
+import ninja.cero.sqltemplate.core.SqlTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +34,6 @@ public class SampleProcess {
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
 
         emps = template.forList("sql/selectByArgs.sql", Emp.class, 30, "SALESMAN");
-        emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
-
-        emps = template.query("sql/selectByArgs.sql", Emp.class)
-                .add(30)
-                .add("SALESMAN")
-                .forList();
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
     }
 }

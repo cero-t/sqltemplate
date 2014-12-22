@@ -1,4 +1,4 @@
-package springboot.sqltemplate.core.util;
+package ninja.cero.sqltemplate.core.util;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;

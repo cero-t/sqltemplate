@@ -1,14 +1,14 @@
-package springboot.sqltemplate.core;
+package ninja.cero.sqltemplate.core;
 
+import ninja.cero.sqltemplate.core.parameter.ArgsParameter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import springboot.sqltemplate.core.mapper.BeanMapper;
-import springboot.sqltemplate.core.parameter.ArgsParameter;
-import springboot.sqltemplate.core.parameter.BeanParameter;
-import springboot.sqltemplate.core.parameter.MapParameter;
-import springboot.sqltemplate.core.template.TemplateEngine;
+import ninja.cero.sqltemplate.core.mapper.BeanMapper;
+import ninja.cero.sqltemplate.core.parameter.BeanParameter;
+import ninja.cero.sqltemplate.core.parameter.MapParameter;
+import ninja.cero.sqltemplate.core.template.TemplateEngine;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

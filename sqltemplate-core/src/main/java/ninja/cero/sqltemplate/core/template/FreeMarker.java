@@ -1,4 +1,4 @@
-package springboot.sqltemplate.core.template;
+package ninja.cero.sqltemplate.core.template;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;

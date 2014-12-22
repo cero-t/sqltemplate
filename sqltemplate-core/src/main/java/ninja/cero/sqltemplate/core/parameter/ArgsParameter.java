@@ -1,4 +1,4 @@
-package springboot.sqltemplate.core.parameter;
+package ninja.cero.sqltemplate.core.parameter;
 
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 

@@ -1,4 +1,4 @@
-package springboot.sqltemplate.example.entity;
+package ninja.cero.sqltemplate.example.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package springboot.sqltemplate.example.entity;
+package ninja.cero.sqltemplate.example.entity;
 
 public class Dept {
     public Integer deptno;

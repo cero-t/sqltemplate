@@ -10,13 +10,13 @@
     <description>Sql Template Example</description>
 
     <parent>
-        <groupId>springboot.sqltemplate</groupId>
+        <groupId>ninja.cero.sqltemplate</groupId>
         <artifactId>sqltemplate</artifactId>
         <version>1.0.0</version>
     </parent>
 
     <properties>
-        <start-class>springboot.sqltemplate.example.Application</start-class>
+        <start-class>ninja.cero.sqltemplate.example.Application</start-class>
     </properties>
 
     <dependencies>

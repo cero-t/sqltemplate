@@ -1,5 +1,6 @@
-package springboot.sqltemplate.core.mapper;
+package ninja.cero.sqltemplate.core.mapper;
 
+import ninja.cero.sqltemplate.core.util.BeanFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -7,7 +8,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import springboot.sqltemplate.core.util.BeanFields;
 
 import java.lang.reflect.Field;
 import java.sql.Date;
