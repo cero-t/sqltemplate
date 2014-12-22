@@ -4,7 +4,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import springboot.sqltemplate.core.builder.NoParamQueryBuilder;
 import springboot.sqltemplate.core.mapper.BeanMapper;
 import springboot.sqltemplate.core.parameter.ArgsParameter;
 import springboot.sqltemplate.core.parameter.BeanParameter;
@@ -13,6 +12,7 @@ import springboot.sqltemplate.core.template.TemplateEngine;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,8 +88,8 @@ public class SqlTemplate {
         return jdbcTemplate.update(sql, ArgsParameter.of(args));
     }
 
-    public <T> NoParamQueryBuilder<T> query(String fileName, Class<T> clazz) {
-        return new NoParamQueryBuilder<>(fileName, clazz, templateEngine, jdbcTemplate, namedJdbcTemplate);
+    public <T> MapQueryBuilder<T> query(String fileName, Class<T> clazz) {
+        return new MapQueryBuilder<>(fileName, clazz);
     }
 
     protected String get(String fileName, Object[] args) {
@@ -105,6 +105,32 @@ public class SqlTemplate {
             return templateEngine.get(fileName, param);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
+        }
+    }
+
+    public class MapQueryBuilder<T> {
+        protected Map<String, Object> params = new HashMap<>();
+        protected String fileName;
+        protected Class<T> clazz;
+
+        public MapQueryBuilder(String fileName, Class<T> clazz) {
+            this.fileName = fileName;
+            this.clazz = clazz;
+        }
+
+        public MapQueryBuilder<T> add(String key, Object value) {
+            params.put(key, value);
+            return this;
+        }
+
+        public T forObject() {
+            List<T> list = forList();
+            return DataAccessUtils.singleResult(list);
+        }
+
+        public List<T> forList() {
+            String sql = get(fileName, params);
+            return namedJdbcTemplate.query(sql, MapParameter.of(params), BeanMapper.of(clazz));
         }
     }
 }
