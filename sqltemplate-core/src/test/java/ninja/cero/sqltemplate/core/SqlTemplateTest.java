@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core;
 
-import ninja.cero.sqltemplate.test.TestApplication;
+import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.Emp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +9,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestApplication.class)
+@SpringApplicationConfiguration(classes = TestConfig.class)
 @Transactional
 public class SqlTemplateTest {
     @Autowired
@@ -195,5 +196,15 @@ public class SqlTemplateTest {
         Emp emp = template.query("sql/selectSingleByParam.sql", Emp.class).add("job", "SALESMAN").add("deptno", 30)
                 .forObject();
         assertThat(emp.empno, is(7499));
+    }
+
+    @Test
+    public void testForObject_noFile() {
+        try {
+            Emp emp = template.forObject("x", Emp.class);
+            fail();
+        } catch (UncheckedIOException ex) {
+            assertThat(ex.getCause().getMessage(), is("Tempalte 'x' not found"));
+        }
     }
 }

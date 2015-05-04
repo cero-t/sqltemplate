@@ -1,7 +1,7 @@
 package ninja.cero.sqltemplate.core.template;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,19 +19,24 @@ public class NoEngine implements TemplateEngine {
 
     @Override
     public String get(String fileName, Object[] args) throws IOException {
-        return templateCache.computeIfAbsent(fileName, x -> {
-            URL resource = getClass().getResource("/" + x);
-            if (resource == null) {
-                throw new IllegalArgumentException("Tempalte file does not exist - " + x);
-            }
+        String template = templateCache.get(fileName);
 
-            Path path = Paths.get(resource.getFile());
-            try (Stream<String> stream = Files.lines(path)) {
-                return stream.collect(Collectors.joining("\n"));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        if (template != null) {
+            return template;
+        }
+
+        URL resource = getClass().getResource("/" + fileName);
+        if (resource == null) {
+            throw new FileNotFoundException("Tempalte '" + fileName + "' not found");
+        }
+
+        Path path = Paths.get(resource.getFile());
+        try (Stream<String> stream = Files.lines(path)) {
+            template = stream.collect(Collectors.joining("\n"));
+        }
+
+        templateCache.put(fileName, template);
+        return template;
     }
 
     @Override

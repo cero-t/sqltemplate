@@ -21,25 +21,19 @@ public class FreeMarker implements TemplateEngine {
     }
 
     @Override
-    public String get(String templateName, Object context) {
+    public String get(String templateName, Object context) throws IOException {
         Template template = getTemplate(templateName);
         return processTemplate(context, template);
     }
 
     @Override
-    public String get(String templateName, Object[] context) {
+    public String get(String templateName, Object[] context) throws IOException {
         Template template = getTemplate(templateName);
         return processTemplate(context, template);
     }
 
-    protected static Template getTemplate(String templateName) {
-        Template template;
-        try {
-            template = CONFIG.getTemplate(templateName);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
-        return template;
+    protected static Template getTemplate(String templateName) throws IOException {
+        return CONFIG.getTemplate(templateName);
     }
 
     protected static String processTemplate(Object context, Template template) {
