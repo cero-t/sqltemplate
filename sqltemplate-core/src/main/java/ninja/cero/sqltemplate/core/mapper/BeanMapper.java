@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 /**
  * Yet another {@link org.springframework.jdbc.core.BeanPropertyRowMapper} implementation for public fields.
- * Supports {@Link LocalDateTime} and {@Link LocalDate} of JSR-310
+ * Supports {@link java.util.LocalDateTime} and {@link java.util.LocalDate} of JSR-310
  * @param <T> The class
  */
 public class BeanMapper<T> implements RowMapper<T> {
@@ -41,8 +42,10 @@ public class BeanMapper<T> implements RowMapper<T> {
      * @param <T>         the class we are mapping to
      * @return a new BeanMapper
      */
-    public static <T> BeanMapper<T> of(Class<T> mappedClass) {
-        return new BeanMapper<>(mappedClass);
+    public static <T> RowMapper<T> of(Class<T> mappedClass) {
+        if (BeanUtils.isSimpleValueType(mappedClass)) {
+            return new SingleColumnRowMapper<T>(mappedClass);
+        } return new BeanMapper<>(mappedClass);
     }
 
     /**
