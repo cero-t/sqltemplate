@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * Yet another {@link org.springframework.jdbc.core.BeanPropertyRowMapper} implementation for public fields.
- * Supports {@link java.util.LocalDateTime} and {@link java.util.LocalDate} of JSR-310
+ * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
  * @param <T> The class
  */
 public class BeanMapper<T> implements RowMapper<T> {
