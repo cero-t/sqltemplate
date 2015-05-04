@@ -3,24 +3,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ninja.cero.sqltemplate</groupId>
-    <artifactId>sqltemplate-core</artifactId>
+    <artifactId>bootiful-sqltemplate-core</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>sqltemplate-core</name>
     <description>Sql Template Core</description>
 
+    <parent>
+        <groupId>bootiful-sqltemplate</groupId>
+        <artifactId>bootiful-sqltemplate</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>1.2.0.RELEASE</version>
+            <version>1.2.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>1.2.0.RELEASE</version>
+            <version>1.2.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ninja.cero.sqltemplate</groupId>
-    <artifactId>sqltemplate</artifactId>
+    <groupId>bootiful-sqltemplate</groupId>
+    <artifactId>bootiful-sqltemplate</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
-    <name>sqltemplate</name>
+    <name>Bootiful Sql Template</name>
     <description>Sql Template Project</description>
 
     <properties>
@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.2.0.RELEASE</version>
+        <version>1.2.2.RELEASE</version>
         <relativePath/>
     </parent>
 
