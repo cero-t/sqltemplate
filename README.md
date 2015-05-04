@@ -3,7 +3,7 @@ Bootiful SQL Template
 
 A simple SQL template engine for Spring Boot Application.
 
-# What is Bootifule SQL Template?
+## What is Bootifule SQL Template?
 Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.JdbcTemplate` and `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` which offers following extension.
 
 * supports SQL file (plain SQL file or template engine file)
@@ -11,7 +11,7 @@ Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.Jdbc
 * supports public fields of entity classes
 * supports JSR-310's `java.time.LocalDate` and `java.time.LocalDateTime`
 
-# Getting started
+## Getting started
 * Create application class or configuration class of your spring boot applications as follows.
 
 ```
@@ -43,6 +43,6 @@ public class SampleProcess {
     }
 }
 ```
-# Functions
+## Functions
 
 T.B.D.
