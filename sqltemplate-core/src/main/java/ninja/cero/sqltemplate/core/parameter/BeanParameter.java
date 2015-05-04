@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * {@link org.springframework.jdbc.core.namedparam.SqlParameterSource} implementation that obtains parameter values
  * from public fields of a given value object.
- * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
+ * Supports {@Link LocalDateTime} and {@Link LocalDate} of JSR-310
  */
 public class BeanParameter extends AbstractSqlParameterSource {
     /** the value object for parameters */

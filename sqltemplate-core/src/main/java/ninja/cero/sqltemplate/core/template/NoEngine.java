@@ -2,11 +2,14 @@ package ninja.cero.sqltemplate.core.template;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NoEngine implements TemplateEngine {
     /**
@@ -17,9 +20,14 @@ public class NoEngine implements TemplateEngine {
     @Override
     public String get(String fileName, Object[] args) throws IOException {
         return templateCache.computeIfAbsent(fileName, x -> {
-            try {
-                return Files.readAllLines(Paths.get(getClass().getResource("/" + x).getFile())).stream()
-                        .collect(Collectors.joining("\n"));
+            URL resource = getClass().getResource("/" + x);
+            if (resource == null) {
+                throw new IllegalArgumentException("Tempalte file does not exist - " + x);
+            }
+
+            Path path = Paths.get(resource.getFile());
+            try (Stream<String> stream = Files.lines(path)) {
+                return stream.collect(Collectors.joining("\n"));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
