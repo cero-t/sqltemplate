@@ -11,7 +11,7 @@ public class BeanFields {
     /**
      * The cache of the fields of classes.
      */
-    protected static final ConcurrentMap<Class<?>, Field[]> cachedFields = new ConcurrentHashMap<>();
+    protected static final ConcurrentMap<Class<?>, Field[]> CACHED_FIELDS = new ConcurrentHashMap<>();
 
     /**
      * Get fields of the given class.
@@ -19,12 +19,12 @@ public class BeanFields {
      * @return the fields of the given class
      */
     public static Field[] get(Class<?> clazz) {
-        Field[] fields = cachedFields.get(clazz);
-        if (fields != null) {
-            return fields;
+        Field[] fields = CACHED_FIELDS.get(clazz);
+        if (fields == null) {
+            fields = clazz.getFields();
+            CACHED_FIELDS.putIfAbsent(clazz, clazz.getFields());
         }
 
-        cachedFields.putIfAbsent(clazz, clazz.getFields());
-        return cachedFields.get(clazz);
+        return fields;
     }
 }

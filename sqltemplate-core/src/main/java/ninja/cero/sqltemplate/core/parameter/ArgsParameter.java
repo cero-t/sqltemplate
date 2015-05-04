@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 /**
  * {@inheritDoc}
- * Supports {@Link LocalDateTime} and {@Link LocalDate} of JSR-310
+ * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
  */
 public class ArgsParameter extends ArgumentPreparedStatementSetter {
     /**

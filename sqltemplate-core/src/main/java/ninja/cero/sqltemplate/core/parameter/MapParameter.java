@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * {@link org.springframework.jdbc.core.namedparam.SqlParameterSource} implementation that holds a given Map of parameters.
- * Supports {@Link LocalDateTime} and {@Link LocalDate} of JSR-310.
+ * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310.
  */
 public class MapParameter extends AbstractSqlParameterSource {
     /**
