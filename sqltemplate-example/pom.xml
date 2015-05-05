@@ -10,7 +10,7 @@
     <description>Sql Template Example</description>
 
     <parent>
-        <groupId>bootiful-sqltemplate</groupId>
+        <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -21,7 +21,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>bootiful-sqltemplate</groupId>
+            <groupId>ninja.cero.bootiful-sqltemplate</groupId>
             <artifactId>bootiful-sqltemplate-core</artifactId>
             <version>1.0.0</version>
         </dependency>
