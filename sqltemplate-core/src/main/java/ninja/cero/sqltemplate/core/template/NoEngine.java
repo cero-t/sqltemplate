@@ -1,11 +1,11 @@
 package ninja.cero.sqltemplate.core.template;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -25,13 +25,13 @@ public class NoEngine implements TemplateEngine {
             return template;
         }
 
-        URL resource = getClass().getResource("/" + fileName);
-        if (resource == null) {
-            throw new FileNotFoundException("Tempalte '" + fileName + "' not found");
+        InputStream in = getClass().getResourceAsStream("/" + fileName);
+        if (in == null) {
+            throw new FileNotFoundException("Template '" + fileName + "' not found");
         }
 
-        Path path = Paths.get(resource.getFile());
-        try (Stream<String> stream = Files.lines(path)) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+             Stream<String> stream = br.lines()) {
             template = stream.collect(Collectors.joining("\n"));
         }
 

@@ -204,7 +204,7 @@ public class SqlTemplateTest {
             Emp emp = template.forObject("x", Emp.class);
             fail();
         } catch (UncheckedIOException ex) {
-            assertThat(ex.getCause().getMessage(), is("Tempalte 'x' not found"));
+            assertThat(ex.getCause().getMessage(), is("Template 'x' not found"));
         }
     }
 }
