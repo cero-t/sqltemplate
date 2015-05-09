@@ -2,7 +2,6 @@ package ninja.cero.sqltemplate.test.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Emp {
     public Integer empno;

@@ -2,7 +2,6 @@ package ninja.cero.sqltemplate.test;
 
 import ninja.cero.sqltemplate.core.SqlTemplate;
 import ninja.cero.sqltemplate.core.template.FreeMarker;
-import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
