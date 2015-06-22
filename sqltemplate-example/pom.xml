@@ -5,7 +5,7 @@
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
     <artifactId>bootiful-sqltemplate-example</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <name>bootiful-sqltemplate-example</name>
     <description>Bootiful SQL Template Example</description>
@@ -13,19 +13,40 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.2.0.RELEASE</version>
+        <version>1.2.4.RELEASE</version>
         <relativePath/>
     </parent>
 
     <properties>
         <start-class>ninja.cero.sqltemplate.example.Application</start-class>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
     </properties>
+
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>1.2.4.RELEASE</version>
+        </plugin>
+      </plugins>
+    </build>
 
     <dependencies>
         <dependency>
             <groupId>ninja.cero.bootiful-sqltemplate</groupId>
             <artifactId>bootiful-sqltemplate-core</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
