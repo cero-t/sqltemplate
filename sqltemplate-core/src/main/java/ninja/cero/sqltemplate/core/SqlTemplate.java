@@ -24,7 +24,7 @@ public class SqlTemplate {
     protected TemplateEngine templateEngine;
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
-        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.NO_ENGINE);
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE);
     }
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
