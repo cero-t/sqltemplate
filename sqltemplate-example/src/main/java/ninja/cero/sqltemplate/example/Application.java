@@ -1,18 +1,14 @@
 package ninja.cero.sqltemplate.example;
 
+import ninja.cero.sqltemplate.core.SqlTemplate;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ninja.cero.sqltemplate.core.SqlTemplate;
 
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+@SpringBootApplication
 public class Application {
 
     @Bean
