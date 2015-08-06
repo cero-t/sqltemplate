@@ -5,7 +5,9 @@ import ninja.cero.sqltemplate.test.entity.Emp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +22,18 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = TestConfig.class)
 @Transactional
 public class SqlTemplateTest {
     @Autowired
-    SqlTemplate template;
+    JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Test
     public void testForObject_NoArgs() {
-        Emp emp = template.forObject("sql/selectSingle.sql", Emp.class);
+        Emp emp = sqlTemplate().forObject("sql/selectSingle.sql", Emp.class);
         assertThat(emp.empno, is(7369));
     }
 
@@ -38,7 +43,7 @@ public class SqlTemplateTest {
         param.put("deptno", 30);
         param.put("job", "SALESMAN");
 
-        Emp emp = template.forObject("sql/selectSingleByParam.sql", Emp.class, param);
+        Emp emp = sqlTemplate().forObject("sql/selectSingleByParam.sql", Emp.class, param);
         assertThat(emp.empno, is(7499));
     }
 
@@ -48,31 +53,31 @@ public class SqlTemplateTest {
         param.deptno = 30;
         param.job = "SALESMAN";
 
-        Emp emp = template.forObject("sql/selectSingleByParam.sql", Emp.class, param);
+        Emp emp = sqlTemplate().forObject("sql/selectSingleByParam.sql", Emp.class, param);
         assertThat(emp.empno, is(7499));
     }
 
     @Test
     public void testForObject_SingleArg() {
-        Emp emp = template.forObject("sql/selectByEmpno.sql", Emp.class, 7839);
+        Emp emp = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7839);
         assertThat(emp.empno, is(7839));
     }
 
     @Test
     public void testForObject_MultiArg() {
-        Emp emp = template.forObject("sql/selectSingleByArgs.sql", Emp.class, 30, "SALESMAN");
+        Emp emp = sqlTemplate().forObject("sql/selectSingleByArgs.sql", Emp.class, 30, "SALESMAN");
         assertThat(emp.empno, is(7499));
     }
 
     @Test
     public void testForObject_ReturnSimple() {
-        Integer result = template.forObject("sql/selectSingleEmpno.sql", Integer.class);
+        Integer result = sqlTemplate().forObject("sql/selectSingleEmpno.sql", Integer.class);
         assertThat(result, is(7369));
     }
 
     @Test
     public void testForList_NoArg() {
-        List<Emp> result = template.forList("sql/selectAll.sql", Emp.class);
+        List<Emp> result = sqlTemplate().forList("sql/selectAll.sql", Emp.class);
         assertThat(result.size(), is(14));
         assertThat(result.get(0).empno, is(7369));
         assertThat(result.get(13).empno, is(7934));
@@ -84,7 +89,7 @@ public class SqlTemplateTest {
         param.put("deptno", 30);
         param.put("job", "SALESMAN");
 
-        List<Emp> result = template.forList("sql/selectByParam.sql", Emp.class, param);
+        List<Emp> result = sqlTemplate().forList("sql/selectByParam.sql", Emp.class, param);
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
@@ -96,7 +101,7 @@ public class SqlTemplateTest {
         param.deptno = 30;
         param.job = "SALESMAN";
 
-        List<Emp> result = template.forList("sql/selectByParam.sql", Emp.class, param);
+        List<Emp> result = sqlTemplate().forList("sql/selectByParam.sql", Emp.class, param);
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
@@ -104,7 +109,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testForList_SingleArg() {
-        List<Emp> result = template.forList("sql/selectByDeptno.sql", Emp.class, 10);
+        List<Emp> result = sqlTemplate().forList("sql/selectByDeptno.sql", Emp.class, 10);
         assertThat(result.size(), is(3));
         assertThat(result.get(0).empno, is(7782));
         assertThat(result.get(2).empno, is(7934));
@@ -112,7 +117,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testForList_MultiArg() {
-        List<Emp> result = template.forList("sql/selectByArgs.sql", Emp.class, 30, "SALESMAN");
+        List<Emp> result = sqlTemplate().forList("sql/selectByArgs.sql", Emp.class, 30, "SALESMAN");
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
@@ -120,7 +125,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testForList_ReturnSimple() {
-        List<Integer> result = template.forList("sql/selectEmpno.sql", Integer.class);
+        List<Integer> result = sqlTemplate().forList("sql/selectEmpno.sql", Integer.class);
         assertThat(result.size(), is(14));
         assertThat(result.get(0), is(7369));
         assertThat(result.get(13), is(7934));
@@ -138,10 +143,10 @@ public class SqlTemplateTest {
         emp.comm = new BigDecimal(400);
         emp.deptno = 10;
 
-        int count = template.update("sql/insertByParam.sql", emp);
+        int count = sqlTemplate().update("sql/insertByParam.sql", emp);
         assertThat(count, is(1));
 
-        Emp result = template.forObject("sql/selectByEmpno.sql", Emp.class, 1000);
+        Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1000);
         assertThat(result.ename, is(emp.ename));
         assertThat(result.hiredate, is(emp.hiredate));
         assertThat(result.deptno, is(emp.deptno));
@@ -154,29 +159,29 @@ public class SqlTemplateTest {
         param.put("mgr", 7566);
         param.put("empno", 7876);
 
-        int count = template.update("sql/updateByParam.sql", param);
+        int count = sqlTemplate().update("sql/updateByParam.sql", param);
         assertThat(count, is(1));
 
-        Emp result = template.forObject("sql/selectByEmpno.sql", Emp.class, 7876);
+        Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7876);
         assertThat(result.job, is("ANALYST"));
         assertThat(result.mgr, is(7566));
     }
 
     @Test
     public void testUpdate_deleteByArg() {
-        int count = template.update("sql/deleteByArg.sql", 7566);
+        int count = sqlTemplate().update("sql/deleteByArg.sql", 7566);
         assertThat(count, is(1));
 
-        Emp result = template.forObject("sql/selectByEmpno.sql", Emp.class, 7566);
+        Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7566);
         assertNull(result);
     }
 
     @Test
     public void testUpdate_deleteByArgs() {
-        int count = template.update("sql/deleteByArgs.sql", 30, "SALESMAN");
+        int count = sqlTemplate().update("sql/deleteByArgs.sql", 30, "SALESMAN");
         assertThat(count, is(4));
 
-        List<Emp> result = template.forList("sql/selectByDeptno.sql", Emp.class, 30);
+        List<Emp> result = sqlTemplate().forList("sql/selectByDeptno.sql", Emp.class, 30);
         assertThat(result.size(), is(2));
         assertThat(result.get(0).empno, is(7698));
         assertThat(result.get(1).empno, is(7900));
@@ -184,8 +189,8 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forList() {
-        List<Emp> result = template.query("sql/selectByParam.sql", Emp.class).add("job", "SALESMAN").add("deptno", 30)
-                .forList();
+        List<Emp> result = sqlTemplate().query("sql/selectByParam.sql", Emp.class).add("job", "SALESMAN")
+                .add("deptno", 30).forList();
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
@@ -193,7 +198,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forObject() {
-        Emp emp = template.query("sql/selectSingleByParam.sql", Emp.class).add("job", "SALESMAN").add("deptno", 30)
+        Emp emp = sqlTemplate().query("sql/selectSingleByParam.sql", Emp.class).add("job", "SALESMAN").add("deptno", 30)
                 .forObject();
         assertThat(emp.empno, is(7499));
     }
@@ -201,10 +206,14 @@ public class SqlTemplateTest {
     @Test
     public void testForObject_noFile() {
         try {
-            Emp emp = template.forObject("x", Emp.class);
+            Emp emp = sqlTemplate().forObject("x", Emp.class);
             fail();
         } catch (UncheckedIOException ex) {
             assertThat(ex.getCause().getMessage(), is("Template 'x' not found"));
         }
+    }
+
+    SqlTemplate sqlTemplate() {
+        return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
     }
 }
