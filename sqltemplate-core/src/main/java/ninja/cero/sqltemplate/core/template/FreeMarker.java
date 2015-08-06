@@ -7,7 +7,6 @@ import freemarker.template.TemplateException;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 
 public class FreeMarker implements TemplateEngine {
     protected static final Configuration CONFIG = new Configuration(Configuration.VERSION_2_3_21);
@@ -36,14 +35,12 @@ public class FreeMarker implements TemplateEngine {
         return CONFIG.getTemplate(templateName);
     }
 
-    protected static String processTemplate(Object context, Template template) {
+    protected static String processTemplate(Object context, Template template) throws IOException {
         try (StringWriter writer = new StringWriter()) {
             template.process(context, writer);
             return writer.getBuffer().toString();
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
         } catch (TemplateException ex) {
-            throw new RuntimeException(ex);
+            throw new IOException(ex);
         }
     }
 }
