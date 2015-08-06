@@ -62,7 +62,6 @@ public class FreeMarkerTest {
         assertThat(results.length, is(i));
     }
 
-
     @Test
     public void testGet_TemplateNotFound() throws Exception {
         // execute

@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TextFile implements TemplateEngine {
-    /**
-     * template cache
-     */
+    /** template cache */
     protected final ConcurrentMap<String, String> templateCache = new ConcurrentHashMap<>();
 
     @Override

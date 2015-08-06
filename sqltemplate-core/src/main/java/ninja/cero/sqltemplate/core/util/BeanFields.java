@@ -8,9 +8,7 @@ import java.util.concurrent.ConcurrentMap;
  * The fields cache of the value object classes.
  */
 public class BeanFields {
-    /**
-     * The cache of the fields of classes.
-     */
+    /** The cache of the fields of classes. */
     protected static final ConcurrentMap<Class<?>, Field[]> CACHED_FIELDS = new ConcurrentHashMap<>();
 
     /**
