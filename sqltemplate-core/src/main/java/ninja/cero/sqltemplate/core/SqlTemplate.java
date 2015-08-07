@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +24,25 @@ public class SqlTemplate {
 
     protected TemplateEngine templateEngine;
 
+    protected ZoneId zoneId;
+
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
-        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE);
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, null);
     }
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
+        this(jdbcTemplate, namedJdbcTemplate, templateEngine, null);
+    }
+
+    public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, ZoneId zoneId) {
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, zoneId);
+    }
+
+    public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine, ZoneId zoneId) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedJdbcTemplate = namedJdbcTemplate;
         this.templateEngine = templateEngine;
+        this.zoneId = zoneId;
     }
 
     public <T> T forObject(String fileName, Class<T> clazz, Object... args) {

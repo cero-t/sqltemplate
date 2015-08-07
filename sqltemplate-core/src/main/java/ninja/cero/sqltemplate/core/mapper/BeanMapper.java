@@ -15,9 +15,14 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,10 +36,10 @@ public class BeanMapper<T> implements RowMapper<T> {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The class we are mapping to */
-    private Class<T> mappedClass;
+    protected Class<T> mappedClass;
 
     /** Map of the fields we provide mapping for */
-    private Map<String, Field> mappedFields = new HashMap<>();
+    protected Map<String, Field> mappedFields = new HashMap<>();
 
     /**
      * Create a new BeanMapper.
@@ -45,7 +50,8 @@ public class BeanMapper<T> implements RowMapper<T> {
     public static <T> RowMapper<T> of(Class<T> mappedClass) {
         if (BeanUtils.isSimpleValueType(mappedClass)) {
             return new SingleColumnRowMapper<T>(mappedClass);
-        } return new BeanMapper<>(mappedClass);
+        }
+        return new BeanMapper<>(mappedClass);
     }
 
     /**
@@ -72,7 +78,6 @@ public class BeanMapper<T> implements RowMapper<T> {
      * {@see org.springframework.jdbc.core.BeanPropertyRowMapper#un}
      * Convert a name in camelCase to an underscored name in lower case.
      * Any upper case letters are converted to lower case with a preceding underscore.
-     *
      * @param name the string containing original name
      * @return the converted name
      */
@@ -133,7 +138,6 @@ public class BeanMapper<T> implements RowMapper<T> {
 
     /**
      * Get the column value.
-     *
      * @param rs    ResultSet
      * @param index column index
      * @param field the field to be set the value
@@ -147,6 +151,12 @@ public class BeanMapper<T> implements RowMapper<T> {
             return getAsLocalDateTime(rs, index);
         } else if (LocalDate.class.equals(requiredType)) {
             return getAsLocalDate(rs, index);
+        } else if (LocalTime.class.equals(requiredType)) {
+            return getAsLocalTime(rs, index);
+        } else if (OffsetDateTime.class.equals(requiredType)) {
+            return getAsOffsetDateTime(rs, index);
+        } else if (ZonedDateTime.class.equals(requiredType)) {
+            return getAsZonedDateTime(rs, index);
         }
 
         return JdbcUtils.getResultSetValue(rs, index, field.getType());
@@ -178,6 +188,51 @@ public class BeanMapper<T> implements RowMapper<T> {
         Date date = rs.getDate(index);
         if (date != null) {
             return date.toLocalDate();
+        }
+        return null;
+    }
+
+    /**
+     * Get the column value as LocalTime.
+     * @param rs    ResultSet
+     * @param index column index
+     * @return column value
+     * @throws SQLException in case of extraction failure
+     */
+    protected LocalTime getAsLocalTime(ResultSet rs, int index) throws SQLException {
+        Time time = rs.getTime(index);
+        if (time != null) {
+            return time.toLocalTime();
+        }
+        return null;
+    }
+
+    /**
+     * Get the column value as OffsetDateTime.
+     * @param rs    ResultSet
+     * @param index column index
+     * @return column value
+     * @throws SQLException in case of extraction failure
+     */
+    protected OffsetDateTime getAsOffsetDateTime(ResultSet rs, int index) throws SQLException {
+        Timestamp timestamp = rs.getTimestamp(index);
+        if (timestamp != null) {
+            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault()).toOffsetDateTime();
+        }
+        return null;
+    }
+
+    /**
+     * Get the column value as ZonedDateTime.
+     * @param rs    ResultSet
+     * @param index column index
+     * @return column value
+     * @throws SQLException in case of extraction failure
+     */
+    protected ZonedDateTime getAsZonedDateTime(ResultSet rs, int index) throws SQLException {
+        Timestamp timestamp = rs.getTimestamp(index);
+        if (timestamp != null) {
+            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault());
         }
         return null;
     }

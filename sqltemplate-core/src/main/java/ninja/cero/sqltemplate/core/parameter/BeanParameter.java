@@ -5,9 +5,14 @@ import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 
 import java.lang.reflect.Field;
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,10 +76,18 @@ public class BeanParameter extends AbstractSqlParameterSource {
             return null;
         }
 
-        if (value instanceof LocalDate) {
-            return Date.valueOf((LocalDate) value);
-        } else if (value instanceof LocalDateTime) {
+        if (value instanceof LocalDateTime) {
             return Timestamp.valueOf((LocalDateTime) value);
+        } else if (value instanceof LocalDate) {
+            return Date.valueOf((LocalDate) value);
+        } else if (value instanceof LocalTime) {
+            return Time.valueOf((LocalTime) value);
+        } else if (value instanceof OffsetDateTime) {
+            ZonedDateTime zonedDateTime = ((OffsetDateTime) value).atZoneSameInstant(ZoneId.systemDefault());
+            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
+        } else if (value instanceof ZonedDateTime) {
+            ZonedDateTime zonedDateTime = ((ZonedDateTime) value).withZoneSameInstant(ZoneId.systemDefault());
+            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
         }
 
         return value;
