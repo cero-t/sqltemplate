@@ -12,7 +12,7 @@
     <description>Bootiful SQL Template Project</description>
 
     <modules>
-        <module>sqltemplate-core</module>
-        <module>sqltemplate-example</module>
+        <module>bootiful-sqltemplate-core</module>
+        <module>bootiful-sqltemplate-example</module>
     </modules>
 </project>
