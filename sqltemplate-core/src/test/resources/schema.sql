@@ -22,14 +22,14 @@ CREATE TABLE emp(
 DROP TABLE IF EXISTS date_time;
 
 CREATE TABLE date_time(
-    util_date TIMESTAMP(6)
+    util_date TIMESTAMP(6) NULL DEFAULT NULL
     ,sql_date DATE
     ,sql_time TIME(3)
-    ,sql_timestamp TIMESTAMP(6)
-    ,local_date_time TIMESTAMP(6)
+    ,sql_timestamp TIMESTAMP(6) NULL DEFAULT NULL
+    ,local_date_time TIMESTAMP(6) NULL DEFAULT NULL
     ,local_date DATE
     ,local_time TIME(3)
-    ,zoned_date_time TIMESTAMP(6)
-    ,offset_date_time TIMESTAMP(6)
+    ,zoned_date_time TIMESTAMP(6) NULL DEFAULT NULL
+    ,offset_date_time TIMESTAMP(6) NULL DEFAULT NULL
     ,offset_time TIME(3)
 );
