@@ -1,30 +1,20 @@
 package ninja.cero.sqltemplate.core.mapper;
 
 import ninja.cero.sqltemplate.core.util.BeanFields;
+import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,25 +33,16 @@ public class BeanMapper<T> implements RowMapper<T> {
     /** Map of the fields we provide mapping for */
     protected Map<String, Field> mappedFields = new HashMap<>();
 
-    /**
-     * Create a new BeanMapper.
-     * @param mappedClass the class we are mapping to
-     * @param <T>         the class we are mapping to
-     * @return a new BeanMapper
-     */
-    public static <T> RowMapper<T> of(Class<T> mappedClass) {
-        if (BeanUtils.isSimpleValueType(mappedClass)) {
-            return new SingleColumnRowMapper<T>(mappedClass);
-        }
-        return new BeanMapper<>(mappedClass);
-    }
+    /** ZoneId for OffsetDateTime and ZonedDateTime */
+    protected ZoneId zoneId;
 
     /**
      * Create a new BeanMapper.
      * @param mappedClass the class we are mapping to
      */
-    protected BeanMapper(Class<T> mappedClass) {
+    public BeanMapper(Class<T> mappedClass, ZoneId zoneId) {
         this.mappedClass = mappedClass;
+        this.zoneId = zoneId;
 
         Field[] fields = BeanFields.get(mappedClass);
         for (Field field : fields) {
@@ -147,114 +128,6 @@ public class BeanMapper<T> implements RowMapper<T> {
      * @throws SQLException in case of extraction failure
      */
     protected Object getColumnValue(ResultSet rs, int index, Field field) throws SQLException {
-        Class<?> requiredType = field.getType();
-
-        if (LocalDateTime.class.equals(requiredType)) {
-            return getAsLocalDateTime(rs, index);
-        } else if (LocalDate.class.equals(requiredType)) {
-            return getAsLocalDate(rs, index);
-        } else if (LocalTime.class.equals(requiredType)) {
-            return getAsLocalTime(rs, index);
-        } else if (OffsetDateTime.class.equals(requiredType)) {
-            return getAsOffsetDateTime(rs, index);
-        } else if (OffsetTime.class.equals(requiredType)) {
-            return getAsOffsetTime(rs, index);
-        } else if (ZonedDateTime.class.equals(requiredType)) {
-            return getAsZonedDateTime(rs, index);
-        }
-
-        return JdbcUtils.getResultSetValue(rs, index, field.getType());
-    }
-
-    /**
-     * Get the column value as LocalDateTime.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected LocalDateTime getAsLocalDateTime(ResultSet rs, int index) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(index);
-        if (timestamp != null) {
-            return timestamp.toLocalDateTime();
-        }
-        return null;
-    }
-
-    /**
-     * Get the column value as LocalDate.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected LocalDate getAsLocalDate(ResultSet rs, int index) throws SQLException {
-        Date date = rs.getDate(index);
-        if (date != null) {
-            return date.toLocalDate();
-        }
-        return null;
-    }
-
-    /**
-     * Get the column value as LocalTime.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected LocalTime getAsLocalTime(ResultSet rs, int index) throws SQLException {
-        Time time = rs.getTime(index);
-        if (time != null) {
-            return time.toLocalTime();
-        }
-        return null;
-    }
-
-    /**
-     * Get the column value as ZonedDateTime.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected ZonedDateTime getAsZonedDateTime(ResultSet rs, int index) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(index);
-        if (timestamp != null) {
-            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault());
-        }
-        return null;
-    }
-
-    /**
-     * Get the column value as OffsetDateTime.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected OffsetDateTime getAsOffsetDateTime(ResultSet rs, int index) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(index);
-        if (timestamp != null) {
-            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault()).toOffsetDateTime();
-        }
-        return null;
-    }
-
-
-    /**
-     * Get the column value as OffsetTime.
-     * @param rs    ResultSet
-     * @param index column index
-     * @return column value
-     * @throws SQLException in case of extraction failure
-     */
-    protected OffsetTime getAsOffsetTime(ResultSet rs, int index) throws SQLException {
-        Time time = rs.getTime(index);
-        if (time != null) {
-            return time.toLocalTime().atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
-        }
-        return null;
-
+        return Jsr310JdbcUtils.getResultSetValue(rs, index, field, zoneId);
     }
 }

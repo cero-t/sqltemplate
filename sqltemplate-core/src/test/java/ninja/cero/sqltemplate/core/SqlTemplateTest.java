@@ -15,10 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -216,10 +222,15 @@ public class SqlTemplateTest {
     }
 
     @Test
-    public void testForObject_DateTime_NoArgs() {
+    public void testForObject_DateTime() {
+        // prepare
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        // execute
         SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
 
+        // assert
         assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
         assertThat(result.sqlDate.toString(), is("2001-01-24"));
         assertThat(result.sqlTime.toString(), is("12:34:57"));
@@ -230,6 +241,117 @@ public class SqlTemplateTest {
         assertThat(result.zonedDateTime.toString(), is("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]"));
         assertThat(result.offsetDateTime.toString(), is("2001-01-29T12:35:03.789+09:00"));
         assertThat(result.offsetTime.toString(), is("12:35:04+09:00"));
+    }
+
+    @Test
+    public void testUpdate_DateTime() {
+        // prepare
+        jdbcTemplate.update("DELETE from date_time");
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        DateTimeEntity entity = new DateTimeEntity();
+        entity.utilDate = java.util.Date.from(LocalDateTime.of(2001, 1, 23, 12, 34, 56, 789000000).atZone(ZoneId.systemDefault()).toInstant());
+        entity.sqlDate = java.sql.Date.valueOf(LocalDate.of(2001, 1, 24));
+        entity.sqlTime = java.sql.Time.valueOf(LocalTime.of(12, 34, 57));
+        entity.sqlTimestamp = Timestamp.valueOf(LocalDateTime.of(2001, 1, 25, 12, 34, 58, 789000000));
+        entity.localDateTime = LocalDateTime.of(2001, 1, 26, 12, 34, 59, 789000000);
+        entity.localDate = LocalDate.of(2001, 1, 27);
+        entity.localTime = LocalTime.of(12, 35, 1);
+        entity.zonedDateTime = LocalDateTime.of(2001, 1, 28, 12, 35, 2, 789000000).atZone(ZoneId.systemDefault());
+        entity.offsetDateTime = LocalDateTime.of(2001, 1, 29, 12, 35, 3, 789000000).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+        entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+
+        // execute
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+
+        // assert
+        assertThat(num, is(1));
+
+        DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
+        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
+        assertThat(result.sqlDate.toString(), is("2001-01-24"));
+        assertThat(result.sqlTime.toString(), is("12:34:57"));
+        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
+        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
+        assertThat(result.localDate.toString(), is("2001-01-27"));
+        assertThat(result.localTime.toString(), is("12:35:01"));
+        assertThat(result.zonedDateTime.toString(), is("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]"));
+        assertThat(result.offsetDateTime.toString(), is("2001-01-29T12:35:03.789+09:00"));
+        assertThat(result.offsetTime.toString(), is("12:35:04+09:00"));
+    }
+
+    @Test
+    public void testUpdate_DateTime_Null() {
+        // prepare
+        jdbcTemplate.update("DELETE from date_time");
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+        DateTimeEntity entity = new DateTimeEntity();
+
+        // execute
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+
+        // assert
+        assertThat(num, is(1));
+
+        DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
+
+        assertNull(result.utilDate);
+        assertNull(result.sqlDate);
+        assertNull(result.sqlTime);
+        assertNull(result.sqlTimestamp);
+        assertNull(result.localDateTime);
+        assertNull(result.localDate);
+        assertNull(result.localTime);
+        assertNull(result.zonedDateTime);
+        assertNull(result.offsetDateTime);
+        assertNull(result.offsetTime);
+    }
+
+
+    @Test
+    public void testUpdate_DateTime_ZoneAware() {
+        // prepare
+        jdbcTemplate.update("DELETE from date_time");
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        DateTimeEntity entity = new DateTimeEntity();
+        entity.utilDate = java.util.Date.from(LocalDateTime.of(2001, 1, 23, 12, 34, 56, 789000000).atZone(ZoneId.systemDefault()).toInstant());
+        entity.sqlDate = java.sql.Date.valueOf(LocalDate.of(2001, 1, 24));
+        entity.sqlTime = java.sql.Time.valueOf(LocalTime.of(12, 34, 57));
+        entity.sqlTimestamp = Timestamp.valueOf(LocalDateTime.of(2001, 1, 25, 12, 34, 58, 789000000));
+        entity.localDateTime = LocalDateTime.of(2001, 1, 26, 12, 34, 59, 789000000);
+        entity.localDate = LocalDate.of(2001, 1, 27);
+        entity.localTime = LocalTime.of(12, 35, 1);
+        entity.zonedDateTime = LocalDateTime.of(2001, 1, 28, 12, 35, 2, 789000000).atZone(ZoneId.systemDefault());
+        entity.offsetDateTime = LocalDateTime.of(2001, 1, 29, 12, 35, 3, 789000000).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+        entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+
+        // execute
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText(), ZoneId.of("GMT"));
+        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+
+        // assert
+        assertThat(num, is(1));
+
+        DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
+        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
+        assertThat(result.sqlDate.toString(), is("2001-01-24"));
+        assertThat(result.sqlTime.toString(), is("12:34:57"));
+        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
+        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
+        assertThat(result.localDate.toString(), is("2001-01-27"));
+        assertThat(result.localTime.toString(), is("12:35:01"));
+        assertThat(result.zonedDateTime.toString(), is("2001-01-28T03:35:02.789Z[GMT]"));
+        assertThat(result.offsetDateTime.toString(), is("2001-01-29T03:35:03.789Z"));
+        assertThat(result.offsetTime.toString(), is("03:35:04Z"));
     }
 
     SqlTemplate sqlTemplate() {

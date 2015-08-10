@@ -1,18 +1,11 @@
 package ninja.cero.sqltemplate.core.parameter;
 
 import ninja.cero.sqltemplate.core.util.BeanFields;
+import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 
 import java.lang.reflect.Field;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,25 +16,25 @@ import java.util.Map;
  */
 public class BeanParameter extends AbstractSqlParameterSource {
     /** the value object for parameters */
-    private Object entity;
+    protected Object entity;
 
     /** Map of the fields we provide mapping for */
-    private Map<String, Field> mappedFields = new HashMap<>();
+    protected Map<String, Field> mappedFields = new HashMap<>();
+
+    /** ZoneId for OffsetDateTime and ZonedDateTime */
+    protected ZoneId zoneId;
 
     /**
      * Create a new BeanParameter for the given value object.
      * @param entity the value object for parameters
-     * @return a new BeanParameter
+     * @param zoneId zoneId
      */
-    public static BeanParameter of(Object entity) {
-        return new BeanParameter(entity);
+    public BeanParameter(Object entity, ZoneId zoneId) {
+        init(entity);
+        this.zoneId = zoneId;
     }
 
-    /**
-     * Create a new BeanParameter for the given value object.
-     * @param entity the value object for parameters
-     */
-    protected BeanParameter(Object entity) {
+    protected void init(Object entity) {
         this.entity = entity;
         for (Field field : BeanFields.get(entity.getClass())) {
             mappedFields.put(field.getName(), field);
@@ -76,20 +69,6 @@ public class BeanParameter extends AbstractSqlParameterSource {
             return null;
         }
 
-        if (value instanceof LocalDateTime) {
-            return Timestamp.valueOf((LocalDateTime) value);
-        } else if (value instanceof LocalDate) {
-            return Date.valueOf((LocalDate) value);
-        } else if (value instanceof LocalTime) {
-            return Time.valueOf((LocalTime) value);
-        } else if (value instanceof OffsetDateTime) {
-            ZonedDateTime zonedDateTime = ((OffsetDateTime) value).atZoneSameInstant(ZoneId.systemDefault());
-            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
-        } else if (value instanceof ZonedDateTime) {
-            ZonedDateTime zonedDateTime = ((ZonedDateTime) value).withZoneSameInstant(ZoneId.systemDefault());
-            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
-        }
-
-        return value;
+        return Jsr310JdbcUtils.convertIfNecessary(value, zoneId);
     }
 }

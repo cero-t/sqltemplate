@@ -1,16 +1,9 @@
 package ninja.cero.sqltemplate.core.parameter;
 
+import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 /**
@@ -21,21 +14,17 @@ public class MapParameter extends AbstractSqlParameterSource {
     /** the Map holding parameters */
     protected Map<String, Object> values;
 
-    /**
-     * Create a new MapParameter.
-     * @param values the Map holding parameters
-     * @return a new MapParameter
-     */
-    public static MapParameter of(Map<String, Object> values) {
-        return new MapParameter(values);
-    }
+    /** ZoneId for OffsetDateTime and ZonedDateTime */
+    protected ZoneId zoneId;
 
     /**
      * Create a new MapParameter.
      * @param values the Map holding parameters
+     * @param zoneId zoneId
      */
-    protected MapParameter(Map<String, Object> values) {
+    public MapParameter(Map<String, Object> values, ZoneId zoneId) {
         this.values = values;
+        this.zoneId = zoneId;
     }
 
     /**
@@ -56,20 +45,6 @@ public class MapParameter extends AbstractSqlParameterSource {
             return null;
         }
 
-        if (value instanceof LocalDateTime) {
-            return Timestamp.valueOf((LocalDateTime) value);
-        } else if (value instanceof LocalDate) {
-            return Date.valueOf((LocalDate) value);
-        } else if (value instanceof LocalTime) {
-            return Time.valueOf((LocalTime) value);
-        } else if (value instanceof OffsetDateTime) {
-            ZonedDateTime zonedDateTime = ((OffsetDateTime) value).atZoneSameInstant(ZoneId.systemDefault());
-            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
-        } else if (value instanceof ZonedDateTime) {
-            ZonedDateTime zonedDateTime = ((ZonedDateTime) value).withZoneSameInstant(ZoneId.systemDefault());
-            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
-        }
-
-        return value;
+        return Jsr310JdbcUtils.convertIfNecessary(value, zoneId);
     }
 }

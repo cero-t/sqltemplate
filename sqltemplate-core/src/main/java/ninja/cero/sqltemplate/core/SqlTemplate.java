@@ -1,9 +1,6 @@
 package ninja.cero.sqltemplate.core;
 
-import ninja.cero.sqltemplate.core.mapper.BeanMapper;
-import ninja.cero.sqltemplate.core.parameter.ArgsParameter;
-import ninja.cero.sqltemplate.core.parameter.BeanParameter;
-import ninja.cero.sqltemplate.core.parameter.MapParameter;
+import ninja.cero.sqltemplate.core.parameter.MapperBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.support.DataAccessUtils;
@@ -24,25 +21,29 @@ public class SqlTemplate {
 
     protected TemplateEngine templateEngine;
 
-    protected ZoneId zoneId;
+    protected MapperBuilder paramBuilder;
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
-        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, null);
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, new MapperBuilder());
     }
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
-        this(jdbcTemplate, namedJdbcTemplate, templateEngine, null);
+        this(jdbcTemplate, namedJdbcTemplate, templateEngine, new MapperBuilder());
     }
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, ZoneId zoneId) {
-        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, zoneId);
+        this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, new MapperBuilder(zoneId));
     }
 
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine, ZoneId zoneId) {
+        this(jdbcTemplate, namedJdbcTemplate, templateEngine, new MapperBuilder(zoneId));
+    }
+
+    public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine, MapperBuilder paramBuilder) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedJdbcTemplate = namedJdbcTemplate;
         this.templateEngine = templateEngine;
-        this.zoneId = zoneId;
+        this.paramBuilder = paramBuilder;
     }
 
     public <T> T forObject(String fileName, Class<T> clazz, Object... args) {
@@ -62,42 +63,42 @@ public class SqlTemplate {
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object... args) {
         String sql = get(fileName, args);
-        return jdbcTemplate.query(sql, ArgsParameter.of(args), BeanMapper.of(clazz));
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), paramBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Map<String, Object> params) {
         String sql = get(fileName, params);
-        return namedJdbcTemplate.query(sql, MapParameter.of(params), BeanMapper.of(clazz));
+        return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), paramBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object entity) {
         String sql = get(fileName, entity);
 
         if (BeanUtils.isSimpleValueType(entity.getClass())) {
-            return jdbcTemplate.query(sql, ArgsParameter.of(entity), BeanMapper.of(clazz));
+            return jdbcTemplate.query(sql, paramBuilder.byArgs(entity), paramBuilder.mapper(clazz));
         }
 
-        return namedJdbcTemplate.query(sql, BeanParameter.of(entity), BeanMapper.of(clazz));
+        return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), paramBuilder.mapper(clazz));
     }
 
     public int update(String fileName, Map<String, Object> params) {
         String sql = get(fileName, params);
-        return namedJdbcTemplate.update(sql, MapParameter.of(params));
+        return namedJdbcTemplate.update(sql, paramBuilder.byMap(params));
     }
 
     public int update(String fileName, Object entity) {
         String sql = get(fileName, entity);
 
         if (BeanUtils.isSimpleValueType(entity.getClass())) {
-            return jdbcTemplate.update(sql, ArgsParameter.of(entity));
+            return jdbcTemplate.update(sql, paramBuilder.byArgs(entity));
         }
 
-        return namedJdbcTemplate.update(sql, BeanParameter.of(entity));
+        return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
     }
 
     public int update(String fileName, Object... args) {
         String sql = get(fileName, args);
-        return jdbcTemplate.update(sql, ArgsParameter.of(args));
+        return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
     }
 
     public <T> MapQueryBuilder<T> query(String fileName, Class<T> clazz) {
@@ -142,7 +143,7 @@ public class SqlTemplate {
 
         public List<T> forList() {
             String sql = get(fileName, params);
-            return namedJdbcTemplate.query(sql, MapParameter.of(params), BeanMapper.of(clazz));
+            return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), paramBuilder.mapper(clazz));
         }
     }
 }
