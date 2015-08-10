@@ -17,10 +17,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -155,6 +157,8 @@ public class BeanMapper<T> implements RowMapper<T> {
             return getAsLocalTime(rs, index);
         } else if (OffsetDateTime.class.equals(requiredType)) {
             return getAsOffsetDateTime(rs, index);
+        } else if (OffsetTime.class.equals(requiredType)) {
+            return getAsOffsetTime(rs, index);
         } else if (ZonedDateTime.class.equals(requiredType)) {
             return getAsZonedDateTime(rs, index);
         }
@@ -208,6 +212,21 @@ public class BeanMapper<T> implements RowMapper<T> {
     }
 
     /**
+     * Get the column value as ZonedDateTime.
+     * @param rs    ResultSet
+     * @param index column index
+     * @return column value
+     * @throws SQLException in case of extraction failure
+     */
+    protected ZonedDateTime getAsZonedDateTime(ResultSet rs, int index) throws SQLException {
+        Timestamp timestamp = rs.getTimestamp(index);
+        if (timestamp != null) {
+            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault());
+        }
+        return null;
+    }
+
+    /**
      * Get the column value as OffsetDateTime.
      * @param rs    ResultSet
      * @param index column index
@@ -222,18 +241,20 @@ public class BeanMapper<T> implements RowMapper<T> {
         return null;
     }
 
+
     /**
-     * Get the column value as ZonedDateTime.
+     * Get the column value as OffsetTime.
      * @param rs    ResultSet
      * @param index column index
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected ZonedDateTime getAsZonedDateTime(ResultSet rs, int index) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(index);
-        if (timestamp != null) {
-            return timestamp.toLocalDateTime().atZone(ZoneId.systemDefault());
+    protected OffsetTime getAsOffsetTime(ResultSet rs, int index) throws SQLException {
+        Time time = rs.getTime(index);
+        if (time != null) {
+            return time.toLocalTime().atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
         }
         return null;
+
     }
 }

@@ -1,6 +1,8 @@
 package ninja.cero.sqltemplate.core;
 
+import ninja.cero.sqltemplate.core.template.PlainText;
 import ninja.cero.sqltemplate.test.TestConfig;
+import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -211,6 +213,23 @@ public class SqlTemplateTest {
         } catch (UncheckedIOException ex) {
             assertThat(ex.getCause().getMessage(), is("Template 'x' not found"));
         }
+    }
+
+    @Test
+    public void testForObject_DateTime_NoArgs() {
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
+
+        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
+        assertThat(result.sqlDate.toString(), is("2001-01-24"));
+        assertThat(result.sqlTime.toString(), is("12:34:57"));
+        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
+        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
+        assertThat(result.localDate.toString(), is("2001-01-27"));
+        assertThat(result.localTime.toString(), is("12:35:01"));
+        assertThat(result.zonedDateTime.toString(), is("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]"));
+        assertThat(result.offsetDateTime.toString(), is("2001-01-29T12:35:03.789+09:00"));
+        assertThat(result.offsetTime.toString(), is("12:35:04+09:00"));
     }
 
     SqlTemplate sqlTemplate() {
