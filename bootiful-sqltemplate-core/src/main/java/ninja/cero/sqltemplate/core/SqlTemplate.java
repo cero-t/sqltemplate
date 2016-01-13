@@ -62,17 +62,17 @@ public class SqlTemplate {
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object... args) {
-        String sql = get(fileName, args);
+        String sql = getTemplate(fileName, args);
         return jdbcTemplate.query(sql, paramBuilder.byArgs(args), paramBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Map<String, Object> params) {
-        String sql = get(fileName, params);
+        String sql = getTemplate(fileName, params);
         return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), paramBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object entity) {
-        String sql = get(fileName, entity);
+        String sql = getTemplate(fileName, entity);
 
         if (BeanUtils.isSimpleValueType(entity.getClass())) {
             return jdbcTemplate.query(sql, paramBuilder.byArgs(entity), paramBuilder.mapper(clazz));
@@ -81,13 +81,18 @@ public class SqlTemplate {
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), paramBuilder.mapper(clazz));
     }
 
+    public int update(String fileName, Object... args) {
+        String sql = getTemplate(fileName, args);
+        return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
+    }
+
     public int update(String fileName, Map<String, Object> params) {
-        String sql = get(fileName, params);
+        String sql = getTemplate(fileName, params);
         return namedJdbcTemplate.update(sql, paramBuilder.byMap(params));
     }
 
     public int update(String fileName, Object entity) {
-        String sql = get(fileName, entity);
+        String sql = getTemplate(fileName, entity);
 
         if (BeanUtils.isSimpleValueType(entity.getClass())) {
             return jdbcTemplate.update(sql, paramBuilder.byArgs(entity));
@@ -96,16 +101,15 @@ public class SqlTemplate {
         return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
     }
 
-    public int update(String fileName, Object... args) {
-        String sql = get(fileName, args);
-        return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
+    public MapUpdateBuilder update(String fileName) {
+        return new MapUpdateBuilder(fileName);
     }
 
     public <T> MapQueryBuilder<T> query(String fileName, Class<T> clazz) {
         return new MapQueryBuilder<>(fileName, clazz);
     }
 
-    protected String get(String fileName, Object[] args) {
+    protected String getTemplate(String fileName, Object[] args) {
         try {
             return templateEngine.get(fileName, args);
         } catch (IOException ex) {
@@ -113,7 +117,7 @@ public class SqlTemplate {
         }
     }
 
-    protected String get(String fileName, Object param) {
+    protected String getTemplate(String fileName, Object param) {
         try {
             return templateEngine.get(fileName, param);
         } catch (IOException ex) {
@@ -142,8 +146,26 @@ public class SqlTemplate {
         }
 
         public List<T> forList() {
-            String sql = get(fileName, params);
+            String sql = getTemplate(fileName, params);
             return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), paramBuilder.mapper(clazz));
+        }
+    }
+
+    public class MapUpdateBuilder {
+        protected Map<String, Object> params = new HashMap<>();
+        protected String fileName;
+
+        public MapUpdateBuilder(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public MapUpdateBuilder add(String key, Object value) {
+            params.put(key, value);
+            return this;
+        }
+
+        public int execute() {
+            return update(fileName, params);
         }
     }
 }

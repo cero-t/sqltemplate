@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -352,6 +352,20 @@ public class SqlTemplateTest {
         assertThat(result.zonedDateTime.toString(), is("2001-01-28T03:35:02.789Z[GMT]"));
         assertThat(result.offsetDateTime.toString(), is("2001-01-29T03:35:03.789Z"));
         assertThat(result.offsetTime.toString(), is("03:35:04Z"));
+    }
+
+    @Test
+    public void testUpdate() {
+        int count = sqlTemplate().update("sql/updateByParam.sql")
+                .add("job", "TEST")
+                .add("mgr", 1234)
+                .add("empno", 7876)
+                .execute();
+        assertThat(count, is(1));
+
+        Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7876);
+        assertThat(result.job, is("TEST"));
+        assertThat(result.mgr, is(1234));
     }
 
     SqlTemplate sqlTemplate() {
