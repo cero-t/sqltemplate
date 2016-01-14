@@ -81,6 +81,26 @@ public class SqlTemplate {
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), paramBuilder.mapper(clazz));
     }
 
+    public List<Map<String, Object>> forList(String fileName, Object... args) {
+        String sql = getTemplate(fileName, args);
+        return jdbcTemplate.queryForList(sql, paramBuilder.byArgs(args));
+    }
+
+    public List<Map<String, Object>> forList(String fileName, Map<String, Object> params) {
+        String sql = getTemplate(fileName, params);
+        return namedJdbcTemplate.queryForList(sql, paramBuilder.byMap(params));
+    }
+
+    public List<Map<String, Object>> forList(String fileName, Object entity) {
+        String sql = getTemplate(fileName, entity);
+
+        if (BeanUtils.isSimpleValueType(entity.getClass())) {
+            return jdbcTemplate.queryForList(sql, entity);
+        }
+
+        return namedJdbcTemplate.queryForList(sql, paramBuilder.byBean(entity));
+    }
+
     public int update(String fileName, Object... args) {
         String sql = getTemplate(fileName, args);
         return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
@@ -105,8 +125,12 @@ public class SqlTemplate {
         return new MapUpdateBuilder(fileName);
     }
 
-    public <T> MapQueryBuilder<T> query(String fileName, Class<T> clazz) {
-        return new MapQueryBuilder<>(fileName, clazz);
+    public <T> MapQueryBuilderForBean<T> query(String fileName, Class<T> clazz) {
+        return new MapQueryBuilderForBean<>(fileName, clazz);
+    }
+
+    public MapQueryBuilderForMap query(String fileName) {
+        return new MapQueryBuilderForMap(fileName);
     }
 
     protected String getTemplate(String fileName, Object[] args) {
@@ -125,17 +149,17 @@ public class SqlTemplate {
         }
     }
 
-    public class MapQueryBuilder<T> {
+    public class MapQueryBuilderForBean<T> {
         protected Map<String, Object> params = new HashMap<>();
         protected String fileName;
         protected Class<T> clazz;
 
-        public MapQueryBuilder(String fileName, Class<T> clazz) {
+        public MapQueryBuilderForBean(String fileName, Class<T> clazz) {
             this.fileName = fileName;
             this.clazz = clazz;
         }
 
-        public MapQueryBuilder<T> add(String key, Object value) {
+        public MapQueryBuilderForBean<T> add(String key, Object value) {
             params.put(key, value);
             return this;
         }
@@ -148,6 +172,30 @@ public class SqlTemplate {
         public List<T> forList() {
             String sql = getTemplate(fileName, params);
             return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), paramBuilder.mapper(clazz));
+        }
+    }
+
+    public class MapQueryBuilderForMap {
+        protected Map<String, Object> params = new HashMap<>();
+        protected String fileName;
+
+        public MapQueryBuilderForMap(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public MapQueryBuilderForMap add(String key, Object value) {
+            params.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> forMap() {
+            String sql = getTemplate(fileName, params);
+            return namedJdbcTemplate.queryForMap(sql, paramBuilder.byMap(params));
+        }
+
+        public List<Map<String, Object>> forList() {
+            String sql = getTemplate(fileName, params);
+            return namedJdbcTemplate.queryForList(sql, paramBuilder.byMap(params));
         }
     }
 
