@@ -355,7 +355,7 @@ public class SqlTemplateTest {
     }
 
     @Test
-    public void testUpdate() {
+    public void testUpdateByAdd() {
         int count = sqlTemplate().update("sql/updateByParam.sql")
                 .add("job", "TEST")
                 .add("mgr", 1234)
