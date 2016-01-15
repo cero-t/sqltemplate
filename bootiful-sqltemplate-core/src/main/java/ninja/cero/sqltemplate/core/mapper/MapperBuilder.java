@@ -22,7 +22,7 @@ public class MapperBuilder {
         // TODO: Need custom row mapper for Map<String, Object> to map to JSR-310
 
         if (BeanUtils.isSimpleValueType(mappedClass)) {
-            return new SingleColumnRowMapper<>(mappedClass);
+            return new SingleClassMapper<>(mappedClass, zoneId);
         }
         return new BeanMapper<>(mappedClass, zoneId);
     }

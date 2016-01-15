@@ -39,9 +39,7 @@ public class Jsr310JdbcUtils {
         return value;
     }
 
-    public static Object getResultSetValue(ResultSet rs, int index, Field field, ZoneId zoneId) throws SQLException {
-        Class<?> requiredType = field.getType();
-
+    public static Object getResultSetValue(ResultSet rs, int index, Class<?> requiredType, ZoneId zoneId) throws SQLException {
         if (LocalDateTime.class.equals(requiredType)) {
             return getAsLocalDateTime(rs, index);
         } else if (LocalDate.class.equals(requiredType)) {
@@ -56,9 +54,8 @@ public class Jsr310JdbcUtils {
             return getAsZonedDateTime(rs, index, zoneId);
         }
 
-        return JdbcUtils.getResultSetValue(rs, index, field.getType());
+        return JdbcUtils.getResultSetValue(rs, index, requiredType);
     }
-
 
     /**
      * Get the column value as LocalDateTime.

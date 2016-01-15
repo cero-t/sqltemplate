@@ -197,8 +197,10 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forList() {
-        List<Emp> result = sqlTemplate().query("sql/selectByParam.sql", Emp.class).add("job", "SALESMAN")
-                .add("deptno", 30).forList();
+        List<Emp> result = sqlTemplate().query("sql/selectByParam.sql", Emp.class)
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forList();
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
@@ -206,7 +208,8 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forObject() {
-        Emp emp = sqlTemplate().query("sql/selectSingleByParam.sql", Emp.class).add("job", "SALESMAN").add("deptno", 30)
+        Emp emp = sqlTemplate().query("sql/selectSingleByParam.sql", Emp.class)
+                .add("job", "SALESMAN").add("deptno", 30)
                 .forObject();
         assertThat(emp.empno, is(7499));
     }

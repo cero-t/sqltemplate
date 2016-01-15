@@ -50,6 +50,11 @@ public class SqlTemplate {
         this.mapperBuilder = mapperBuilder;
     }
 
+    public <T> T forObject(String fileName, Class<T> clazz) {
+        List<T> list = forList(fileName, clazz);
+        return DataAccessUtils.singleResult(list);
+    }
+
     public <T> T forObject(String fileName, Class<T> clazz, Object... args) {
         List<T> list = forList(fileName, clazz, args);
         return DataAccessUtils.singleResult(list);
@@ -63,6 +68,12 @@ public class SqlTemplate {
     public <T> T forObject(String fileName, Class<T> clazz, Object entity) {
         List<T> list = forList(fileName, clazz, entity);
         return DataAccessUtils.singleResult(list);
+    }
+
+    public <T> List<T> forList(String fileName, Class<T> clazz) {
+        Object[] args = new Object[0];
+        String sql = getTemplate(fileName, args);
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), mapperBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object... args) {
@@ -83,6 +94,12 @@ public class SqlTemplate {
         }
 
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), mapperBuilder.mapper(clazz));
+    }
+
+    public List<Map<String, Object>> forList(String fileName) {
+        Object[] args = new Object[0];
+        String sql = getTemplate(fileName, args);
+        return jdbcTemplate.queryForList(sql, paramBuilder.byArgs(args));
     }
 
     public List<Map<String, Object>> forList(String fileName, Object... args) {

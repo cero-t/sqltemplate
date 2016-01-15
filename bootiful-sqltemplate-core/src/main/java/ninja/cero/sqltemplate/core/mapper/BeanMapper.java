@@ -39,6 +39,7 @@ public class BeanMapper<T> implements RowMapper<T> {
     /**
      * Create a new BeanMapper.
      * @param mappedClass the class we are mapping to
+     * @param zoneId      the zoneId of JSR-310 DateTime
      */
     public BeanMapper(Class<T> mappedClass, ZoneId zoneId) {
         this.mappedClass = mappedClass;
@@ -103,7 +104,7 @@ public class BeanMapper<T> implements RowMapper<T> {
                 continue;
             }
 
-            Object value = getColumnValue(rs, index, field);
+            Object value = getColumnValue(rs, index, field.getType());
             if (logger.isDebugEnabled() && rowNumber == 0) {
                 logger.debug("Mapping column '" + column + "' to property '" + field.getName() + "' of type "
                         + field.getType());
@@ -123,11 +124,11 @@ public class BeanMapper<T> implements RowMapper<T> {
      * Get the column value.
      * @param rs    ResultSet
      * @param index column index
-     * @param field the field to be set the value
+     * @param requiredType the required value type
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected Object getColumnValue(ResultSet rs, int index, Field field) throws SQLException {
-        return Jsr310JdbcUtils.getResultSetValue(rs, index, field, zoneId);
+    protected Object getColumnValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
+        return Jsr310JdbcUtils.getResultSetValue(rs, index, requiredType, zoneId);
     }
 }
