@@ -2,7 +2,6 @@ package ninja.cero.sqltemplate.core.util;
 
 import org.springframework.jdbc.support.JdbcUtils;
 
-import java.lang.reflect.Field;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
