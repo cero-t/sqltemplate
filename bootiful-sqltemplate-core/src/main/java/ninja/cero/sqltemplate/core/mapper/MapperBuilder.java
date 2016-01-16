@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.mapper;
 
-import org.springframework.beans.BeanUtils;
+import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.time.ZoneId;
@@ -17,7 +17,7 @@ public class MapperBuilder {
     }
 
     public <T> RowMapper<T> mapper(Class<T> mappedClass) {
-        if (BeanUtils.isSimpleValueType(mappedClass)) {
+        if (TypeUtils.isSimpleValueType(mappedClass)) {
             return new SingleClassMapper<>(mappedClass, zoneId);
         }
         return new BeanMapper<>(mappedClass, zoneId);

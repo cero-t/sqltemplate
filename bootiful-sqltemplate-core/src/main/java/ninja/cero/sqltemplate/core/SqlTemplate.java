@@ -3,8 +3,9 @@ package ninja.cero.sqltemplate.core;
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
-import org.springframework.beans.BeanUtils;
+import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -71,9 +72,8 @@ public class SqlTemplate {
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz) {
-        Object[] args = new Object[0];
-        String sql = getTemplate(fileName, args);
-        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), mapperBuilder.mapper(clazz));
+        String sql = getTemplate(fileName, new Object[0]);
+        return jdbcTemplate.query(sql, mapperBuilder.mapper(clazz));
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz, Object... args) {
@@ -89,7 +89,7 @@ public class SqlTemplate {
     public <T> List<T> forList(String fileName, Class<T> clazz, Object entity) {
         String sql = getTemplate(fileName, entity);
 
-        if (BeanUtils.isSimpleValueType(entity.getClass())) {
+        if (TypeUtils.isSimpleValueType(entity.getClass())) {
             return jdbcTemplate.query(sql, paramBuilder.byArgs(entity), mapperBuilder.mapper(clazz));
         }
 
@@ -97,14 +97,13 @@ public class SqlTemplate {
     }
 
     public List<Map<String, Object>> forList(String fileName) {
-        Object[] args = new Object[0];
-        String sql = getTemplate(fileName, args);
-        return jdbcTemplate.queryForList(sql, paramBuilder.byArgs(args));
+        String sql = getTemplate(fileName, new Object[0]);
+        return jdbcTemplate.queryForList(sql);
     }
 
     public List<Map<String, Object>> forList(String fileName, Object... args) {
         String sql = getTemplate(fileName, args);
-        return jdbcTemplate.queryForList(sql, paramBuilder.byArgs(args));
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), new ColumnMapRowMapper());
     }
 
     public List<Map<String, Object>> forList(String fileName, Map<String, Object> params) {
@@ -115,7 +114,7 @@ public class SqlTemplate {
     public List<Map<String, Object>> forList(String fileName, Object entity) {
         String sql = getTemplate(fileName, entity);
 
-        if (BeanUtils.isSimpleValueType(entity.getClass())) {
+        if (TypeUtils.isSimpleValueType(entity.getClass())) {
             return jdbcTemplate.queryForList(sql, entity);
         }
 
@@ -135,7 +134,7 @@ public class SqlTemplate {
     public int update(String fileName, Object entity) {
         String sql = getTemplate(fileName, entity);
 
-        if (BeanUtils.isSimpleValueType(entity.getClass())) {
+        if (TypeUtils.isSimpleValueType(entity.getClass())) {
             return jdbcTemplate.update(sql, paramBuilder.byArgs(entity));
         }
 

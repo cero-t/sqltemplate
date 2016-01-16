@@ -15,15 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -140,6 +143,54 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testForListMap_NoArg() {
+        List<Map<String, Object>> result = sqlTemplate().forList("sql/selectAll.sql");
+        assertThat(result.size(), is(14));
+        assertThat(result.get(0).get("empno"), is(7369));
+        assertThat(result.get(13).get("empno"), is(7934));
+    }
+
+    @Test
+    public void testForListMap_MapArg() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("deptno", 30);
+        param.put("job", "SALESMAN");
+
+        List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByParam.sql", param);
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0).get("empno"), is(7499));
+        assertThat(result.get(3).get("empno"), is(7844));
+    }
+
+    @Test
+    public void testForListMap_EntityArg() {
+        Emp param = new Emp();
+        param.deptno = 30;
+        param.job = "SALESMAN";
+
+        List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByParam.sql", param);
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0).get("empno"), is(7499));
+        assertThat(result.get(3).get("empno"), is(7844));
+    }
+
+    @Test
+    public void testForListMap_SingleArg() {
+        List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByDeptno.sql", 10);
+        assertThat(result.size(), is(3));
+        assertThat(result.get(0).get("empno"), is(7782));
+        assertThat(result.get(2).get("empno"), is(7934));
+    }
+
+    @Test
+    public void testForListMap_MultiArg() {
+        List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByArgs.sql", 30, "SALESMAN");
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0).get("empno"), is(7499));
+        assertThat(result.get(3).get("empno"), is(7844));
+    }
+
+    @Test
     public void testUpdate_insertByEntity() {
         Emp emp = new Emp();
         emp.empno = 1000;
@@ -247,6 +298,63 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testForList_SingleDateTime() {
+        // prepare
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        // execute
+        // assert
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+
+        List<LocalDateTime> localDateTime = template.forList("SELECT local_date_time FROM date_time", LocalDateTime.class);
+        assertThat(localDateTime.get(0).toString(), is("2001-01-26T12:34:59.789"));
+
+        List<LocalDate> localDate= template.forList("SELECT local_date FROM date_time", LocalDate.class);
+        assertThat(localDate.get(0).toString(), is("2001-01-27"));
+
+        List<LocalTime> localTime = template.forList("SELECT local_time FROM date_time", LocalTime.class);
+        assertThat(localTime.get(0).toString(), is("12:35:01"));
+    }
+
+    @Test
+    public void testForObject_SingleDateTime() {
+        // prepare
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        // execute
+        // assert
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+
+        LocalDateTime localDateTime = template.forObject("SELECT local_date_time FROM date_time", LocalDateTime.class);
+        assertThat(localDateTime.toString(), is("2001-01-26T12:34:59.789"));
+
+        LocalDate localDate= template.forObject("SELECT local_date FROM date_time", LocalDate.class);
+        assertThat(localDate.toString(), is("2001-01-27"));
+
+        LocalTime localTime = template.forObject("SELECT local_time FROM date_time", LocalTime.class);
+        assertThat(localTime.toString(), is("12:35:01"));
+    }
+
+    @Test
+    public void testForListMap_DateTime() {
+        // prepare
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+
+        // execute
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        List<Map<String, Object>> maps = template.forList("SELECT * FROM date_time");
+
+        // assert
+        Map<String, Object> result = maps.get(0);
+        assertThat(result.get("local_date_time"), instanceOf(Timestamp.class));
+        assertThat(result.get("local_date_time").toString(), is("2001-01-26 12:34:59.789"));
+        assertThat(result.get("local_date"), instanceOf(java.sql.Date.class));
+        assertThat(result.get("local_date").toString(), is("2001-01-27"));
+        assertThat(result.get("local_time"), instanceOf(Time.class));
+        assertThat(result.get("local_time").toString(), is("12:35:01"));
+    }
+
+    @Test
     public void testUpdate_DateTime() {
         // prepare
         jdbcTemplate.update("DELETE from date_time");
@@ -315,7 +423,6 @@ public class SqlTemplateTest {
         assertNull(result.offsetDateTime);
         assertNull(result.offsetTime);
     }
-
 
     @Test
     public void testUpdate_DateTime_ZoneAware() {
