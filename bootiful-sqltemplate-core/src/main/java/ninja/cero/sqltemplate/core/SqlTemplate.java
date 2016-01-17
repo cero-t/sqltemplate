@@ -96,6 +96,26 @@ public class SqlTemplate {
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), mapperBuilder.mapper(clazz));
     }
 
+    public Map<String, Object> forMap(String fileName) {
+        List<Map<String, Object>> list = forList(fileName);
+        return DataAccessUtils.singleResult(list);
+    }
+
+    public Map<String, Object> forMap(String fileName, Object... args) {
+        List<Map<String, Object>> list = forList(fileName, args);
+        return DataAccessUtils.singleResult(list);
+    }
+
+    public Map<String, Object> forMap(String fileName, Map<String, Object> params) {
+        List<Map<String, Object>> list = forList(fileName, params);
+        return DataAccessUtils.singleResult(list);
+    }
+
+    public Map<String, Object> forMap(String fileName, Object entity) {
+        List<Map<String, Object>> list = forList(fileName, entity);
+        return DataAccessUtils.singleResult(list);
+    }
+
     public List<Map<String, Object>> forList(String fileName) {
         String sql = getTemplate(fileName, new Object[0]);
         return jdbcTemplate.queryForList(sql);
