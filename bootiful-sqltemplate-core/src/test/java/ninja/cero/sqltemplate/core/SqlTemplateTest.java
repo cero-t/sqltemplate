@@ -143,6 +143,52 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testForMap_NoArgs() {
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectSingle.sql");
+        assertThat(result.get("empno"), is(7369));
+    }
+
+    @Test
+    public void testForMap_MapArg() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("deptno", 30);
+        param.put("job", "SALESMAN");
+
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByParam.sql", param);
+        assertThat(result.get("empno"), is(7499));
+    }
+
+    @Test
+    public void testForMap_EntityArg() {
+        Emp param = new Emp();
+        param.deptno = 30;
+        param.job = "SALESMAN";
+
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByParam.sql", param);
+        assertThat(result.get("empno"), is(7499));
+    }
+
+    @Test
+    public void testForMap_SingleArg() {
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectByEmpno.sql", 7839);
+        assertThat(result.get("empno"), is(7839));
+    }
+
+    @Test
+    public void testForMap_MultiArg() {
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByArgs.sql", 30, "SALESMAN");
+        assertThat(result.get("empno"), is(7499));
+    }
+
+    @Test
+    public void testForMap_ReturnSimple() {
+        Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleEmpno.sql");
+        assertThat(result.size(), is(1));
+        assertThat(result.get("empno"), is(7369));
+    }
+
+
+    @Test
     public void testForListMap_NoArg() {
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectAll.sql");
         assertThat(result.size(), is(14));
