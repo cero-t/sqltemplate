@@ -18,7 +18,7 @@ public class MapperBuilder {
 
     public <T> RowMapper<T> mapper(Class<T> mappedClass) {
         if (TypeUtils.isSimpleValueType(mappedClass)) {
-            return new SingleClassMapper<>(mappedClass, zoneId);
+            return new SingleColumnMapper<>(mappedClass, zoneId);
         }
         return new BeanMapper<>(mappedClass, zoneId);
     }

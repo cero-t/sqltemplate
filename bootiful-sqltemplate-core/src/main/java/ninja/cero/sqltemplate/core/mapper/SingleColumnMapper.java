@@ -8,11 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
 
-public class SingleClassMapper<T> extends SingleColumnRowMapper<T> {
+public class SingleColumnMapper<T> extends SingleColumnRowMapper<T> {
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
 
-    public SingleClassMapper(Class<T> requiredType, ZoneId zoneId) {
+    public SingleColumnMapper(Class<T> requiredType, ZoneId zoneId) {
         super(requiredType);
         this.zoneId = zoneId;
     }

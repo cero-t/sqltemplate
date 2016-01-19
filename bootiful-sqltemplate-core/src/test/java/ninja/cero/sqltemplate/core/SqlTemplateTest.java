@@ -2,6 +2,7 @@ package ninja.cero.sqltemplate.core;
 
 import ninja.cero.sqltemplate.core.template.PlainText;
 import ninja.cero.sqltemplate.test.TestConfig;
+import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
 import org.junit.Test;
@@ -116,6 +117,18 @@ public class SqlTemplateTest {
         assertThat(result.size(), is(4));
         assertThat(result.get(0).empno, is(7499));
         assertThat(result.get(3).empno, is(7844));
+    }
+
+    @Test
+    public void testForList_EntityArgWithAccessor() {
+        AccessorEmp param = new AccessorEmp();
+        param.setDeptno(30);
+        param.setJob("SALESMAN");
+
+        List<AccessorEmp> result = sqlTemplate().forList("sql/selectByParam.sql", AccessorEmp.class, param);
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0).getEmpno(), is(7499));
+        assertThat(result.get(3).getEmpno(), is(7844));
     }
 
     @Test

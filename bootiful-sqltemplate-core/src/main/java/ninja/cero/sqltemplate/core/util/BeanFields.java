@@ -20,7 +20,7 @@ public class BeanFields {
         Field[] fields = CACHED_FIELDS.get(clazz);
         if (fields == null) {
             fields = clazz.getFields();
-            CACHED_FIELDS.putIfAbsent(clazz, clazz.getFields());
+            CACHED_FIELDS.putIfAbsent(clazz, fields);
         }
 
         return fields;
