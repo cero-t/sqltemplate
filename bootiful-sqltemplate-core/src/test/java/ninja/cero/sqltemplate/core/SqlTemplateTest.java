@@ -293,6 +293,15 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testQuery_forObject() {
+        Emp emp = sqlTemplate().query("sql/selectSingleByParam.sql", Emp.class)
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forObject();
+        assertThat(emp.empno, is(7499));
+    }
+
+    @Test
     public void testQuery_forList() {
         List<Emp> result = sqlTemplate().query("sql/selectByParam.sql", Emp.class)
                 .add("job", "SALESMAN")
@@ -304,11 +313,23 @@ public class SqlTemplateTest {
     }
 
     @Test
-    public void testQuery_forObject() {
-        Emp emp = sqlTemplate().query("sql/selectSingleByParam.sql", Emp.class)
-                .add("job", "SALESMAN").add("deptno", 30)
-                .forObject();
-        assertThat(emp.empno, is(7499));
+    public void testQuery_forMap() {
+        Map<String, Object> result = sqlTemplate().query("sql/selectSingleByParam.sql")
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forMap();
+        assertThat(result.get("empno"), is(7499));
+    }
+
+    @Test
+    public void testQuery_forListMap() {
+        List<Map<String, Object>> result = sqlTemplate().query("sql/selectByParam.sql")
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forList();
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0).get("empno"), is(7499));
+        assertThat(result.get(3).get("empno"), is(7844));
     }
 
     @Test
