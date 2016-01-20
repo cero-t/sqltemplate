@@ -17,7 +17,9 @@ import java.util.Set;
 /**
  * {@link org.springframework.jdbc.core.namedparam.SqlParameterSource} implementation that obtains parameter values
  * from public fields of a given value object.
- * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
+ * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310.
+ *
+ * @see org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource
  */
 public class BeanParameter extends AbstractSqlParameterSource {
     /** the value object for parameters */
@@ -100,5 +102,24 @@ public class BeanParameter extends AbstractSqlParameterSource {
         return Jsr310JdbcUtils.convertIfNecessary(value, zoneId);
     }
 
-    // TODO: Override getSqlType
+    @Override
+    public int getSqlType(String paramName) {
+        int sqlType = super.getSqlType(paramName);
+        if (sqlType != TYPE_UNKNOWN) {
+            return sqlType;
+        }
+
+        Class<?> propType = null;
+        if (privateFields.contains(paramName)) {
+            propType = beanWrapper.getPropertyType(paramName);
+        } else if (publicFeilds.containsKey(paramName)) {
+            propType = publicFeilds.get(paramName).getType();
+        }
+
+        if (propType == null) {
+            return TYPE_UNKNOWN;
+        }
+
+        return Jsr310JdbcUtils.getSqlType(propType);
+    }
 }

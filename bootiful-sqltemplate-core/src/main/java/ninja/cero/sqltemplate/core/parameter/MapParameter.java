@@ -47,4 +47,18 @@ public class MapParameter extends AbstractSqlParameterSource {
 
         return Jsr310JdbcUtils.convertIfNecessary(value, zoneId);
     }
+
+    @Override
+    public int getSqlType(String paramName) {
+        int sqlType = super.getSqlType(paramName);
+        if (sqlType != TYPE_UNKNOWN) {
+            return sqlType;
+        }
+        Object value = values.get(paramName);
+        if (value == null) {
+            return TYPE_UNKNOWN;
+        }
+
+        return Jsr310JdbcUtils.getSqlType(value.getClass());
+    }
 }

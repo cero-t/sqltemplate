@@ -1,5 +1,7 @@
 package ninja.cero.sqltemplate.core.util;
 
+import org.springframework.jdbc.core.SqlTypeValue;
+import org.springframework.jdbc.core.StatementCreatorUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import java.sql.Date;
@@ -7,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,6 +57,35 @@ public class Jsr310JdbcUtils {
         }
 
         return JdbcUtils.getResultSetValue(rs, index, requiredType);
+    }
+
+    public static int getSqlType(Class<?> type) {
+        int sqlType = StatementCreatorUtils.javaTypeToSqlParameterType(type);
+        if (sqlType != SqlTypeValue.TYPE_UNKNOWN) {
+            return sqlType;
+        }
+
+        if (LocalDate.class.isAssignableFrom(type)) {
+            return Types.DATE;
+        }
+        if (LocalDateTime.class.isAssignableFrom(type)) {
+            return Types.TIMESTAMP;
+        }
+        if (LocalTime.class.isAssignableFrom(type)) {
+            return Types.TIME;
+        }
+        if (ZonedDateTime.class.isAssignableFrom(type)) {
+            return Types.TIMESTAMP;
+        }
+        if (OffsetDateTime.class.isAssignableFrom(type)) {
+            return Types.TIMESTAMP;
+        }
+        if (OffsetTime.class.isAssignableFrom(type)) {
+            return Types.TIME;
+        }
+
+        return SqlTypeValue.TYPE_UNKNOWN;
+
     }
 
     /**
