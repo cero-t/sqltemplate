@@ -1,6 +1,5 @@
 package ninja.cero.sqltemplate.core;
 
-import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.Emp;
 import org.junit.Test;
@@ -32,6 +31,6 @@ public class SqlTemplateWithPlainTextTest {
     }
 
     SqlTemplate sqlTemplate() {
-        return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, TemplateEngine.PLAIN_TEXT);
+        return new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
     }
 }

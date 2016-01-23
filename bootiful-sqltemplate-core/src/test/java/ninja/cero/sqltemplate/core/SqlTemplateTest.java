@@ -1,6 +1,5 @@
 package ninja.cero.sqltemplate.core;
 
-import ninja.cero.sqltemplate.core.template.PlainText;
 import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
@@ -23,11 +22,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -361,7 +358,7 @@ public class SqlTemplateTest {
         TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         // execute
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
 
         // assert
@@ -384,7 +381,7 @@ public class SqlTemplateTest {
 
         // execute
         // assert
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
 
         List<LocalDateTime> localDateTime = template.forList("SELECT local_date_time FROM date_time", LocalDateTime.class);
         assertThat(localDateTime.get(0).toString(), is("2001-01-26T12:34:59.789"));
@@ -403,7 +400,7 @@ public class SqlTemplateTest {
 
         // execute
         // assert
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
 
         LocalDateTime localDateTime = template.forObject("SELECT local_date_time FROM date_time", LocalDateTime.class);
         assertThat(localDateTime.toString(), is("2001-01-26T12:34:59.789"));
@@ -421,7 +418,7 @@ public class SqlTemplateTest {
         TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         // execute
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
         List<Map<String, Object>> maps = template.forList("SELECT * FROM date_time");
 
         // assert
@@ -453,7 +450,7 @@ public class SqlTemplateTest {
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
 
         // execute
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
         int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
@@ -482,7 +479,7 @@ public class SqlTemplateTest {
         DateTimeEntity entity = new DateTimeEntity();
 
         // execute
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText());
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
         int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
@@ -523,7 +520,7 @@ public class SqlTemplateTest {
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
 
         // execute
-        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new PlainText(), ZoneId.of("GMT"));
+        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
         int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);

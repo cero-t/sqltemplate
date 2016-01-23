@@ -31,6 +31,14 @@ public class SqlTemplate {
         this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, new ParamBuilder(), new MapperBuilder());
     }
 
+    /**
+     * Deprecated.
+     * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
+     * @param jdbcTemplate The JdbcTemplate to use
+     * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
+     * @param templateEngine The tepmlate engine to use
+     */
+    @Deprecated
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
         this(jdbcTemplate, namedJdbcTemplate, templateEngine, new ParamBuilder(), new MapperBuilder());
     }
@@ -39,6 +47,15 @@ public class SqlTemplate {
         this(jdbcTemplate, namedJdbcTemplate, TemplateEngine.TEXT_FILE, new ParamBuilder(zoneId), new MapperBuilder(zoneId));
     }
 
+    /**
+     * Deprecated.
+     * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
+     * @param jdbcTemplate The JdbcTemplate to use
+     * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
+     * @param templateEngine The tepmlate engine to use
+     * @param zoneId The zoneId for zone aware date type such as ZonedDateTime, OffsetDateTime
+     */
+    @Deprecated
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine, ZoneId zoneId) {
         this(jdbcTemplate, namedJdbcTemplate, templateEngine, new ParamBuilder(zoneId), new MapperBuilder(zoneId));
     }
