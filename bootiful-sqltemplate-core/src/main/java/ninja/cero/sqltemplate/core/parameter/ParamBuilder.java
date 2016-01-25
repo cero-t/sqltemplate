@@ -29,4 +29,12 @@ public class ParamBuilder {
     public BeanParameter byBean(Object entity) {
         return new BeanParameter(entity, zoneId);
     }
+
+    public BatchArgsParameter byBatchArgs(Object[][] batchArgs) {
+        return new BatchArgsParameter(batchArgs, zoneId);
+    }
+
+    public SingleColumnBatchArgsParameter byBatchArgs(Object[] batchArgs) {
+        return new SingleColumnBatchArgsParameter(batchArgs, zoneId);
+    }
 }

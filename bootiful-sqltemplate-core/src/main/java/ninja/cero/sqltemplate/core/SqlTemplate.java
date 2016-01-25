@@ -1,6 +1,8 @@
 package ninja.cero.sqltemplate.core;
 
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
+import ninja.cero.sqltemplate.core.parameter.BeanParameter;
+import ninja.cero.sqltemplate.core.parameter.MapParameter;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import ninja.cero.sqltemplate.core.util.TypeUtils;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SqlTemplate {
+    public static final Object[] EMPTY_ARGS = new Object[0];
     protected final JdbcTemplate jdbcTemplate;
 
     protected final NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -34,9 +37,10 @@ public class SqlTemplate {
     /**
      * Deprecated.
      * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
-     * @param jdbcTemplate The JdbcTemplate to use
+     *
+     * @param jdbcTemplate      The JdbcTemplate to use
      * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
-     * @param templateEngine The tepmlate engine to use
+     * @param templateEngine    The tepmlate engine to use
      */
     @Deprecated
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine) {
@@ -50,10 +54,11 @@ public class SqlTemplate {
     /**
      * Deprecated.
      * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
-     * @param jdbcTemplate The JdbcTemplate to use
+     *
+     * @param jdbcTemplate      The JdbcTemplate to use
      * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
-     * @param templateEngine The tepmlate engine to use
-     * @param zoneId The zoneId for zone aware date type such as ZonedDateTime, OffsetDateTime
+     * @param templateEngine    The tepmlate engine to use
+     * @param zoneId            The zoneId for zone aware date type such as ZonedDateTime, OffsetDateTime
      */
     @Deprecated
     public SqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, TemplateEngine templateEngine, ZoneId zoneId) {
@@ -89,7 +94,7 @@ public class SqlTemplate {
     }
 
     public <T> List<T> forList(String fileName, Class<T> clazz) {
-        String sql = getTemplate(fileName, new Object[0]);
+        String sql = getTemplate(fileName, EMPTY_ARGS);
         return jdbcTemplate.query(sql, mapperBuilder.mapper(clazz));
     }
 
@@ -134,7 +139,7 @@ public class SqlTemplate {
     }
 
     public List<Map<String, Object>> forList(String fileName) {
-        String sql = getTemplate(fileName, new Object[0]);
+        String sql = getTemplate(fileName, EMPTY_ARGS);
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -176,6 +181,44 @@ public class SqlTemplate {
         }
 
         return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
+    }
+
+    public int[] batchUpdate(String... fileNames) {
+        return jdbcTemplate.batchUpdate(fileNames);
+    }
+
+    public int[] batchUpdate(String fileName, Object[][] batchParams) {
+        String sql = getTemplate(fileName, EMPTY_ARGS);
+        return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(batchParams));
+    }
+
+    public int[] batchUpdate(String fileName, Map<String, Object>[] batchParams) {
+        String sql = getTemplate(fileName, EMPTY_ARGS);
+
+        MapParameter[] params = new MapParameter[batchParams.length];
+        for (int i = 0; i < batchParams.length; i++) {
+            params[i] = paramBuilder.byMap(batchParams[i]);
+        }
+
+        return namedJdbcTemplate.batchUpdate(sql, params);
+    }
+
+    public int[] batchUpdate(String fileName, Object[] batchParams) {
+        String sql = getTemplate(fileName, EMPTY_ARGS);
+        if (batchParams.length == 0) {
+            return jdbcTemplate.batchUpdate(sql);
+        }
+
+        if (TypeUtils.isSimpleValueType(batchParams[0].getClass())) {
+            return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(batchParams));
+        }
+
+        BeanParameter[] params = new BeanParameter[batchParams.length];
+        for (int i = 0; i < batchParams.length; i++) {
+            params[i] = paramBuilder.byBean(batchParams[i]);
+        }
+
+        return namedJdbcTemplate.batchUpdate(sql, params);
     }
 
     public MapUpdateBuilder update(String fileName) {
