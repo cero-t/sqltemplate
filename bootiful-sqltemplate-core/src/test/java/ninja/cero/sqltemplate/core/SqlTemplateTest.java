@@ -386,7 +386,7 @@ public class SqlTemplateTest {
         List<LocalDateTime> localDateTime = template.forList("SELECT local_date_time FROM date_time", LocalDateTime.class);
         assertThat(localDateTime.get(0).toString(), is("2001-01-26T12:34:59.789"));
 
-        List<LocalDate> localDate= template.forList("SELECT local_date FROM date_time", LocalDate.class);
+        List<LocalDate> localDate = template.forList("SELECT local_date FROM date_time", LocalDate.class);
         assertThat(localDate.get(0).toString(), is("2001-01-27"));
 
         List<LocalTime> localTime = template.forList("SELECT local_time FROM date_time", LocalTime.class);
@@ -405,7 +405,7 @@ public class SqlTemplateTest {
         LocalDateTime localDateTime = template.forObject("SELECT local_date_time FROM date_time", LocalDateTime.class);
         assertThat(localDateTime.toString(), is("2001-01-26T12:34:59.789"));
 
-        LocalDate localDate= template.forObject("SELECT local_date FROM date_time", LocalDate.class);
+        LocalDate localDate = template.forObject("SELECT local_date FROM date_time", LocalDate.class);
         assertThat(localDate.toString(), is("2001-01-27"));
 
         LocalTime localTime = template.forObject("SELECT local_time FROM date_time", LocalTime.class);
@@ -553,6 +553,123 @@ public class SqlTemplateTest {
         Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7876);
         assertThat(result.job, is("TEST"));
         assertThat(result.mgr, is(1234));
+    }
+
+    @Test
+    public void testBatchUpdate_bySql() {
+        // prepare
+        SqlTemplate sqlTemplate = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
+
+        // execute
+        int[] counts = sqlTemplate.batchUpdate(
+                "delete from emp",
+                "insert into emp (empno) values (1234)");
+
+        // assert
+        assertThat(counts, is(new int[]{14, 1}));
+
+        List<Emp> result = sqlTemplate().forList("sql/selectAll.sql", Emp.class);
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0).empno, is(1234));
+    }
+
+    @Test
+    public void testBatchUpdate_byArgs() {
+        // prepare
+        Object[][] args = {new Object[]{30, "SALESMAN"}, {30, "CLERK"}};
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate("sql/deleteByArgs.sql", args);
+
+        // assert
+        assertThat(counts, is(new int[]{4, 1}));
+
+        Emp result = sqlTemplate().forObject("sql/selectByDeptno.sql", Emp.class, 30);
+        assertThat(result.empno, is(7698));
+    }
+
+    @Test
+    public void testBatchUpdate_byMap() {
+        // prepare
+        Map<String, Object> arg1 = new HashMap<>();
+        arg1.put("empno", 7369);
+        arg1.put("job", "SALESMAN");
+        arg1.put("mgr", 7698);
+
+        Map<String, Object> arg2 = new HashMap<>();
+        arg2.put("empno", 7499);
+        arg2.put("job", "CLERK");
+        arg2.put("mgr", 7902);
+
+        Map<String, Object>[] maps = new Map[]{arg1, arg2};
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate("sql/updateByParam.sql", maps);
+
+        // assert
+        assertThat(counts, is(new int[]{1, 1}));
+
+        Emp result1 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7369);
+        assertThat(result1.ename, is("SMITH"));
+        assertThat(result1.job, is("SALESMAN"));
+        assertThat(result1.mgr, is(7698));
+
+        Emp result2 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7499);
+        assertThat(result2.ename, is("ALLEN"));
+        assertThat(result2.job, is("CLERK"));
+        assertThat(result2.mgr, is(7902));
+    }
+
+    @Test
+    public void testBatchUpdate_bySimpleArgs() {
+        // execute
+        int[] counts = sqlTemplate().batchUpdate("sql/deleteByArg.sql", new Object[]{7782, 7934});
+
+        // assert
+        assertThat(counts, is(new int[]{1, 1}));
+
+        Emp result = sqlTemplate().forObject("sql/selectByDeptno.sql", Emp.class, 10);
+        assertThat(result.empno, is(7839));
+    }
+
+    @Test
+    public void testBatchUpdate_byEntity() {
+        // prepare
+        Emp emp1 = new Emp();
+        emp1.empno = 1001;
+        emp1.ename = "TEST1";
+        emp1.job = "MANAGER";
+        emp1.mgr = 7839;
+        emp1.hiredate = LocalDate.of(2015, 4, 1);
+        emp1.sal = new BigDecimal(4000);
+        emp1.comm = new BigDecimal(400);
+        emp1.deptno = 10;
+
+        Emp emp2 = new Emp();
+        emp2.empno = 1002;
+        emp2.ename = "TEST2";
+        emp2.job = "MANAGER";
+        emp2.mgr = 7839;
+        emp2.hiredate = LocalDate.of(2015, 4, 2);
+        emp2.sal = new BigDecimal(4000);
+        emp2.comm = new BigDecimal(400);
+        emp2.deptno = 20;
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate("sql/insertByParam.sql", new Object[]{emp1, emp2});
+
+        // assert
+        assertThat(counts, is(new int[]{1, 1}));
+
+        Emp result1 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1001);
+        assertThat(result1.ename, is(emp1.ename));
+        assertThat(result1.hiredate, is(emp1.hiredate));
+        assertThat(result1.deptno, is(emp1.deptno));
+
+        Emp result2 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1002);
+        assertThat(result2.ename, is(emp2.ename));
+        assertThat(result2.hiredate, is(emp2.hiredate));
+        assertThat(result2.deptno, is(emp2.deptno));
     }
 
     SqlTemplate sqlTemplate() {

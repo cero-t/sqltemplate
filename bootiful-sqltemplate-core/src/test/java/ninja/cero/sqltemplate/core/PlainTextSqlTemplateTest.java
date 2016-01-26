@@ -11,17 +11,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 @Transactional
-public class SqlTemplateWithFreeMarkerTest {
+public class PlainTextSqlTemplateTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -29,26 +25,12 @@ public class SqlTemplateWithFreeMarkerTest {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Test
-    public void testForList_MapArgs() {
-        Map<String, Object> param = new HashMap<>();
-        param.put("deptno", 30);
-        param.put("job", "SALESMAN");
-
-        List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class, param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
-    }
-
-    @Test
-    public void testForList_empty() {
-        List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class);
-        assertThat(result.size(), is(14));
-        assertThat(result.get(0).empno, is(7369));
-        assertThat(result.get(13).empno, is(7934));
+    public void testForObject_NoArgs() {
+        Emp emp = sqlTemplate().forObject("select * from emp where empno=7369", Emp.class);
+        assertThat(emp.empno, is(7369));
     }
 
     SqlTemplate sqlTemplate() {
-        return new FreeMarkerSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
+        return new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
     }
 }
