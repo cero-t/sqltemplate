@@ -17,7 +17,9 @@ public class ArgsParameter extends ArgumentPreparedStatementSetter {
 
     /**
      * Create a new ArgPreparedStatementSetter for the given arguments.
-     * @param args the arguments to set
+     *
+     * @param args   the arguments to set
+     * @param zoneId zoneId
      */
     public ArgsParameter(Object[] args, ZoneId zoneId) {
         super(args);

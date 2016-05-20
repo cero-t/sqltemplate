@@ -36,7 +36,7 @@ public class SqlTemplate {
 
     /**
      * Deprecated.
-     * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
+     * Use {@link FreeMarkerSqlTemplate}, {@link PlainTextSqlTemplate} or original class extends {@link SqlTemplate}.
      *
      * @param jdbcTemplate      The JdbcTemplate to use
      * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
@@ -53,7 +53,7 @@ public class SqlTemplate {
 
     /**
      * Deprecated.
-     * Use {@use FreeMarkerSqlTemplate}, {@use PlainTextSqlTemplate} or original class extends {@use SqlTemplate}.
+     * Use {@link FreeMarkerSqlTemplate}, {@link PlainTextSqlTemplate} or original class extends {@link SqlTemplate}.
      *
      * @param jdbcTemplate      The JdbcTemplate to use
      * @param namedJdbcTemplate The NamedParameterJdbcTemplate to use
