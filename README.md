@@ -1,39 +1,40 @@
 Bootiful SQL Template
 ===========
 
-A simple SQL template engine for Spring Boot Application.
+A simple SQL template engine for Spring Boot applications.
 
-## What is Bootifule SQL Template?
+## What is Bootiful SQL Template?
 Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.JdbcTemplate` and `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` which offers following extension.
 
-* supports SQL file (plain SQL file or FreeMarker template file)
-* add API using plain java objects such as value object, `java.util.Map` and series of simple objects
+* supports SQL files (plain SQL files or FreeMarker template files)
+* add API using plain Java objects such as value object, `java.util.Map` and series of simple objects
 * supports public fields of entity classes besides private fields with accessor methods
 * supports JSR-310 time types such as `LocalDate`, `LocalTime`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`.
 * supports time zones
 
 ## Getting started
-* Create application class or configuration class of your spring boot applications as follows.
+* Create application class or configuration class of your Spring Boot application as follows.
 
-```
+```java
 @Configuration
 public class SqlTemplateConfiguration {
 	@Bean
-	SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+	public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 		return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
 	}
 }
 ```
 
-* Create SQL file in the classpath folder. (cf. src/main/resources/sql/selectAll.sql)
+* Create an SQL file in the classpath. (cf. src/main/resources/sql/selectAll.sql)
 
-```
+```sql
 select * from emp
 ```
 
-* Create data access class having SqlTemplate component as `@autowired` property. Then data access method can call forObject / forList / update / query method of SqlTemplate class.
+* Create a data access class having SqlTemplate bean as an `@Autowired` property. Then the data access method can call the forObject / forList / update / query methods of the SqlTemplate class.
 
-```
+```java
+@Service
 public class SampleProcess {
     @Autowired
     protected SqlTemplate template;
