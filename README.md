@@ -13,6 +13,19 @@ Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.Jdbc
 * supports time zones
 
 ## Getting started
+* Add dependency in your `pom.xml` or other build tool's configuration file.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>ninja.cero.bootiful-sqltemplate</groupId>
+        <artifactId>bootiful-sqltemplate-core</artifactId>
+        <version>1.0.3</version>
+    </dependency>
+    ...
+</dependencies>
+```
+
 * Create application class or configuration class of your Spring Boot application as follows.
 
 ```java
