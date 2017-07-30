@@ -9,7 +9,10 @@ import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -17,6 +20,8 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SqlTemplate {
     public static final Object[] EMPTY_ARGS = new Object[0];
@@ -116,6 +121,59 @@ public class SqlTemplate {
         }
 
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), mapperBuilder.mapper(clazz));
+    }
+
+    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz) {
+        return new StreamQuery<T>() {
+            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
+                String sql = getTemplate(fileName, EMPTY_ARGS);
+                RowMapper<T> mapper = mapperBuilder.mapper(clazz);
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return jdbcTemplate.query(sql, extractor);
+            }
+        };
+    }
+
+    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object... args) {
+        return new StreamQuery<T>() {
+            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
+                String sql = getTemplate(fileName, args);
+                RowMapper<T> mapper = mapperBuilder.mapper(clazz);
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
+            }
+        };
+    }
+
+    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Map<String, Object> params) {
+        return new StreamQuery<T>() {
+            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
+                String sql = getTemplate(fileName, params);
+                RowMapper<T> mapper = mapperBuilder.mapper(clazz);
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), extractor);
+            }
+        };
+    }
+
+    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object entity) {
+        return new StreamQuery<T>() {
+            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
+                String sql = getTemplate(fileName, entity);
+                RowMapper<T> mapper = mapperBuilder.mapper(clazz);
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+
+                if (TypeUtils.isSimpleValueType(entity.getClass())) {
+                    return jdbcTemplate.query(sql, paramBuilder.byArgs(entity), extractor);
+                }
+
+                return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), extractor);
+            }
+        };
     }
 
     public Map<String, Object> forMap(String fileName) {
