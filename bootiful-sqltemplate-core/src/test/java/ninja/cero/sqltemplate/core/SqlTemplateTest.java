@@ -323,6 +323,59 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testForStreamMap_NoArg() {
+        int[] result = sqlTemplate().forStream("sql/selectAll.sql")
+            .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(14));
+        assertThat(result[0], is(7369));
+        assertThat(result[13], is(7934));
+    }
+
+    @Test
+    public void testForStreamMap_MapArg() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("deptno", 30);
+        param.put("job", "SALESMAN");
+
+        int[] result = sqlTemplate().forStream("sql/selectByParam.sql", param)
+            .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(4));
+        assertThat(result[0], is(7499));
+        assertThat(result[3], is(7844));
+    }
+
+    @Test
+    public void testForStreamMap_EntityArg() {
+        Emp param = new Emp();
+        param.deptno = 30;
+        param.job = "SALESMAN";
+
+        int[] result = sqlTemplate().forStream("sql/selectByParam.sql", param)
+            .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(4));
+        assertThat(result[0], is(7499));
+        assertThat(result[3], is(7844));
+    }
+
+    @Test
+    public void testForStreamMap_SingleArg() {
+        int[] result = sqlTemplate().forStream("sql/selectByDeptno.sql", 10)
+            .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(3));
+        assertThat(result[0], is(7782));
+        assertThat(result[2], is(7934));
+    }
+
+    @Test
+    public void testForStreamMap_MultiArg() {
+        int[] result = sqlTemplate().forStream("sql/selectByArgs.sql", 30, "SALESMAN")
+            .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(4));
+        assertThat(result[0], is(7499));
+        assertThat(result[3], is(7844));
+    }
+
+    @Test
     public void testUpdate_insertByEntity() {
         Emp emp = new Emp();
         emp.empno = 1000;

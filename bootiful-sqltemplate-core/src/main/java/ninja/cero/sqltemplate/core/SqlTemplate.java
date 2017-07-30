@@ -223,6 +223,94 @@ public class SqlTemplate {
         return namedJdbcTemplate.queryForList(sql, paramBuilder.byBean(entity));
     }
 
+    /**
+     * Makes a stream query for the column maps.
+     *
+     * @param fileName SQL specifier
+     * @return a stream query for the column maps
+     * @throws DataAccessException if there is any problem
+     */
+    public StreamQuery<Map<String, Object>> forStream(String fileName) {
+        return new StreamQuery<Map<String, Object>>() {
+            @Override public <U> U in(Function<? super Stream<Map<String, Object>>, U> handleStream) {
+                String sql = getTemplate(fileName, EMPTY_ARGS);
+                RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return jdbcTemplate.query(sql, extractor);
+            }
+        };
+    }
+
+    /**
+     * Makes a stream query for the column maps,
+     * using {@code params} as the named parameters.
+     *
+     * @param fileName SQL template specifier
+     * @param params the named parameters
+     * @return a stream query for the column maps
+     * @throws DataAccessException if there is any problem
+     */
+    public StreamQuery<Map<String, Object>> forStream(String fileName, Map<String, Object> params) {
+        return new StreamQuery<Map<String, Object>>() {
+            @Override public <U> U in(Function<? super Stream<Map<String, Object>>, U> handleStream) {
+                String sql = getTemplate(fileName, params);
+                RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), extractor);
+            }
+        };
+    }
+
+    /**
+     * Makes a stream query for the column maps,
+     * using {@code entity} as the single parameter if it is a simple value;
+     * or as the container of the named parameters if it is a bean.
+     *
+     * @param fileName SQL template specifier
+     * @param entity the single parameter or the container of the named parameters
+     * @return a stream query for the column maps
+     * @throws DataAccessException if there is any problem
+     */
+    public StreamQuery<Map<String, Object>> forStream(String fileName, Object entity) {
+        return new StreamQuery<Map<String, Object>>() {
+            @Override public <U> U in(Function<? super Stream<Map<String, Object>>, U> handleStream) {
+                String sql = getTemplate(fileName, entity);
+                RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+
+                if (TypeUtils.isSimpleValueType(entity.getClass())) {
+                    return jdbcTemplate.query(sql, paramBuilder.byArgs(entity), extractor);
+                }
+
+                return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), extractor);
+            }
+        };
+    }
+
+    /**
+     * Makes a stream query for the column maps,
+     * using {@code args} as the parameters.
+     *
+     * @param fileName SQL template specifier
+     * @param args the parameters
+     * @return a stream query for the column maps
+     * @throws DataAccessException if there is any problem
+     */
+    public StreamQuery<Map<String, Object>> forStream(String fileName, Object... args) {
+        return new StreamQuery<Map<String, Object>>() {
+            @Override public <U> U in(Function<? super Stream<Map<String, Object>>, U> handleStream) {
+                String sql = getTemplate(fileName, args);
+                RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
+                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
+            }
+        };
+    }
+
     public int update(String fileName, Object... args) {
         String sql = getTemplate(fileName, args);
         return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
