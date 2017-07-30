@@ -133,7 +133,7 @@ public class SqlTemplate {
      * @param fileName SQL specifier
      * @param clazz the result object class
      * @param <T> the result object type
-     * @return a stream query for beans
+     * @return a stream query for objects
      * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz) {
@@ -151,7 +151,7 @@ public class SqlTemplate {
      * @param clazz the result object class
      * @param args the parameters
      * @param <T> the result object type
-     * @return a stream query for beans
+     * @return a stream query for objects
      * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object... args) {
@@ -169,7 +169,7 @@ public class SqlTemplate {
      * @param clazz the result object class
      * @param params the named parameters
      * @param <T> the result object type
-     * @return a stream query for beans
+     * @return a stream query for objects
      * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Map<String, Object> params) {
@@ -188,7 +188,7 @@ public class SqlTemplate {
      * @param clazz the result object class
      * @param params the named parameters
      * @param <T> the result object type
-     * @return a stream query for beans
+     * @return a stream query for objects
      * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object entity) {
@@ -427,6 +427,17 @@ public class SqlTemplate {
             String sql = getTemplate(fileName, params);
             return namedJdbcTemplate.query(sql, paramBuilder.byMap(params), mapperBuilder.mapper(clazz));
         }
+
+        /**
+         * Returns a stream query for objects.
+         *
+         * @return a stream query for objects
+         * @throws DataAccessException if there is any problem
+         */
+        public StreamQuery<T> forStream() {
+            String sql = getTemplate(fileName, params);
+            return namedParameterStreamQuery(sql, paramBuilder.byMap(params), mapperBuilder.mapper(clazz));
+        }
     }
 
     public class MapQueryBuilderForMap {
@@ -450,6 +461,17 @@ public class SqlTemplate {
         public List<Map<String, Object>> forList() {
             String sql = getTemplate(fileName, params);
             return namedJdbcTemplate.queryForList(sql, paramBuilder.byMap(params));
+        }
+
+        /**
+         * Returns a stream query for column maps.
+         *
+         * @return a stream query for column maps
+         * @throws DataAccessException if there is any problem
+         */
+        public StreamQuery<Map<String, Object>> forStream() {
+            String sql = getTemplate(fileName, params);
+            return namedParameterStreamQuery(sql, paramBuilder.byMap(params), new ColumnMapRowMapper());
         }
     }
 
@@ -479,7 +501,8 @@ public class SqlTemplate {
         return new StreamQuery<T>() {
             @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
                 SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                ResultSetExtractor<U> extractor
+                    = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
                 return jdbcTemplate.query(sql, pss, extractor);
             }
         };
@@ -493,7 +516,8 @@ public class SqlTemplate {
         return new StreamQuery<T>() {
             @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
                 SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-                ResultSetExtractor<U> extractor = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+                ResultSetExtractor<U> extractor
+                    = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
                 return namedJdbcTemplate.query(sql, sps, extractor);
             }
         };

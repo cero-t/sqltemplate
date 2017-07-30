@@ -452,6 +452,18 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testQuery_forStream() {
+        int[] result = sqlTemplate().query("sql/selectByParam.sql", Emp.class)
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forStream()
+                .in(stream -> stream.mapToInt(emp -> emp.empno).toArray());
+        assertThat(result.length, is(4));
+        assertThat(result[0], is(7499));
+        assertThat(result[3], is(7844));
+    }
+
+    @Test
     public void testQuery_forMap() {
         Map<String, Object> result = sqlTemplate().query("sql/selectSingleByParam.sql")
                 .add("job", "SALESMAN")
@@ -469,6 +481,18 @@ public class SqlTemplateTest {
         assertThat(result.size(), is(4));
         assertThat(result.get(0).get("empno"), is(7499));
         assertThat(result.get(3).get("empno"), is(7844));
+    }
+
+    @Test
+    public void testQuery_forStreamMap() {
+        int[] result = sqlTemplate().query("sql/selectByParam.sql")
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forStream()
+                .in(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertThat(result.length, is(4));
+        assertThat(result[0], is(7499));
+        assertThat(result[3], is(7844));
     }
 
     @Test
