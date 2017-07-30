@@ -4,6 +4,8 @@ import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
 import ninja.cero.sqltemplate.core.parameter.BeanParameter;
 import ninja.cero.sqltemplate.core.parameter.MapParameter;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
+import ninja.cero.sqltemplate.core.stream.StreamQuery;
+import ninja.cero.sqltemplate.core.stream.StreamResultSetExtractor;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.dao.support.DataAccessUtils;

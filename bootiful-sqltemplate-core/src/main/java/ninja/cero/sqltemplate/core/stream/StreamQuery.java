@@ -1,4 +1,4 @@
-package ninja.cero.sqltemplate.core;
+package ninja.cero.sqltemplate.core.stream;
 
 import java.util.function.Function;
 import java.util.stream.Stream;

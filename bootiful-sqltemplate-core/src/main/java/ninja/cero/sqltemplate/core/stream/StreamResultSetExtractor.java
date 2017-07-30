@@ -1,4 +1,4 @@
-package ninja.cero.sqltemplate.core;
+package ninja.cero.sqltemplate.core.stream;
 
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
+public class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
 
     private final String sql;
 
@@ -21,7 +21,7 @@ class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
 
     private final SQLExceptionTranslator excTranslator;
 
-    StreamResultSetExtractor(
+    public StreamResultSetExtractor(
             String sql,
             RowMapper<T> mapper,
             Function<? super Stream<T>, U> handleStream,
