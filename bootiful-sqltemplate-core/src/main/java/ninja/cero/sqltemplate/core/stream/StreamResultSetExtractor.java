@@ -5,22 +5,42 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Extractor which converts a ResultSet into a row stream,
+ * then applies the handler function to the whole stream to extract a result.
+ *
+ * <p>This class is intended for internal use,
+ * thus does not constitute the library API.</p>
+ *
+ * @param <T> the row type
+ * @param <U> the result type
+ */
 public class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
 
+    /** The SQL. */
     private final String sql;
 
+    /** The row mapper. */
     private final RowMapper<T> mapper;
 
+    /** The handler function which extracts a result from the row stream. */
     private final Function<? super Stream<T>, U> handleStream;
 
+    /** The translator of SQLException to DataAccessException. */
     private final SQLExceptionTranslator excTranslator;
 
+    /**
+     * Constructs an extractor.
+     *
+     * @param sql the SQL
+     * @param mapper the row mapper
+     * @param handleStream the handler function which extracts a result from the row stream
+     * @param excTranslator the translator of SQL to DataAccessException
+     */
     public StreamResultSetExtractor(
             String sql,
             RowMapper<T> mapper,
@@ -32,56 +52,18 @@ public class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
         this.excTranslator = excTranslator;
     }
 
+    /**
+     * Applies {@code handleStream} to the row stream converted from the ResultSet
+     * to extract a result.
+     *
+     * @param rs the ResultSet
+     * @return the result of {@code handleStream}
+     */
     @Override
     public U extractData(ResultSet rs) {
-        try (Stream<T> stream = makeStream(rs, mapper)) {
-            return handleStream.apply(stream);
-        }
-    }
-
-    private <T> Stream<T> makeStream(ResultSet rs, RowMapper<T> mapper) {
-        Iterator<T> it = makeIterator(rs, mapper);
-        Iterable<T> iterable = () -> it;
-        return StreamSupport.stream(iterable.spliterator(), false);
-    }
-
-    private <T> Iterator<T> makeIterator(ResultSet rs, RowMapper<T> mapper) {
-        return new Iterator<T>() {
-            private T object = null;
-            private boolean hasNext = true;
-            private void fetch() {
-                if (this.object != null || ! this.hasNext) {
-                    return;
-                }
-                this.hasNext = wrapSqlException(() -> rs.next());
-                if (this.hasNext) {
-                    this.object = wrapSqlException(() -> mapper.mapRow(rs, 1));
-                }
-            }
-            @Override public boolean hasNext() {
-                fetch();
-                return this.hasNext;
-            }
-            @Override public T next() {
-                fetch();
-                T result = this.object;
-                this.object = null;
-                return result;
-            }
-        };
-    }
-
-    private <R> R wrapSqlException(SqlSupplier<R> supplier) {
-        try {
-            return supplier.get();
-        } catch (SQLException sqlException) {
-            throw excTranslator.translate("StreamResultSetExtractor", this.sql, sqlException);
-        }
-    }
-
-    @FunctionalInterface
-    private interface SqlSupplier<R> {
-        public abstract R get() throws SQLException;
+        Iterable<T> iterable = () -> new ResultSetIterator(sql, rs, mapper, excTranslator);
+        Stream<T> stream = StreamSupport.stream(iterable.spliterator(), false);
+        return handleStream.apply(stream);
     }
 
 }
