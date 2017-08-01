@@ -130,11 +130,12 @@ public class SqlTemplate {
     /**
      * Makes a stream query for objects.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName SQL specifier
      * @param clazz the result object class
      * @param <T> the result object type
      * @return a stream query for objects
-     * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz) {
         String sql = getTemplate(fileName, EMPTY_ARGS);
@@ -147,12 +148,13 @@ public class SqlTemplate {
      * Makes a stream query for objects,
      * using {@code args} as the parameters.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
      * @param args the parameters
      * @param <T> the result object type
      * @return a stream query for objects
-     * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object... args) {
         String sql = getTemplate(fileName, args);
@@ -165,12 +167,13 @@ public class SqlTemplate {
      * Makes a stream query for objects,
      * using {@code params} as the named parameters.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
      * @param params the named parameters
      * @param <T> the result object type
      * @return a stream query for objects
-     * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Map<String, Object> params) {
         String sql = getTemplate(fileName, params);
@@ -184,12 +187,13 @@ public class SqlTemplate {
      * using {@code entity} as the single parameter if it is a simple value;
      * or as the container of the named parameters if it is a bean.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
      * @param params the named parameters
      * @param <T> the result object type
      * @return a stream query for objects
-     * @throws DataAccessException if there is any problem
      */
     public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object entity) {
         String sql = getTemplate(fileName, entity);
@@ -252,9 +256,10 @@ public class SqlTemplate {
     /**
      * Makes a stream query for the column maps.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName SQL specifier
      * @return a stream query for the column maps
-     * @throws DataAccessException if there is any problem
      */
     public StreamQuery<Map<String, Object>> forStream(String fileName) {
         String sql = getTemplate(fileName, EMPTY_ARGS);
@@ -267,10 +272,11 @@ public class SqlTemplate {
      * Makes a stream query for the column maps,
      * using {@code args} as the parameters.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param args the parameters
      * @return a stream query for the column maps
-     * @throws DataAccessException if there is any problem
      */
     public StreamQuery<Map<String, Object>> forStream(String fileName, Object... args) {
         String sql = getTemplate(fileName, args);
@@ -283,10 +289,11 @@ public class SqlTemplate {
      * Makes a stream query for the column maps,
      * using {@code params} as the named parameters.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param params the named parameters
      * @return a stream query for the column maps
-     * @throws DataAccessException if there is any problem
      */
     public StreamQuery<Map<String, Object>> forStream(String fileName, Map<String, Object> params) {
         String sql = getTemplate(fileName, params);
@@ -300,10 +307,11 @@ public class SqlTemplate {
      * using {@code entity} as the single parameter if it is a simple value;
      * or as the container of the named parameters if it is a bean.
      *
+     * <p>See {@link StreamQuery} for usage.</p>
+     *
      * @param fileName parameterized SQL specifier
      * @param entity the single parameter or the container of the named parameters
      * @return a stream query for the column maps
-     * @throws DataAccessException if there is any problem
      */
     public StreamQuery<Map<String, Object>> forStream(String fileName, Object entity) {
         String sql = getTemplate(fileName, entity);
@@ -431,8 +439,9 @@ public class SqlTemplate {
         /**
          * Returns a stream query for objects.
          *
+         * <p>See {@link StreamQuery} for usage.</p>
+         *
          * @return a stream query for objects
-         * @throws DataAccessException if there is any problem
          */
         public StreamQuery<T> forStream() {
             String sql = getTemplate(fileName, params);
@@ -466,8 +475,9 @@ public class SqlTemplate {
         /**
          * Returns a stream query for column maps.
          *
+         * <p>See {@link StreamQuery} for usage.</p>
+         *
          * @return a stream query for column maps
-         * @throws DataAccessException if there is any problem
          */
         public StreamQuery<Map<String, Object>> forStream() {
             String sql = getTemplate(fileName, params);
