@@ -4,7 +4,6 @@ import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
 import ninja.cero.sqltemplate.core.parameter.BeanParameter;
 import ninja.cero.sqltemplate.core.parameter.MapParameter;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
-import ninja.cero.sqltemplate.core.stream.StreamQuery;
 import ninja.cero.sqltemplate.core.stream.StreamResultSetExtractor;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import ninja.cero.sqltemplate.core.util.TypeUtils;
@@ -128,83 +127,144 @@ public class SqlTemplate {
     }
 
     /**
-     * Makes a stream query for objects.
+     * Executes a query, passing the row objects to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", Emp.class,
+     *         (Stream&lt;Emp&gt; empStream) -&gt; empStream.mapToInt(Emp::getSalary).sum());
+     * </pre>
      *
      * @param fileName SQL specifier
-     * @param clazz the result object class
-     * @param <T> the result object type
-     * @return a stream query for objects
+     * @param clazz the row object class
+     * @param handleStream  the function which is applied to the stream
+     * @param <T> the row object type
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz) {
+    public <T, U> U forStream(
+            String fileName,
+            Class<T> clazz,
+            Function<? super Stream<T>, U> handleStream) {
         String sql = getTemplate(fileName, EMPTY_ARGS);
         PreparedStatementSetter pss = paramBuilder.byArgs(new Object[0]);
         RowMapper<T> mapper = mapperBuilder.mapper(clazz);
-        return ordinalParameterStreamQuery(sql, pss, mapper);
+        return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for objects,
-     * using {@code args} as the parameters.
+     * Executes a query using {@code args} as the parameters,
+     * passing the row objects to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", Emp.class,
+     *         new Object[] { 30, "SALESMAN" },
+     *         empStream -&gt; empStream.mapToInt(Emp::getSalary).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
      * @param args the parameters
-     * @param <T> the result object type
-     * @return a stream query for objects
+     * @param handleStream the function which is applied to the stream
+     * @param <T> the row object type
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object... args) {
+    public <T, U> U forStream(
+            String fileName,
+            Class<T> clazz,
+            Object[] args,
+            Function<? super Stream<T>, U> handleStream) {
         String sql = getTemplate(fileName, args);
         PreparedStatementSetter pss = paramBuilder.byArgs(args);
         RowMapper<T> mapper = mapperBuilder.mapper(clazz);
-        return ordinalParameterStreamQuery(sql, pss, mapper);
+        return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for objects,
-     * using {@code params} as the named parameters.
+     * Executes a query using {@code params} as the named parameters,
+     * passing the row objects to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * Map&lt;String, Object&gt; params = new HashMap&gt;&lt;();
+     * params.put("deptno", 30);
+     * params.put("job", "SALESMAN");
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", Emp.class, params,
+     *         empStream -&gt; empStream.mapToInt(Emp::getSalary).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
      * @param params the named parameters
-     * @param <T> the result object type
-     * @return a stream query for objects
+     * @param handleStream  the function which is applied to the stream
+     * @param <T> the row object type
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Map<String, Object> params) {
+    public <T, U> U forStream(
+            String fileName,
+            Class<T> clazz,
+            Map<String, Object> params,
+            Function<? super Stream<T>, U> handleStream) {
         String sql = getTemplate(fileName, params);
         SqlParameterSource sps = paramBuilder.byMap(params);
         RowMapper<T> mapper = mapperBuilder.mapper(clazz);
-        return namedParameterStreamQuery(sql, sps, mapper);
+        return queryStreamWithNamedParams(sql, sps, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for objects,
-     * using {@code entity} as the single parameter if it is a simple value;
-     * or as the container of the named parameters if it is a bean.
+     * Executes a query, passing the row objects to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>{@code entity} is used as the single parameter if it is a simple value,
+     * or as the container of the named parameters if it is a bean.</p>
+     *
+     * <p>Example usage with a simple value parameter:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", Emp.class, "SALESMAN",
+     *         empStream -&gt; empStream.mapToInt(Emp::getSalary).sum());
+     * </pre>
+     *
+     * <p>Example usage with a bean parameter:</p>
+     *
+     * <pre>
+     * emp.setDeptno(30);
+     * emp.setJob("SALESMAN");
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", Emp.class, emp,
+     *         empStream -&gt; empStream.mapToInt(Emp::getSalary).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param clazz the result object class
-     * @param params the named parameters
-     * @param <T> the result object type
-     * @return a stream query for objects
+     * @param entity the single parameter, or the container of the named parameters
+     * @param handleStream  the function which is applied to the stream
+     * @param <T> the row object type
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public <T> StreamQuery<T> forStream(String fileName, Class<T> clazz, Object entity) {
+    public <T, U> U forStream(
+            String fileName,
+            Class<T> clazz,
+            Object entity,
+            Function<? super Stream<T>, U> handleStream) {
         String sql = getTemplate(fileName, entity);
         RowMapper<T> mapper = mapperBuilder.mapper(clazz);
         SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
         if (TypeUtils.isSimpleValueType(entity.getClass())) {
             PreparedStatementSetter pss = paramBuilder.byArgs(entity);
-            return ordinalParameterStreamQuery(sql, pss, mapper);
+            return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
         } else {
             SqlParameterSource sps = paramBuilder.byBean(entity);
-            return namedParameterStreamQuery(sql, sps, mapper);
+            return queryStreamWithNamedParams(sql, sps, mapper, handleStream);
         }
     }
 
@@ -254,74 +314,132 @@ public class SqlTemplate {
     }
 
     /**
-     * Makes a stream query for the column maps.
+     * Executes a query,
+     * passing the column maps to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql",
+     *         mapStream -&gt; mapStream.mapToInt(map -&gt; (Integer) map.get("salary")).sum());
+     * </pre>
      *
      * @param fileName SQL specifier
-     * @return a stream query for the column maps
+     * @param handleStream the function which is applied to the stream
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public StreamQuery<Map<String, Object>> forStream(String fileName) {
+    public <U> U forStream(
+            String fileName,
+            Function<? super Stream<Map<String, Object>>, U> handleStream) {
         String sql = getTemplate(fileName, EMPTY_ARGS);
         PreparedStatementSetter pss = paramBuilder.byArgs(new Object[0]);
         RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
-        return ordinalParameterStreamQuery(sql, pss, mapper);
+        return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for the column maps,
-     * using {@code args} as the parameters.
+     * Executes a query using {@code args} as the parameters,
+     * passing the column maps to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql",
+     *         new Object[] { 30, "SALESMAN" },
+     *         mapStream -&gt; mapStream.mapToInt(map -&gt; (Integer) map.get("salary")).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param args the parameters
-     * @return a stream query for the column maps
+     * @param handleStream  the function which is applied to the stream
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public StreamQuery<Map<String, Object>> forStream(String fileName, Object... args) {
+    public <U> U forStream(
+            String fileName,
+            Object[] args,
+            Function<? super Stream<Map<String, Object>>, U> handleStream) {
         String sql = getTemplate(fileName, args);
         PreparedStatementSetter pss = paramBuilder.byArgs(args);
         RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
-        return ordinalParameterStreamQuery(sql, pss, mapper);
+        return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for the column maps,
-     * using {@code params} as the named parameters.
+     * Executes a query using {@code params} as the named parameters,
+     * passing the column maps to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>Example usage:</p>
+     *
+     * <pre>
+     * Map&lt;String, Object&gt; params = new HashMap&gt;&lt;();
+     * params.put("deptno", 30);
+     * params.put("job", "SALESMAN");
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", params,
+     *         mapStream -&gt; mapStream.mapToInt(map -&gt; (Integer) map.get("salary")).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param params the named parameters
-     * @return a stream query for the column maps
+     * @param handleStream  the function which is applied to the stream
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public StreamQuery<Map<String, Object>> forStream(String fileName, Map<String, Object> params) {
+    public <U> U forStream(
+            String fileName,
+            Map<String, Object> params,
+            Function<? super Stream<Map<String, Object>>, U> handleStream) {
         String sql = getTemplate(fileName, params);
         SqlParameterSource sps = paramBuilder.byMap(params);
         RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
-        return namedParameterStreamQuery(sql, sps, mapper);
+        return queryStreamWithNamedParams(sql, sps, mapper, handleStream);
     }
 
     /**
-     * Makes a stream query for the column maps,
-     * using {@code entity} as the single parameter if it is a simple value;
-     * or as the container of the named parameters if it is a bean.
+     * Executes a query, passing the column maps to {@code handleStream} as a stream.
      *
-     * <p>See {@link StreamQuery} for usage.</p>
+     * <p>{@code entity} is used as the single parameter if it is a simple value,
+     * or as the container of the named parameters if it is a bean.</p>
+     *
+     * <p>Example usage with a simple value parameter:</p>
+     *
+     * <pre>
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", "SALESMAN",
+     *         mapStream -&gt; mapStream.mapToInt(map -&gt; (Integer) map.get("salary")).sum());
+     * </pre>
+     *
+     * <p>Example usage with a bean parameter:</p>
+     *
+     * <pre>
+     * emp.setDeptno(30);
+     * emp.setJob("SALESMAN");
+     * int totalSalary = sqlTemplate.forStream("/path/to/query.sql", emp,
+     *         mapStream -&gt; mapStream.mapToInt(map -&gt; (Integer) map.get("salary")).sum());
+     * </pre>
      *
      * @param fileName parameterized SQL specifier
      * @param entity the single parameter or the container of the named parameters
-     * @return a stream query for the column maps
+     * @param handleStream  the function which is applied to the stream
+     * @param <U> the result type
+     * @return the result of {@code handleStream}
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
-    public StreamQuery<Map<String, Object>> forStream(String fileName, Object entity) {
+    public <U> U forStream(
+            String fileName,
+            Object entity,
+            Function<? super Stream<Map<String, Object>>, U> handleStream) {
         String sql = getTemplate(fileName, entity);
         RowMapper<Map<String, Object>> mapper = new ColumnMapRowMapper();
         if (TypeUtils.isSimpleValueType(entity.getClass())) {
             PreparedStatementSetter pss = paramBuilder.byArgs(entity);
-            return ordinalParameterStreamQuery(sql, pss, mapper);
+            return queryStreamWithOrdinalParams(sql, pss, mapper, handleStream);
         } else {
             SqlParameterSource sps = paramBuilder.byBean(entity);
-            return namedParameterStreamQuery(sql, sps, mapper);
+            return queryStreamWithNamedParams(sql, sps, mapper, handleStream);
         }
     }
 
@@ -437,15 +555,16 @@ public class SqlTemplate {
         }
 
         /**
-         * Returns a stream query for objects.
+         * Executes a query, passing the row objects to {@code handleStream} as a stream.
          *
-         * <p>See {@link StreamQuery} for usage.</p>
-         *
-         * @return a stream query for objects
+         * @param handleStream  the function which is applied to the stream
+         * @param <U> the result type
+         * @return the result of {@code handleStream}
+         * @throws org.springframework.dao.DataAccessException if there is any problem
          */
-        public StreamQuery<T> forStream() {
+        public <U> U forStream(Function<? super Stream<T>, U> handleStream) {
             String sql = getTemplate(fileName, params);
-            return namedParameterStreamQuery(sql, paramBuilder.byMap(params), mapperBuilder.mapper(clazz));
+            return queryStreamWithNamedParams(sql, paramBuilder.byMap(params), mapperBuilder.mapper(clazz), handleStream);
         }
     }
 
@@ -473,15 +592,17 @@ public class SqlTemplate {
         }
 
         /**
-         * Returns a stream query for column maps.
+         * Executes a query, passing the column maps to {@code handleStream} as a stream.
          *
-         * <p>See {@link StreamQuery} for usage.</p>
-         *
-         * @return a stream query for column maps
+         * @param handleStream the function which is applied to the stream
+         * @param <U> the result type
+         * @return the result of {@code handleStream}
+         * @throws org.springframework.dao.DataAccessException if there is any problem
          */
-        public StreamQuery<Map<String, Object>> forStream() {
+        public <U> U forStream(
+                Function<? super Stream<Map<String, Object>>, U> handleStream) {
             String sql = getTemplate(fileName, params);
-            return namedParameterStreamQuery(sql, paramBuilder.byMap(params), new ColumnMapRowMapper());
+            return queryStreamWithNamedParams(sql, paramBuilder.byMap(params), new ColumnMapRowMapper(), handleStream);
         }
     }
 
@@ -504,33 +625,31 @@ public class SqlTemplate {
     }
 
     /**
-     * Returns a stream quey with ordinal parameters.
+     * Executes a quey for stream with ordinal parameters.
      */
-    private <T> StreamQuery<T> ordinalParameterStreamQuery(
-            String sql, PreparedStatementSetter pss, RowMapper<T> mapper) {
-        return new StreamQuery<T>() {
-            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
-                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-                ResultSetExtractor<U> extractor
-                    = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
-                return jdbcTemplate.query(sql, pss, extractor);
-            }
-        };
+    private <T, U> U queryStreamWithOrdinalParams(
+            String sql,
+            PreparedStatementSetter pss,
+            RowMapper<T> mapper,
+            Function<? super Stream<T>, U> handleStream) {
+        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+        ResultSetExtractor<U> extractor
+            = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+        return jdbcTemplate.query(sql, pss, extractor);
     }
 
     /**
-     * Returns a stream quey with named parameters.
+     * Executes a query for stream with named parameters.
      */
-    private <T> StreamQuery<T> namedParameterStreamQuery(
-            String sql, SqlParameterSource sps, RowMapper<T> mapper) {
-        return new StreamQuery<T>() {
-            @Override public <U> U in(Function<? super Stream<T>, U> handleStream) {
-                SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-                ResultSetExtractor<U> extractor
-                    = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
-                return namedJdbcTemplate.query(sql, sps, extractor);
-            }
-        };
+    private <T, U> U queryStreamWithNamedParams(
+            String sql,
+            SqlParameterSource sps,
+            RowMapper<T> mapper,
+            Function<? super Stream<T>, U> handleStream) {
+        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+        ResultSetExtractor<U> extractor
+            = new StreamResultSetExtractor(sql, mapper, handleStream, excTranslator);
+        return namedJdbcTemplate.query(sql, sps, extractor);
     }
 
 }
