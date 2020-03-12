@@ -2,19 +2,18 @@ package ninja.cero.sqltemplate.core;
 
 import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.Emp;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @Transactional
 public class PlainTextSqlTemplateTest {
@@ -27,7 +26,7 @@ public class PlainTextSqlTemplateTest {
     @Test
     public void testForObject_NoArgs() {
         Emp emp = sqlTemplate().forObject("select * from emp where empno=7369", Emp.class);
-        assertThat(emp.empno, is(7369));
+        assertEquals(7369, emp.empno);
     }
 
     SqlTemplate sqlTemplate() {

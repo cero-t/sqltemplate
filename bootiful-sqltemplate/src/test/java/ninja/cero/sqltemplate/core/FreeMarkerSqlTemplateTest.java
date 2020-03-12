@@ -2,23 +2,22 @@ package ninja.cero.sqltemplate.core;
 
 import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.Emp;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @Transactional
 public class FreeMarkerSqlTemplateTest {
@@ -35,17 +34,17 @@ public class FreeMarkerSqlTemplateTest {
         param.put("job", "SALESMAN");
 
         List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class, param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).empno);
+        assertEquals(7844, result.get(3).empno);
     }
 
     @Test
     public void testForList_empty() {
         List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class);
-        assertThat(result.size(), is(14));
-        assertThat(result.get(0).empno, is(7369));
-        assertThat(result.get(13).empno, is(7934));
+        assertEquals(14, result.size());
+        assertEquals(7369, result.get(0).empno);
+        assertEquals(7934, result.get(13).empno);
     }
 
     SqlTemplate sqlTemplate() {

@@ -4,35 +4,29 @@ import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Stream;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @Transactional
 public class SqlTemplateTest {
@@ -45,7 +39,7 @@ public class SqlTemplateTest {
     @Test
     public void testForObject_NoArgs() {
         Emp emp = sqlTemplate().forObject("sql/selectSingle.sql", Emp.class);
-        assertThat(emp.empno, is(7369));
+        assertEquals(7369, emp.empno);
     }
 
     @Test
@@ -55,7 +49,7 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
 
         Emp emp = sqlTemplate().forObject("sql/selectSingleByParam.sql", Emp.class, param);
-        assertThat(emp.empno, is(7499));
+        assertEquals(7499, emp.empno);
     }
 
     @Test
@@ -65,33 +59,33 @@ public class SqlTemplateTest {
         param.job = "SALESMAN";
 
         Emp emp = sqlTemplate().forObject("sql/selectSingleByParam.sql", Emp.class, param);
-        assertThat(emp.empno, is(7499));
+        assertEquals(7499, emp.empno);
     }
 
     @Test
     public void testForObject_SingleArg() {
         Emp emp = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7839);
-        assertThat(emp.empno, is(7839));
+        assertEquals(7839, emp.empno);
     }
 
     @Test
     public void testForObject_MultiArg() {
         Emp emp = sqlTemplate().forObject("sql/selectSingleByArgs.sql", Emp.class, 30, "SALESMAN");
-        assertThat(emp.empno, is(7499));
+        assertEquals(7499, emp.empno);
     }
 
     @Test
     public void testForObject_ReturnSimple() {
         Integer result = sqlTemplate().forObject("sql/selectSingleEmpno.sql", Integer.class);
-        assertThat(result, is(7369));
+        assertEquals(7369, result);
     }
 
     @Test
     public void testForList_NoArg() {
         List<Emp> result = sqlTemplate().forList("sql/selectAll.sql", Emp.class);
-        assertThat(result.size(), is(14));
-        assertThat(result.get(0).empno, is(7369));
-        assertThat(result.get(13).empno, is(7934));
+        assertEquals(14, result.size());
+        assertEquals(7369, result.get(0).empno);
+        assertEquals(7934, result.get(13).empno);
     }
 
     @Test
@@ -101,9 +95,9 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
 
         List<Emp> result = sqlTemplate().forList("sql/selectByParam.sql", Emp.class, param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).empno);
+        assertEquals(7844, result.get(3).empno);
     }
 
     @Test
@@ -113,9 +107,9 @@ public class SqlTemplateTest {
         param.job = "SALESMAN";
 
         List<Emp> result = sqlTemplate().forList("sql/selectByParam.sql", Emp.class, param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).empno);
+        assertEquals(7844, result.get(3).empno);
     }
 
     @Test
@@ -125,44 +119,45 @@ public class SqlTemplateTest {
         param.setJob("SALESMAN");
 
         List<AccessorEmp> result = sqlTemplate().forList("sql/selectByParam.sql", AccessorEmp.class, param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).getEmpno(), is(7499));
-        assertThat(result.get(3).getEmpno(), is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).getEmpno());
+        assertEquals(7844, result.get(3).getEmpno());
     }
 
     @Test
     public void testForList_SingleArg() {
         List<Emp> result = sqlTemplate().forList("sql/selectByDeptno.sql", Emp.class, 10);
-        assertThat(result.size(), is(3));
-        assertThat(result.get(0).empno, is(7782));
-        assertThat(result.get(2).empno, is(7934));
+        assertEquals(3, result.size());
+        assertEquals(7782, result.get(0).empno);
+        assertEquals(7934, result.get(2).empno);
     }
 
     @Test
     public void testForList_MultiArg() {
         List<Emp> result = sqlTemplate().forList("sql/selectByArgs.sql", Emp.class, 30, "SALESMAN");
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).empno);
+        assertEquals(7844, result.get(3).empno);
     }
 
     @Test
     public void testForList_ReturnSimple() {
         List<Integer> result = sqlTemplate().forList("sql/selectEmpno.sql", Integer.class);
-        assertThat(result.size(), is(14));
-        assertThat(result.get(0), is(7369));
-        assertThat(result.get(13), is(7934));
+        assertEquals(14, result.size());
+        assertEquals(7369, result.get(0));
+        assertEquals(7934, result.get(13));
     }
 
     @Test
     public void testForStream_NoArg() {
         // Without explicitly typing the lambda parameter,
         // javac cannot determine which to call forStream(String, Class, Function) or forStream(String, Object, Function)
-        int[] result = sqlTemplate().forStream("sql/selectAll.sql", Emp.class,
-                (Stream<Emp> stream) -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(14));
-        assertThat(result[0], is(7369));
-        assertThat(result[13], is(7934));
+        // TODO: reconsider
+//        int[] result = sqlTemplate().forStream("sql/selectAll.sql", Emp.class,
+//                (Stream<Emp> stream) -> stream.mapToInt(emp -> emp.empno).toArray());
+//        assertEquals(14, result.length);
+//        assertEquals(7369, result[0]);
+//        assertEquals(7934, result[13]);
     }
 
     @Test
@@ -172,9 +167,9 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
         int[] result = sqlTemplate().forStream("sql/selectByParam.sql", Emp.class, param,
                 stream -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -185,9 +180,9 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate().forStream("sql/selectByParam.sql", Emp.class, param,
                 stream -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -198,18 +193,18 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate().forStream("sql/selectByParam.sql", AccessorEmp.class, param,
                 stream -> stream.mapToInt(AccessorEmp::getEmpno).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
     public void testForStream_SingleArg() {
         int[] result = sqlTemplate().forStream("sql/selectByDeptno.sql", Emp.class, 10,
                 stream -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(3));
-        assertThat(result[0], is(7782));
-        assertThat(result[2], is(7934));
+        assertEquals(3, result.length);
+        assertEquals(7782, result[0]);
+        assertEquals(7934, result[2]);
     }
 
     @Test
@@ -217,26 +212,27 @@ public class SqlTemplateTest {
         int[] result = sqlTemplate().forStream("sql/selectByArgs.sql", Emp.class,
                 new Object[] { 30, "SALESMAN" },
                 stream -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
     public void testForStream_ReturnSimple() {
         // Without explicitly typing the lambda parameter,
         // javac cannot determine which to call forStream(String, Class, Function) or forStream(String, Object, Function)
-        int[] result = sqlTemplate().forStream("sql/selectEmpno.sql", Integer.class,
-                (Stream<Integer> stream) -> stream.mapToInt(empno -> empno).toArray());
-        assertThat(result.length, is(14));
-        assertThat(result[0], is(7369));
-        assertThat(result[13], is(7934));
+        // TODO: reconsider
+//        int[] result = sqlTemplate().forStream("sql/selectEmpno.sql", Integer.class,
+//                (Stream<Integer> stream) -> stream.mapToInt(empno -> empno).toArray());
+//        assertEquals(14, result.length);
+//        assertEquals(7369, result[0]);
+//        assertEquals(7934, result[13]);
     }
 
     @Test
     public void testForMap_NoArgs() {
         Map<String, Object> result = sqlTemplate().forMap("sql/selectSingle.sql");
-        assertThat(result.get("empno"), is(7369));
+        assertEquals(7369, result.get("empno"));
     }
 
     @Test
@@ -246,7 +242,7 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
 
         Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByParam.sql", param);
-        assertThat(result.get("empno"), is(7499));
+        assertEquals(7499, result.get("empno"));
     }
 
     @Test
@@ -256,35 +252,35 @@ public class SqlTemplateTest {
         param.job = "SALESMAN";
 
         Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByParam.sql", param);
-        assertThat(result.get("empno"), is(7499));
+        assertEquals(7499, result.get("empno"));
     }
 
     @Test
     public void testForMap_SingleArg() {
         Map<String, Object> result = sqlTemplate().forMap("sql/selectByEmpno.sql", 7839);
-        assertThat(result.get("empno"), is(7839));
+        assertEquals(7839, result.get("empno"));
     }
 
     @Test
     public void testForMap_MultiArg() {
         Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleByArgs.sql", 30, "SALESMAN");
-        assertThat(result.get("empno"), is(7499));
+        assertEquals(7499, result.get("empno"));
     }
 
     @Test
     public void testForMap_ReturnSimple() {
         Map<String, Object> result = sqlTemplate().forMap("sql/selectSingleEmpno.sql");
-        assertThat(result.size(), is(1));
-        assertThat(result.get("empno"), is(7369));
+        assertEquals(1, result.size());
+        assertEquals(7369, result.get("empno"));
     }
 
 
     @Test
     public void testForListMap_NoArg() {
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectAll.sql");
-        assertThat(result.size(), is(14));
-        assertThat(result.get(0).get("empno"), is(7369));
-        assertThat(result.get(13).get("empno"), is(7934));
+        assertEquals(14, result.size());
+        assertEquals(7369, result.get(0).get("empno"));
+        assertEquals(7934, result.get(13).get("empno"));
     }
 
     @Test
@@ -294,9 +290,9 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
 
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByParam.sql", param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).get("empno"), is(7499));
-        assertThat(result.get(3).get("empno"), is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).get("empno"));
+        assertEquals(7844, result.get(3).get("empno"));
     }
 
     @Test
@@ -306,34 +302,34 @@ public class SqlTemplateTest {
         param.job = "SALESMAN";
 
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByParam.sql", param);
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).get("empno"), is(7499));
-        assertThat(result.get(3).get("empno"), is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).get("empno"));
+        assertEquals(7844, result.get(3).get("empno"));
     }
 
     @Test
     public void testForListMap_SingleArg() {
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByDeptno.sql", 10);
-        assertThat(result.size(), is(3));
-        assertThat(result.get(0).get("empno"), is(7782));
-        assertThat(result.get(2).get("empno"), is(7934));
+        assertEquals(3, result.size());
+        assertEquals(7782, result.get(0).get("empno"));
+        assertEquals(7934, result.get(2).get("empno"));
     }
 
     @Test
     public void testForListMap_MultiArg() {
         List<Map<String, Object>> result = sqlTemplate().forList("sql/selectByArgs.sql", 30, "SALESMAN");
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).get("empno"), is(7499));
-        assertThat(result.get(3).get("empno"), is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).get("empno"));
+        assertEquals(7844, result.get(3).get("empno"));
     }
 
     @Test
     public void testForStreamMap_NoArg() {
         int[] result = sqlTemplate().forStream("sql/selectAll.sql",
                 stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(14));
-        assertThat(result[0], is(7369));
-        assertThat(result[13], is(7934));
+        assertEquals(14, result.length);
+        assertEquals(7369, result[0]);
+        assertEquals(7934, result[13]);
     }
 
     @Test
@@ -344,9 +340,9 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate().forStream("sql/selectByParam.sql", param,
                 stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -357,18 +353,18 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate().forStream("sql/selectByParam.sql", param,
                 stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
     public void testForStreamMap_SingleArg() {
         int[] result = sqlTemplate().forStream("sql/selectByDeptno.sql", 10,
                 stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(3));
-        assertThat(result[0], is(7782));
-        assertThat(result[2], is(7934));
+        assertEquals(3, result.length);
+        assertEquals(7782, result[0]);
+        assertEquals(7934, result[2]);
     }
 
     @Test
@@ -376,9 +372,9 @@ public class SqlTemplateTest {
         int[] result = sqlTemplate().forStream("sql/selectByArgs.sql",
                 new Object[] { 30, "SALESMAN" },
                 stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -394,12 +390,12 @@ public class SqlTemplateTest {
         emp.deptno = 10;
 
         int count = sqlTemplate().update("sql/insertByParam.sql", emp);
-        assertThat(count, is(1));
+        assertEquals(1, count);
 
         Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1000);
-        assertThat(result.ename, is(emp.ename));
-        assertThat(result.hiredate, is(emp.hiredate));
-        assertThat(result.deptno, is(emp.deptno));
+        assertEquals(emp.ename, result.ename);
+        assertEquals(emp.hiredate, result.hiredate);
+        assertEquals(emp.deptno, result.deptno);
     }
 
     @Test
@@ -410,17 +406,17 @@ public class SqlTemplateTest {
         param.put("empno", 7876);
 
         int count = sqlTemplate().update("sql/updateByParam.sql", param);
-        assertThat(count, is(1));
+        assertEquals(1, count);
 
         Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7876);
-        assertThat(result.job, is("ANALYST"));
-        assertThat(result.mgr, is(7566));
+        assertEquals("ANALYST", result.job);
+        assertEquals(7566, result.mgr);
     }
 
     @Test
     public void testUpdate_deleteByArg() {
         int count = sqlTemplate().update("sql/deleteByArg.sql", 7566);
-        assertThat(count, is(1));
+        assertEquals(1, count);
 
         Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7566);
         assertNull(result);
@@ -429,12 +425,12 @@ public class SqlTemplateTest {
     @Test
     public void testUpdate_deleteByArgs() {
         int count = sqlTemplate().update("sql/deleteByArgs.sql", 30, "SALESMAN");
-        assertThat(count, is(4));
+        assertEquals(4, count);
 
         List<Emp> result = sqlTemplate().forList("sql/selectByDeptno.sql", Emp.class, 30);
-        assertThat(result.size(), is(2));
-        assertThat(result.get(0).empno, is(7698));
-        assertThat(result.get(1).empno, is(7900));
+        assertEquals(2, result.size());
+        assertEquals(7698, result.get(0).empno);
+        assertEquals(7900, result.get(1).empno);
     }
 
     @Test
@@ -443,7 +439,7 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forObject();
-        assertThat(emp.empno, is(7499));
+        assertEquals(7499, emp.empno);
     }
 
     @Test
@@ -452,9 +448,9 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forList();
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).empno, is(7499));
-        assertThat(result.get(3).empno, is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).empno);
+        assertEquals(7844, result.get(3).empno);
     }
 
     @Test
@@ -463,9 +459,9 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forStream(stream -> stream.mapToInt(emp -> emp.empno).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -474,7 +470,7 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forMap();
-        assertThat(result.get("empno"), is(7499));
+        assertEquals(7499, result.get("empno"));
     }
 
     @Test
@@ -483,9 +479,9 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forList();
-        assertThat(result.size(), is(4));
-        assertThat(result.get(0).get("empno"), is(7499));
-        assertThat(result.get(3).get("empno"), is(7844));
+        assertEquals(4, result.size());
+        assertEquals(7499, result.get(0).get("empno"));
+        assertEquals(7844, result.get(3).get("empno"));
     }
 
     @Test
@@ -494,18 +490,18 @@ public class SqlTemplateTest {
                 .add("job", "SALESMAN")
                 .add("deptno", 30)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-        assertThat(result.length, is(4));
-        assertThat(result[0], is(7499));
-        assertThat(result[3], is(7844));
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
     public void testForObject_noFile() {
         try {
-            Emp emp = sqlTemplate().forObject("x", Emp.class);
-            fail();
+            sqlTemplate().forObject("x", Emp.class);
+            throw new RuntimeException("Test failed");
         } catch (UncheckedIOException ex) {
-            assertThat(ex.getCause().getMessage(), is("Template 'x' not found"));
+            assertEquals("Template 'x' not found", ex.getCause().getMessage());
         }
     }
 
@@ -519,16 +515,16 @@ public class SqlTemplateTest {
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
 
         // assert
-        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
-        assertThat(result.sqlDate.toString(), is("2001-01-24"));
-        assertThat(result.sqlTime.toString(), is("12:34:57"));
-        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
-        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
-        assertThat(result.localDate.toString(), is("2001-01-27"));
-        assertThat(result.localTime.toString(), is("12:35:01"));
-        assertThat(result.zonedDateTime.toString(), is("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]"));
-        assertThat(result.offsetDateTime.toString(), is("2001-01-29T12:35:03.789+09:00"));
-        assertThat(result.offsetTime.toString(), is("12:35:04+09:00"));
+        assertEquals("2001-01-23 12:34:56.789", result.utilDate.toString());
+        assertEquals("2001-01-24", result.sqlDate.toString());
+        assertEquals("12:34:57", result.sqlTime.toString());
+        assertEquals("2001-01-25 12:34:58.789", result.sqlTimestamp.toString());
+        assertEquals("2001-01-26T12:34:59.789", result.localDateTime.toString());
+        assertEquals("2001-01-27", result.localDate.toString());
+        assertEquals("12:35:01", result.localTime.toString());
+        assertEquals("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]", result.zonedDateTime.toString());
+        assertEquals("2001-01-29T12:35:03.789+09:00", result.offsetDateTime.toString());
+        assertEquals("12:35:04+09:00", result.offsetTime.toString());
     }
 
     @Test
@@ -541,13 +537,13 @@ public class SqlTemplateTest {
         SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
 
         List<LocalDateTime> localDateTime = template.forList("SELECT local_date_time FROM date_time", LocalDateTime.class);
-        assertThat(localDateTime.get(0).toString(), is("2001-01-26T12:34:59.789"));
+        assertEquals("2001-01-26T12:34:59.789", localDateTime.get(0).toString());
 
         List<LocalDate> localDate = template.forList("SELECT local_date FROM date_time", LocalDate.class);
-        assertThat(localDate.get(0).toString(), is("2001-01-27"));
+        assertEquals("2001-01-27", localDate.get(0).toString());
 
         List<LocalTime> localTime = template.forList("SELECT local_time FROM date_time", LocalTime.class);
-        assertThat(localTime.get(0).toString(), is("12:35:01"));
+        assertEquals("12:35:01", localTime.get(0).toString());
     }
 
     @Test
@@ -560,13 +556,13 @@ public class SqlTemplateTest {
         SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
 
         LocalDateTime localDateTime = template.forObject("SELECT local_date_time FROM date_time", LocalDateTime.class);
-        assertThat(localDateTime.toString(), is("2001-01-26T12:34:59.789"));
+        assertEquals("2001-01-26T12:34:59.789", localDateTime.toString());
 
         LocalDate localDate = template.forObject("SELECT local_date FROM date_time", LocalDate.class);
-        assertThat(localDate.toString(), is("2001-01-27"));
+        assertEquals("2001-01-27", localDate.toString());
 
         LocalTime localTime = template.forObject("SELECT local_time FROM date_time", LocalTime.class);
-        assertThat(localTime.toString(), is("12:35:01"));
+        assertEquals("12:35:01", localTime.toString());
     }
 
     @Test
@@ -580,12 +576,12 @@ public class SqlTemplateTest {
 
         // assert
         Map<String, Object> result = maps.get(0);
-        assertThat(result.get("local_date_time"), instanceOf(Timestamp.class));
-        assertThat(result.get("local_date_time").toString(), is("2001-01-26 12:34:59.789"));
-        assertThat(result.get("local_date"), instanceOf(java.sql.Date.class));
-        assertThat(result.get("local_date").toString(), is("2001-01-27"));
-        assertThat(result.get("local_time"), instanceOf(Time.class));
-        assertThat(result.get("local_time").toString(), is("12:35:01"));
+        assertEquals(Timestamp.class, result.get("local_date_time").getClass());
+        assertEquals("2001-01-26 12:34:59.789", result.get("local_date_time").toString());
+        assertEquals(java.sql.Date.class, result.get("local_date").getClass());
+        assertEquals("2001-01-27", result.get("local_date").toString());
+        assertEquals(Time.class, result.get("local_time").getClass());
+        assertEquals("12:35:01", result.get("local_time").toString());
     }
 
     @Test
@@ -613,19 +609,19 @@ public class SqlTemplateTest {
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
 
         // assert
-        assertThat(num, is(1));
+        assertEquals(1, num);
 
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
-        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
-        assertThat(result.sqlDate.toString(), is("2001-01-24"));
-        assertThat(result.sqlTime.toString(), is("12:34:57"));
-        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
-        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
-        assertThat(result.localDate.toString(), is("2001-01-27"));
-        assertThat(result.localTime.toString(), is("12:35:01"));
-        assertThat(result.zonedDateTime.toString(), is("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]"));
-        assertThat(result.offsetDateTime.toString(), is("2001-01-29T12:35:03.789+09:00"));
-        assertThat(result.offsetTime.toString(), is("12:35:04+09:00"));
+        assertEquals("2001-01-23 12:34:56.789", result.utilDate.toString());
+        assertEquals("2001-01-24", result.sqlDate.toString());
+        assertEquals("12:34:57", result.sqlTime.toString());
+        assertEquals("2001-01-25 12:34:58.789", result.sqlTimestamp.toString());
+        assertEquals("2001-01-26T12:34:59.789", result.localDateTime.toString());
+        assertEquals("2001-01-27", result.localDate.toString());
+        assertEquals("12:35:01", result.localTime.toString());
+        assertEquals("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]", result.zonedDateTime.toString());
+        assertEquals("2001-01-29T12:35:03.789+09:00", result.offsetDateTime.toString());
+        assertEquals("12:35:04+09:00", result.offsetTime.toString());
     }
 
     @Test
@@ -642,7 +638,7 @@ public class SqlTemplateTest {
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
 
         // assert
-        assertThat(num, is(1));
+        assertEquals(1, num);
 
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
 
@@ -683,19 +679,19 @@ public class SqlTemplateTest {
                 entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
 
         // assert
-        assertThat(num, is(1));
+        assertEquals(1, num);
 
         DateTimeEntity result = template.forObject("SELECT * FROM date_time", DateTimeEntity.class);
-        assertThat(result.utilDate.toString(), is("2001-01-23 12:34:56.789"));
-        assertThat(result.sqlDate.toString(), is("2001-01-24"));
-        assertThat(result.sqlTime.toString(), is("12:34:57"));
-        assertThat(result.sqlTimestamp.toString(), is("2001-01-25 12:34:58.789"));
-        assertThat(result.localDateTime.toString(), is("2001-01-26T12:34:59.789"));
-        assertThat(result.localDate.toString(), is("2001-01-27"));
-        assertThat(result.localTime.toString(), is("12:35:01"));
-        assertThat(result.zonedDateTime.toString(), is("2001-01-28T03:35:02.789Z[GMT]"));
-        assertThat(result.offsetDateTime.toString(), is("2001-01-29T03:35:03.789Z"));
-        assertThat(result.offsetTime.toString(), is("03:35:04Z"));
+        assertEquals("2001-01-23 12:34:56.789", result.utilDate.toString());
+        assertEquals("2001-01-24", result.sqlDate.toString());
+        assertEquals("12:34:57", result.sqlTime.toString());
+        assertEquals("2001-01-25 12:34:58.789", result.sqlTimestamp.toString());
+        assertEquals("2001-01-26T12:34:59.789", result.localDateTime.toString());
+        assertEquals("2001-01-27", result.localDate.toString());
+        assertEquals("12:35:01", result.localTime.toString());
+        assertEquals("2001-01-28T03:35:02.789Z[GMT]", result.zonedDateTime.toString());
+        assertEquals("2001-01-29T03:35:03.789Z", result.offsetDateTime.toString());
+        assertEquals("03:35:04Z", result.offsetTime.toString());
     }
 
     @Test
@@ -705,11 +701,11 @@ public class SqlTemplateTest {
                 .add("mgr", 1234)
                 .add("empno", 7876)
                 .execute();
-        assertThat(count, is(1));
+        assertEquals(1, count);
 
         Emp result = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7876);
-        assertThat(result.job, is("TEST"));
-        assertThat(result.mgr, is(1234));
+        assertEquals("TEST", result.job);
+        assertEquals(1234, result.mgr);
     }
 
     @Test
@@ -723,11 +719,11 @@ public class SqlTemplateTest {
                 "insert into emp (empno) values (1234)");
 
         // assert
-        assertThat(counts, is(new int[]{14, 1}));
+        assertArrayEquals(new int[]{14, 1}, counts);
 
         List<Emp> result = sqlTemplate().forList("sql/selectAll.sql", Emp.class);
-        assertThat(result.size(), is(1));
-        assertThat(result.get(0).empno, is(1234));
+        assertEquals(1, result.size());
+        assertEquals(1234, result.get(0).empno);
     }
 
     @Test
@@ -739,10 +735,10 @@ public class SqlTemplateTest {
         int[] counts = sqlTemplate().batchUpdate("sql/deleteByArgs.sql", args);
 
         // assert
-        assertThat(counts, is(new int[]{4, 1}));
+        assertArrayEquals(new int[]{4, 1}, counts);
 
         Emp result = sqlTemplate().forObject("sql/selectByDeptno.sql", Emp.class, 30);
-        assertThat(result.empno, is(7698));
+        assertEquals(7698, result.empno);
     }
 
     @Test
@@ -764,17 +760,17 @@ public class SqlTemplateTest {
         int[] counts = sqlTemplate().batchUpdate("sql/updateByParam.sql", maps);
 
         // assert
-        assertThat(counts, is(new int[]{1, 1}));
+        assertArrayEquals(new int[]{1, 1}, counts);
 
         Emp result1 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7369);
-        assertThat(result1.ename, is("SMITH"));
-        assertThat(result1.job, is("SALESMAN"));
-        assertThat(result1.mgr, is(7698));
+        assertEquals("SMITH", result1.ename);
+        assertEquals("SALESMAN", result1.job);
+        assertEquals(7698, result1.mgr);
 
         Emp result2 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 7499);
-        assertThat(result2.ename, is("ALLEN"));
-        assertThat(result2.job, is("CLERK"));
-        assertThat(result2.mgr, is(7902));
+        assertEquals("ALLEN", result2.ename);
+        assertEquals("CLERK", result2.job);
+        assertEquals(7902, result2.mgr);
     }
 
     @Test
@@ -783,10 +779,10 @@ public class SqlTemplateTest {
         int[] counts = sqlTemplate().batchUpdate("sql/deleteByArg.sql", new Object[]{7782, 7934});
 
         // assert
-        assertThat(counts, is(new int[]{1, 1}));
+        assertArrayEquals(new int[]{1, 1}, counts);
 
         Emp result = sqlTemplate().forObject("sql/selectByDeptno.sql", Emp.class, 10);
-        assertThat(result.empno, is(7839));
+        assertEquals(7839, result.empno);
     }
 
     @Test
@@ -816,17 +812,17 @@ public class SqlTemplateTest {
         int[] counts = sqlTemplate().batchUpdate("sql/insertByParam.sql", new Object[]{emp1, emp2});
 
         // assert
-        assertThat(counts, is(new int[]{1, 1}));
+        assertArrayEquals(new int[]{1, 1}, counts);
 
         Emp result1 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1001);
-        assertThat(result1.ename, is(emp1.ename));
-        assertThat(result1.hiredate, is(emp1.hiredate));
-        assertThat(result1.deptno, is(emp1.deptno));
+        assertEquals(emp1.ename, result1.ename);
+        assertEquals(emp1.hiredate, result1.hiredate);
+        assertEquals(emp1.deptno, result1.deptno);
 
         Emp result2 = sqlTemplate().forObject("sql/selectByEmpno.sql", Emp.class, 1002);
-        assertThat(result2.ename, is(emp2.ename));
-        assertThat(result2.hiredate, is(emp2.hiredate));
-        assertThat(result2.deptno, is(emp2.deptno));
+        assertEquals(emp2.ename, result2.ename);
+        assertEquals(emp2.hiredate, result2.hiredate);
+        assertEquals(emp2.deptno, result2.deptno);
     }
 
     SqlTemplate sqlTemplate() {
