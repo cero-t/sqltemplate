@@ -8,19 +8,18 @@ public interface TemplateEngine {
      * Get template text
      *
      * @param resource the resource name of template such as template filename
-     * @param args     the arguments to set
+     * @param args the arguments to set
      * @return the template text processed by template engine
      */
-    String get(String resource, Object[] args);
+    String get(String resource, Object args);
 
     /**
      * Get template text
      *
      * @param resource the resource name of template such as template filename
-     * @param object   the arguments to set
      * @return the template text processed by template engine
      */
-    String get(String resource, Object object);
+    String get(String resource);
 
     public static TemplateEngine TEXT_FILE = new TextFile();
     public static TemplateEngine PLAIN_TEXT = new PlainText();

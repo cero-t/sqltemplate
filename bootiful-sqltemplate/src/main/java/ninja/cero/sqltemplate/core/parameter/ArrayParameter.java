@@ -11,7 +11,7 @@ import java.time.ZoneId;
  * {@inheritDoc}
  * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
  */
-public class ArgsParameter extends ArgumentPreparedStatementSetter {
+public class ArrayParameter extends ArgumentPreparedStatementSetter {
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
 
@@ -21,7 +21,7 @@ public class ArgsParameter extends ArgumentPreparedStatementSetter {
      * @param args   the arguments to set
      * @param zoneId zoneId
      */
-    public ArgsParameter(Object[] args, ZoneId zoneId) {
+    public ArrayParameter(Object[] args, ZoneId zoneId) {
         super(args);
         this.zoneId = zoneId;
     }

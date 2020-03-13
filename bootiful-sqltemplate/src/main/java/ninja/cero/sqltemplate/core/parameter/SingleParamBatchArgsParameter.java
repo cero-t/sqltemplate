@@ -9,13 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.ZoneId;
 
-public class SingleColumnBatchArgsParameter implements BatchPreparedStatementSetter {
+public class SingleParamBatchArgsParameter implements BatchPreparedStatementSetter {
     protected Object[] batchParams;
 
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
 
-    public SingleColumnBatchArgsParameter(Object[] batchParams, ZoneId zoneId) {
+    public SingleParamBatchArgsParameter(Object[] batchParams, ZoneId zoneId) {
         this.batchParams = batchParams;
         this.zoneId = zoneId;
     }

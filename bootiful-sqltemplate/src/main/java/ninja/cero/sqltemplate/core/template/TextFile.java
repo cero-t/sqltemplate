@@ -12,7 +12,7 @@ public class TextFile implements TemplateEngine {
     protected final ConcurrentMap<String, String> templateCache = new ConcurrentHashMap<>();
 
     @Override
-    public String get(String resource, Object[] args) {
+    public String get(String resource, Object args) {
         String template = templateCache.get(resource);
 
         if (template != null) {
@@ -38,7 +38,7 @@ public class TextFile implements TemplateEngine {
     }
 
     @Override
-    public String get(String resource, Object object) {
-        return get(resource, new Object[]{object});
+    public String get(String resource) {
+        return get(resource, null);
     }
 }

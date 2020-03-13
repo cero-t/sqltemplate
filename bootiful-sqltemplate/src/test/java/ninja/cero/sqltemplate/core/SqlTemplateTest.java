@@ -797,7 +797,7 @@ public class SqlTemplateTest {
     @Test
     public void testBatchUpdate_bySql() {
         // execute
-        int[] counts = sqlTemplate().batchUpdate(
+        int[] counts = sqlTemplate().batchUpdateByQueries(
                 "delete from emp",
                 "insert into emp (empno) values (1234)");
 
@@ -811,11 +811,11 @@ public class SqlTemplateTest {
 
     @Test
     public void testBatchUpdate_byArgs() {
-        // prepare
-        Object[][] args = {new Object[]{30, "SALESMAN"}, {30, "CLERK"}};
-
         // execute
-        int[] counts = sqlTemplate().batchUpdate("sql/deleteByArgs.sql", args);
+        int[] counts = sqlTemplate().batchUpdateByFile("sql/deleteByArgs.sql")
+                .addArgs(30, "SALESMAN")
+                .addArgs(30, "CLERK")
+                .execute();
 
         // assert
         assertArrayEquals(new int[]{4, 1}, counts);
@@ -840,10 +840,11 @@ public class SqlTemplateTest {
         arg2.put("job", "CLERK");
         arg2.put("mgr", 7902);
 
-        Map<String, Object>[] maps = new Map[]{arg1, arg2};
-
         // execute
-        int[] counts = sqlTemplate().batchUpdate("sql/updateByParam.sql", maps);
+        int[] counts = sqlTemplate().batchUpdateByFile("sql/updateByParam.sql")
+                .addArgs(arg1)
+                .addArgs(arg2)
+                .execute();
 
         // assert
         assertArrayEquals(new int[]{1, 1}, counts);
@@ -868,7 +869,10 @@ public class SqlTemplateTest {
     @Test
     public void testBatchUpdate_bySimpleArgs() {
         // execute
-        int[] counts = sqlTemplate().batchUpdate("sql/deleteByArg.sql", new Object[]{7782, 7934});
+        int[] counts = sqlTemplate().batchUpdateByFile("sql/deleteByArg.sql")
+                .addArgs(7782)
+                .addArgs(7934)
+                .execute();
 
         // assert
         assertArrayEquals(new int[]{1, 1}, counts);
@@ -904,7 +908,10 @@ public class SqlTemplateTest {
         emp2.deptno = 20;
 
         // execute
-        int[] counts = sqlTemplate().batchUpdate("sql/insertByParam.sql", new Object[]{emp1, emp2});
+        int[] counts = sqlTemplate().batchUpdateByFile("sql/insertByParam.sql")
+                .addArgs(emp1)
+                .addArgs(emp2)
+                .execute();
 
         // assert
         assertArrayEquals(new int[]{1, 1}, counts);

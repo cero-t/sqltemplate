@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class ArgsExecutor implements QueryExecutor {
+public class ArrayExecutor implements QueryExecutor {
     private JdbcTemplate jdbcTemplate;
     private ParamBuilder paramBuilder;
     private MapperBuilder mapperBuilder;
@@ -23,7 +23,7 @@ public class ArgsExecutor implements QueryExecutor {
     private String template;
     private Object[] args;
 
-    public ArgsExecutor(JdbcTemplate jdbcTemplate, ParamBuilder paramBuilder, MapperBuilder mapperBuilder, TemplateEngine templateEngine, String template, Object... args) {
+    public ArrayExecutor(JdbcTemplate jdbcTemplate, ParamBuilder paramBuilder, MapperBuilder mapperBuilder, TemplateEngine templateEngine, String template, Object... args) {
         this.jdbcTemplate = jdbcTemplate;
         this.paramBuilder = paramBuilder;
         this.mapperBuilder = mapperBuilder;

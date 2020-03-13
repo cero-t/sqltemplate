@@ -9,15 +9,10 @@ import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SqlTemplate {
-    public static final Object[] EMPTY_ARGS = new Object[0];
     protected final JdbcTemplate jdbcTemplate;
 
     protected final NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -41,49 +36,23 @@ public class SqlTemplate {
         this.mapperBuilder = mapperBuilder;
     }
 
-    public ArgsBuilder file(String filename) {
-        return new ArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.FREEMARKER, filename);
+    public ArrayBuilder file(String filename) {
+        return new ArrayBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.FREEMARKER, filename);
     }
 
-    public ArgsBuilder query(String query) {
-        return new ArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
+    public ArrayBuilder query(String query) {
+        return new ArrayBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
     }
 
-    public int[] batchUpdate(String... queries) {
+    public int[] batchUpdateByQueries(String... queries) {
         return jdbcTemplate.batchUpdate(queries);
     }
 
-    public int[] batchUpdate(String fileName, Object[][] batchParams) {
-        String sql = TemplateEngine.TEXT_FILE.get(fileName, EMPTY_ARGS);
-        return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(batchParams));
+    public BatchArgsBuilder batchUpdateByFile(String filename) {
+        return new BatchArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.TEXT_FILE, filename);
     }
 
-    public int[] batchUpdate(String fileName, Map<String, Object>[] batchParams) {
-        String sql = TemplateEngine.TEXT_FILE.get(fileName, EMPTY_ARGS);
-
-        MapParameter[] params = new MapParameter[batchParams.length];
-        for (int i = 0; i < batchParams.length; i++) {
-            params[i] = paramBuilder.byMap(batchParams[i]);
-        }
-
-        return namedJdbcTemplate.batchUpdate(sql, params);
-    }
-
-    public int[] batchUpdate(String fileName, Object[] batchParams) {
-        String sql = TemplateEngine.TEXT_FILE.get(fileName, EMPTY_ARGS);
-        if (batchParams.length == 0) {
-            return jdbcTemplate.batchUpdate(sql);
-        }
-
-        if (TypeUtils.isSimpleValueType(batchParams[0].getClass())) {
-            return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(batchParams));
-        }
-
-        BeanParameter[] params = new BeanParameter[batchParams.length];
-        for (int i = 0; i < batchParams.length; i++) {
-            params[i] = paramBuilder.byBean(batchParams[i]);
-        }
-
-        return namedJdbcTemplate.batchUpdate(sql, params);
+    public BatchArgsBuilder batchUpdateByQuery(String query) {
+        return new BatchArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
     }
 }

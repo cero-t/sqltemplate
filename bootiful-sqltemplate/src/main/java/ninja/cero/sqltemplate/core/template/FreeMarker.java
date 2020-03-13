@@ -21,15 +21,15 @@ public class FreeMarker implements TemplateEngine {
     }
 
     @Override
-    public String get(String resource, Object context) {
+    public String get(String resource, Object args) {
         Template template = getTemplate(resource);
-        return processTemplate(context, template);
+        return processTemplate(args, template);
     }
 
     @Override
-    public String get(String resource, Object[] context) {
+    public String get(String resource) {
         Template template = getTemplate(resource);
-        return processTemplate(context, template);
+        return processTemplate(null, template);
     }
 
     protected static Template getTemplate(String templateName) {

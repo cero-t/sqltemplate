@@ -14,12 +14,8 @@ public class ParamBuilder {
         this.zoneId = zoneId;
     }
 
-    public ArgsParameter byArgs(Object arg) {
-        return new ArgsParameter(new Object[]{arg}, zoneId);
-    }
-
-    public ArgsParameter byArgs(Object[] args) {
-        return new ArgsParameter(args, zoneId);
+    public ArrayParameter byArgs(Object[] args) {
+        return new ArrayParameter(args, zoneId);
     }
 
     public MapParameter byMap(Map<String, Object> values) {
@@ -34,7 +30,7 @@ public class ParamBuilder {
         return new BatchArgsParameter(batchArgs, zoneId);
     }
 
-    public SingleColumnBatchArgsParameter byBatchArgs(Object[] batchArgs) {
-        return new SingleColumnBatchArgsParameter(batchArgs, zoneId);
+    public SingleParamBatchArgsParameter byBatchArgs(Object[] batchArgs) {
+        return new SingleParamBatchArgsParameter(batchArgs, zoneId);
     }
 }

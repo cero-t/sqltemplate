@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core;
 
-import ninja.cero.sqltemplate.core.executor.ArgsExecutor;
+import ninja.cero.sqltemplate.core.executor.ArrayExecutor;
 import ninja.cero.sqltemplate.core.executor.EntityExecutor;
 import ninja.cero.sqltemplate.core.executor.MapExecutor;
 import ninja.cero.sqltemplate.core.executor.QueryExecutor;
@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ArgsBuilder extends ArgsExecutor {
+public class ArrayBuilder extends ArrayExecutor {
     protected JdbcTemplate jdbcTemplate;
     protected NamedParameterJdbcTemplate namedJdbcTemplate;
     protected ParamBuilder paramBuilder;
@@ -22,7 +22,7 @@ public class ArgsBuilder extends ArgsExecutor {
     protected TemplateEngine templateEngine;
     protected String template;
 
-    public ArgsBuilder(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, ParamBuilder paramBuilder, MapperBuilder mapperBuilder, TemplateEngine templateEngine, String template) {
+    public ArrayBuilder(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate, ParamBuilder paramBuilder, MapperBuilder mapperBuilder, TemplateEngine templateEngine, String template) {
         super(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template);
         this.jdbcTemplate = jdbcTemplate;
         this.namedJdbcTemplate = namedJdbcTemplate;
@@ -33,19 +33,19 @@ public class ArgsBuilder extends ArgsExecutor {
     }
 
     public QueryExecutor args(Object... args) {
-        return new ArgsExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, args);
+        return new ArrayExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, args);
     }
 
     public QueryExecutor args(Object entity) {
         if (TypeUtils.isSimpleValueType(entity.getClass())) {
-            return new ArgsExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
+            return new ArrayExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
         }
 
         return new EntityExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
     }
 
-    public QueryExecutor args(Map<String, Object> map) {
-        return new MapExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, map);
+    public QueryExecutor args(Map<String, Object> params) {
+        return new MapExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
     }
 
     public MapQueryBuilder add(String key, Object value) {
