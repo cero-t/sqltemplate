@@ -180,14 +180,12 @@ public class SqlTemplateTest {
 
     @Test
     public void testForStream_NoArg() {
-        // Without explicitly typing the lambda parameter,
-        // javac cannot determine which to call forStream(String, Class, Function) or forStream(String, Object, Function)
-        // TODO: reconsider
-//        int[] result = sqlTemplate().forStream("sql/selectAll.sql", Emp.class,
-//                (Stream<Emp> stream) -> stream.mapToInt(emp -> emp.empno).toArray());
-//        assertEquals(14, result.length);
-//        assertEquals(7369, result[0]);
-//        assertEquals(7934, result[13]);
+        int[] result = sqlTemplate()
+                .file("sql/selectAll.sql")
+                .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
+        assertEquals(14, result.length);
+        assertEquals(7369, result[0]);
+        assertEquals(7934, result[13]);
     }
 
     @Test
@@ -258,14 +256,11 @@ public class SqlTemplateTest {
 
     @Test
     public void testForStream_ReturnSimple() {
-        // Without explicitly typing the lambda parameter,
-        // javac cannot determine which to call forStream(String, Class, Function) or forStream(String, Object, Function)
-        // TODO: reconsider
-//        int[] result = sqlTemplate().forStream("sql/selectEmpno.sql", Integer.class,
-//                (Stream<Integer> stream) -> stream.mapToInt(empno -> empno).toArray());
-//        assertEquals(14, result.length);
-//        assertEquals(7369, result[0]);
-//        assertEquals(7934, result[13]);
+        int[] result = sqlTemplate().file("sql/selectEmpno.sql")
+                .forStream(Integer.class, stream -> stream.mapToInt(empno -> empno).toArray());
+        assertEquals(14, result.length);
+        assertEquals(7369, result[0]);
+        assertEquals(7934, result[13]);
     }
 
     @Test
@@ -534,14 +529,13 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forStream() {
-        // TODO:
-//        int[] result = sqlTemplate().file("sql/selectByParam.sql")
-//                .add("job", "SALESMAN")
-//                .add("deptno", 30)
-//                .forStream(stream -> stream.mapToInt(emp -> emp.empno).toArray());
-//        assertEquals(4, result.length);
-//        assertEquals(7499, result[0]);
-//        assertEquals(7844, result[3]);
+        int[] result = sqlTemplate().file("sql/selectByParam.sql")
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
@@ -568,15 +562,14 @@ public class SqlTemplateTest {
 
     @Test
     public void testQuery_forStreamMap() {
-        // TODO:
-//        int[] result = sqlTemplate()
-//                .file("sql/selectByParam.sql")
-//                .add("job", "SALESMAN")
-//                .add("deptno", 30)
-//                .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
-//        assertEquals(4, result.length);
-//        assertEquals(7499, result[0]);
-//        assertEquals(7844, result[3]);
+        int[] result = sqlTemplate()
+                .file("sql/selectByParam.sql")
+                .add("job", "SALESMAN")
+                .add("deptno", 30)
+                .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
+        assertEquals(4, result.length);
+        assertEquals(7499, result[0]);
+        assertEquals(7844, result[3]);
     }
 
     @Test
