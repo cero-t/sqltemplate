@@ -33,7 +33,7 @@ public class FreeMarkerSqlTemplateTest {
         param.put("deptno", 30);
         param.put("job", "SALESMAN");
 
-        List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class, param);
+        List<Emp> result = sqlTemplate().file("ftl/selectByArgs.sql").args(param).forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
         assertEquals(7844, result.get(3).empno);
@@ -41,7 +41,7 @@ public class FreeMarkerSqlTemplateTest {
 
     @Test
     public void testForList_empty() {
-        List<Emp> result = sqlTemplate().forList("ftl/selectByArgs.sql", Emp.class);
+        List<Emp> result = sqlTemplate().file("ftl/selectByArgs.sql").forList(Emp.class);
         assertEquals(14, result.size());
         assertEquals(7369, result.get(0).empno);
         assertEquals(7934, result.get(13).empno);

@@ -25,7 +25,9 @@ public class PlainTextSqlTemplateTest {
 
     @Test
     public void testForObject_NoArgs() {
-        Emp emp = sqlTemplate().forObject("select * from emp where empno=7369", Emp.class);
+        Emp emp = sqlTemplate()
+                .query("select * from emp where empno=7369")
+                .forObject(Emp.class);
         assertEquals(7369, emp.empno);
     }
 
