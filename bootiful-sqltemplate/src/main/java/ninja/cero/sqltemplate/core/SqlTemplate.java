@@ -51,26 +51,6 @@ public class SqlTemplate {
         return new ArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
     }
 
-    public int update(String fileName, Object... args) {
-        String sql = getTemplate(fileName, args);
-        return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
-    }
-
-    public int update(String fileName, Map<String, Object> params) {
-        String sql = getTemplate(fileName, params);
-        return namedJdbcTemplate.update(sql, paramBuilder.byMap(params));
-    }
-
-    public int update(String fileName, Object entity) {
-        String sql = getTemplate(fileName, entity);
-
-        if (TypeUtils.isSimpleValueType(entity.getClass())) {
-            return jdbcTemplate.update(sql, paramBuilder.byArgs(entity));
-        }
-
-        return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
-    }
-
     public int[] batchUpdate(String... fileNames) {
         return jdbcTemplate.batchUpdate(fileNames);
     }
@@ -109,10 +89,6 @@ public class SqlTemplate {
         return namedJdbcTemplate.batchUpdate(sql, params);
     }
 
-    public MapUpdateBuilder update(String fileName) {
-        return new MapUpdateBuilder(fileName);
-    }
-
     protected String getTemplate(String fileName, Object[] args) {
         try {
             return templateEngine.get(fileName, args);
@@ -126,24 +102,6 @@ public class SqlTemplate {
             return templateEngine.get(fileName, param);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
-        }
-    }
-
-    public class MapUpdateBuilder {
-        protected Map<String, Object> params = new HashMap<>();
-        protected String fileName;
-
-        public MapUpdateBuilder(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public MapUpdateBuilder add(String key, Object value) {
-            params.put(key, value);
-            return this;
-        }
-
-        public int execute() {
-            return update(fileName, params);
         }
     }
 }

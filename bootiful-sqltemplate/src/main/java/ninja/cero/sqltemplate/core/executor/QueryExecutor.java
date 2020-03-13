@@ -17,4 +17,6 @@ public interface QueryExecutor {
     List<Map<String, Object>> forList();
 
     <U> U forStream(Function<? super Stream<Map<String, Object>>, U> handler);
+
+    int update();
 }

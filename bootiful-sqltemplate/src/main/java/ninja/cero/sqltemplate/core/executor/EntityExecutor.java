@@ -93,4 +93,15 @@ public class EntityExecutor implements QueryExecutor {
             throw new UncheckedIOException(e);
         }
     }
+
+
+    @Override
+    public int update() {
+        try {
+            String sql = templateEngine.get(template, entity);
+            return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

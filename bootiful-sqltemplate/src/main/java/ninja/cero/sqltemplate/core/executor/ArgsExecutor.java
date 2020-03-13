@@ -90,4 +90,15 @@ public class ArgsExecutor implements QueryExecutor {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }}
+    }
+
+    @Override
+    public int update() {
+        try {
+            String sql = templateEngine.get(template, args);
+            return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+}

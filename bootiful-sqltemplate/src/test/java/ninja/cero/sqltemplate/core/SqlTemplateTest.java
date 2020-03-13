@@ -450,7 +450,7 @@ public class SqlTemplateTest {
         emp.comm = new BigDecimal(400);
         emp.deptno = 10;
 
-        int count = sqlTemplate().update("sql/insertByParam.sql", emp);
+        int count = sqlTemplate().file("sql/insertByParam.sql").args(emp).update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
@@ -469,7 +469,7 @@ public class SqlTemplateTest {
         param.put("mgr", 7566);
         param.put("empno", 7876);
 
-        int count = sqlTemplate().update("sql/updateByParam.sql", param);
+        int count = sqlTemplate().file("sql/updateByParam.sql").args(param).update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
@@ -483,7 +483,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testUpdate_deleteByArg() {
-        int count = sqlTemplate().update("sql/deleteByArg.sql", 7566);
+        int count = sqlTemplate().file("sql/deleteByArg.sql").args(7566).update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
@@ -495,7 +495,7 @@ public class SqlTemplateTest {
 
     @Test
     public void testUpdate_deleteByArgs() {
-        int count = sqlTemplate().update("sql/deleteByArgs.sql", 30, "SALESMAN");
+        int count = sqlTemplate().file("sql/deleteByArgs.sql").args(30, "SALESMAN").update();
         assertEquals(4, count);
 
         List<Emp> result = sqlTemplate()
@@ -588,8 +588,7 @@ public class SqlTemplateTest {
         TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         // execute
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-        DateTimeEntity result = template
+        DateTimeEntity result = sqlTemplate()
                 .query("SELECT * FROM date_time")
                 .forObject(DateTimeEntity.class);
 
@@ -613,19 +612,17 @@ public class SqlTemplateTest {
 
         // execute
         // assert
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-
-        List<LocalDateTime> localDateTime = template
+        List<LocalDateTime> localDateTime = sqlTemplate()
                 .query("SELECT local_date_time FROM date_time")
                 .forList(LocalDateTime.class);
         assertEquals("2001-01-26T12:34:59.789", localDateTime.get(0).toString());
 
-        List<LocalDate> localDate = template
+        List<LocalDate> localDate = sqlTemplate()
                 .query("SELECT local_date FROM date_time")
                 .forList(LocalDate.class);
         assertEquals("2001-01-27", localDate.get(0).toString());
 
-        List<LocalTime> localTime = template
+        List<LocalTime> localTime = sqlTemplate()
                 .query("SELECT local_time FROM date_time")
                 .forList(LocalTime.class);
         assertEquals("12:35:01", localTime.get(0).toString());
@@ -638,15 +635,13 @@ public class SqlTemplateTest {
 
         // execute
         // assert
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-
-        LocalDateTime localDateTime = template.query("SELECT local_date_time FROM date_time").forObject(LocalDateTime.class);
+        LocalDateTime localDateTime = sqlTemplate().query("SELECT local_date_time FROM date_time").forObject(LocalDateTime.class);
         assertEquals("2001-01-26T12:34:59.789", localDateTime.toString());
 
-        LocalDate localDate = template.query("SELECT local_date FROM date_time").forObject(LocalDate.class);
+        LocalDate localDate = sqlTemplate().query("SELECT local_date FROM date_time").forObject(LocalDate.class);
         assertEquals("2001-01-27", localDate.toString());
 
-        LocalTime localTime = template.query("SELECT local_time FROM date_time").forObject(LocalTime.class);
+        LocalTime localTime = sqlTemplate().query("SELECT local_time FROM date_time").forObject(LocalTime.class);
         assertEquals("12:35:01", localTime.toString());
     }
 
@@ -656,8 +651,7 @@ public class SqlTemplateTest {
         TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         // execute
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-        List<Map<String, Object>> maps = template.query("SELECT * FROM date_time").forList();
+        List<Map<String, Object>> maps = sqlTemplate().query("SELECT * FROM date_time").forList();
 
         // assert
         Map<String, Object> result = maps.get(0);
@@ -688,10 +682,11 @@ public class SqlTemplateTest {
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
 
         // execute
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
+        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                .update();
 
         // assert
         assertEquals(1, num);
@@ -717,15 +712,17 @@ public class SqlTemplateTest {
         DateTimeEntity entity = new DateTimeEntity();
 
         // execute
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+        int num = sqlTemplate().query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                .update();
 
         // assert
         assertEquals(1, num);
 
-        DateTimeEntity result = template.query("SELECT * FROM date_time").forObject(DateTimeEntity.class);
+        DateTimeEntity result = sqlTemplate()
+                .query("SELECT * FROM date_time")
+                .forObject(DateTimeEntity.class);
 
         assertNull(result.utilDate);
         assertNull(result.sqlDate);
@@ -758,10 +755,11 @@ public class SqlTemplateTest {
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
 
         // execute
-        SqlTemplate template = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
-        int num = template.update("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime);
+        SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
+        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                .update();
 
         // assert
         assertEquals(1, num);
@@ -781,11 +779,11 @@ public class SqlTemplateTest {
 
     @Test
     public void testUpdateByAdd() {
-        int count = sqlTemplate().update("sql/updateByParam.sql")
+        int count = sqlTemplate().file("sql/updateByParam.sql")
                 .add("job", "TEST")
                 .add("mgr", 1234)
                 .add("empno", 7876)
-                .execute();
+                .update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
@@ -798,11 +796,8 @@ public class SqlTemplateTest {
 
     @Test
     public void testBatchUpdate_bySql() {
-        // prepare
-        SqlTemplate sqlTemplate = new PlainTextSqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-
         // execute
-        int[] counts = sqlTemplate.batchUpdate(
+        int[] counts = sqlTemplate().batchUpdate(
                 "delete from emp",
                 "insert into emp (empno) values (1234)");
 

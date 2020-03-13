@@ -93,4 +93,14 @@ public class MapExecutor implements QueryExecutor {
             throw new UncheckedIOException(e);
         }
     }
+
+    @Override
+    public int update() {
+        try {
+            String sql = templateEngine.get(template, params);
+            return namedJdbcTemplate.update(sql, paramBuilder.byMap(params));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }
