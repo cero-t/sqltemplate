@@ -12,21 +12,25 @@ public class TextFile implements TemplateEngine {
     protected final ConcurrentMap<String, String> templateCache = new ConcurrentHashMap<>();
 
     @Override
-    public String get(String resource, Object[] args) throws IOException {
+    public String get(String resource, Object[] args) {
         String template = templateCache.get(resource);
 
         if (template != null) {
             return template;
         }
 
-        InputStream in = getClass().getResourceAsStream("/" + resource);
-        if (in == null) {
-            throw new FileNotFoundException("Template '" + resource + "' not found");
-        }
+        try {
+            InputStream in = getClass().getResourceAsStream("/" + resource);
+            if (in == null) {
+                throw new FileNotFoundException("Template '" + resource + "' not found");
+            }
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-             Stream<String> stream = br.lines()) {
-            template = stream.collect(Collectors.joining("\n"));
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+                 Stream<String> stream = br.lines()) {
+                template = stream.collect(Collectors.joining("\n"));
+            }
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
         }
 
         templateCache.put(resource, template);
@@ -34,7 +38,7 @@ public class TextFile implements TemplateEngine {
     }
 
     @Override
-    public String get(String resource, Object object) throws IOException {
+    public String get(String resource, Object object) {
         return get(resource, new Object[]{object});
     }
 }

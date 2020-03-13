@@ -4,12 +4,12 @@ import java.io.IOException;
 
 public class PlainText implements TemplateEngine {
     @Override
-    public String get(String resource, Object[] args) throws IOException {
+    public String get(String resource, Object[] args) {
         return resource;
     }
 
     @Override
-    public String get(String resource, Object object) throws IOException {
+    public String get(String resource, Object object) {
         return resource;
     }
 }

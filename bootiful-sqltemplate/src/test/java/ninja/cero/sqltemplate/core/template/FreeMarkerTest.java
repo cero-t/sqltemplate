@@ -3,6 +3,7 @@ package ninja.cero.sqltemplate.core.template;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class FreeMarkerTest {
         try {
             new FreeMarker().get("x", "");
             throw new RuntimeException("Expected exception not occurred");
-        } catch (IOException ex) {
+        } catch (UncheckedIOException ex) {
             assertTrue(ex.getMessage().contains("not found"));
         }
     }

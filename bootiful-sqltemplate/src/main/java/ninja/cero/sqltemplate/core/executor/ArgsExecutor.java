@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,24 +40,16 @@ public class ArgsExecutor implements QueryExecutor {
 
     @Override
     public <T> List<T> forList(Class<T> clazz) {
-        try {
-            String sql = templateEngine.get(template, args);
-            return jdbcTemplate.query(sql, paramBuilder.byArgs(args), mapperBuilder.mapper(clazz));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        String sql = templateEngine.get(template, args);
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), mapperBuilder.mapper(clazz));
     }
 
     @Override
     public <T, U> U forStream(Class<T> clazz, Function<? super Stream<T>, U> handler) {
-        try {
-            String sql = templateEngine.get(template, args);
-            SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-            ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, mapperBuilder.mapper(clazz), handler, excTranslator);
-            return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        String sql = templateEngine.get(template, args);
+        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+        ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, mapperBuilder.mapper(clazz), handler, excTranslator);
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
     }
 
     @Override
@@ -70,35 +60,23 @@ public class ArgsExecutor implements QueryExecutor {
 
     @Override
     public List<Map<String, Object>> forList() {
-        try {
-            String sql = templateEngine.get(template, args);
-            // TODO: queryForMap使える？
-            return jdbcTemplate.query(sql, paramBuilder.byArgs(args), new ColumnMapRowMapper());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        String sql = templateEngine.get(template, args);
+        // TODO: queryForMap使える？
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), new ColumnMapRowMapper());
     }
 
     @Override
     public <U> U forStream(Function<? super Stream<Map<String, Object>>, U> handler) {
-        try {
-            String sql = templateEngine.get(template, args);
-            SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-            // TODO: can it work with zoneId?
-            ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, new ColumnMapRowMapper(), handler, excTranslator);
-            return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        String sql = templateEngine.get(template, args);
+        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
+        // TODO: can it work with zoneId?
+        ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, new ColumnMapRowMapper(), handler, excTranslator);
+        return jdbcTemplate.query(sql, paramBuilder.byArgs(args), extractor);
     }
 
     @Override
     public int update() {
-        try {
-            String sql = templateEngine.get(template, args);
-            return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        String sql = templateEngine.get(template, args);
+        return jdbcTemplate.update(sql, paramBuilder.byArgs(args));
     }
 }
