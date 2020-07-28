@@ -1,9 +1,8 @@
 package ninja.cero.sqltemplate.example;
 
 import ninja.cero.sqltemplate.example.entity.Emp;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ninja.cero.sqltemplate.core.SqlTemplate;
+import ninja.cero.sqltemplate.SqlTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,29 +10,39 @@ import java.util.Map;
 
 @Component
 public class SampleProcess {
-    @Autowired
-    SqlTemplate template;
+    private SqlTemplate template;
+
+    public SampleProcess(SqlTemplate template) {
+        this.template = template;
+    }
 
     public void process() {
-        List<Emp> emps = template.forList("sql/selectAll.sql", Emp.class);
+        List<Emp> emps = template.file("sql/selectAll.sql")
+                .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // SMITH ... MILLER
 
-        Emp emp = template.forObject("sql/selectByEmpno.sql", Emp.class, 7839);
+        Emp emp = template.file("sql/selectByEmpno.sql")
+                .args(7839)
+                .forObject(Emp.class);
         System.out.println(emp.ename); // KING
 
         Map<String, Object> condition = new HashMap<>();
         condition.put("deptno", 30);
         condition.put("job", "SALESMAN");
-        emps = template.forList("sql/selectByParam.sql", Emp.class, condition);
+        emps = template.file("sql/selectByParam.sql")
+                .args(condition)
+                .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
 
-        emps = template.query("sql/selectByParam.sql", Emp.class)
+        emps = template.file("sql/selectByParam.sql")
                 .add("deptno", 30)
                 .add("job", "SALESMAN")
-                .forList();
+                .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
 
-        emps = template.forList("sql/selectByArgs.sql", Emp.class, 30, "SALESMAN");
+        emps = template.file("sql/selectByArgs.sql")
+                .args(30, "SALESMAN")
+                .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
     }
 }

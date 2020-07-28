@@ -13,6 +13,6 @@
 
     <modules>
         <module>bootiful-sqltemplate</module>
-        <module>bootiful-sqltemplate-example</module>
+        <module>examples</module>
     </modules>
 </project>
