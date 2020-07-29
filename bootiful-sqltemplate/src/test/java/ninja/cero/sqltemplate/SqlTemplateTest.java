@@ -1,4 +1,4 @@
-package ninja.cero.sqltemplate.core;
+package ninja.cero.sqltemplate;
 
 import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
@@ -510,8 +510,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forObject() {
         Emp emp = sqlTemplate().file("sql/selectSingleByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
     }
@@ -519,8 +519,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forList() {
         List<Emp> result = sqlTemplate().file("sql/selectByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
@@ -530,8 +530,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forStream() {
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -542,8 +542,8 @@ public class SqlTemplateTest {
     public void testQuery_forMap() {
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forMap();
         assertEquals(7499, result.get("empno"));
     }
@@ -552,8 +552,8 @@ public class SqlTemplateTest {
     public void testQuery_forListMap() {
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forList();
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).get("empno"));
@@ -564,8 +564,8 @@ public class SqlTemplateTest {
     public void testQuery_forStreamMap() {
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .add("job", "SALESMAN")
-                .add("deptno", 30)
+                .addArg("job", "SALESMAN")
+                .addArg("deptno", 30)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -780,9 +780,9 @@ public class SqlTemplateTest {
     @Test
     public void testUpdateByAdd() {
         int count = sqlTemplate().file("sql/updateByParam.sql")
-                .add("job", "TEST")
-                .add("mgr", 1234)
-                .add("empno", 7876)
+                .addArg("job", "TEST")
+                .addArg("mgr", 1234)
+                .addArg("empno", 7876)
                 .update();
         assertEquals(1, count);
 
@@ -797,9 +797,9 @@ public class SqlTemplateTest {
     @Test
     public void testBatchUpdate_bySql() {
         // execute
-        int[] counts = sqlTemplate().batchUpdateByQueries(
-                "delete from emp",
-                "insert into emp (empno) values (1234)");
+        int[] counts = sqlTemplate().batchUpdate()
+                .queries("delete from emp",
+                        "insert into emp (empno) values (1234)");
 
         // assert
         assertArrayEquals(new int[]{14, 1}, counts);
@@ -812,7 +812,7 @@ public class SqlTemplateTest {
     @Test
     public void testBatchUpdate_byArgs() {
         // execute
-        int[] counts = sqlTemplate().batchUpdateByFile("sql/deleteByArgs.sql")
+        int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArgs.sql")
                 .addArgs(30, "SALESMAN")
                 .addArgs(30, "CLERK")
                 .execute();
@@ -841,7 +841,7 @@ public class SqlTemplateTest {
         arg2.put("mgr", 7902);
 
         // execute
-        int[] counts = sqlTemplate().batchUpdateByFile("sql/updateByParam.sql")
+        int[] counts = sqlTemplate().batchUpdate().file("sql/updateByParam.sql")
                 .addArgs(arg1)
                 .addArgs(arg2)
                 .execute();
@@ -869,7 +869,7 @@ public class SqlTemplateTest {
     @Test
     public void testBatchUpdate_bySimpleArgs() {
         // execute
-        int[] counts = sqlTemplate().batchUpdateByFile("sql/deleteByArg.sql")
+        int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArg.sql")
                 .addArgs(7782)
                 .addArgs(7934)
                 .execute();
@@ -908,7 +908,7 @@ public class SqlTemplateTest {
         emp2.deptno = 20;
 
         // execute
-        int[] counts = sqlTemplate().batchUpdateByFile("sql/insertByParam.sql")
+        int[] counts = sqlTemplate().batchUpdate().file("sql/insertByParam.sql")
                 .addArgs(emp1)
                 .addArgs(emp2)
                 .execute();

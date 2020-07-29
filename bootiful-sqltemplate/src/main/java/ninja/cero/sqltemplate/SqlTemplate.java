@@ -47,7 +47,7 @@ public class SqlTemplate {
         return new ArrayBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
     }
 
-    public BatchBuilder batch() {
+    public BatchBuilder batchUpdate() {
         return new BatchBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder);
     }
 }
