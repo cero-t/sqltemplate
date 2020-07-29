@@ -2,11 +2,14 @@ package ninja.cero.sqltemplate.core.executor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface QueryExecutor {
     <T> T forObject(Class<T> clazz);
+
+    <T> Optional<T> forOptional(Class<T> clazz);
 
     <T> List<T> forList(Class<T> clazz);
 
