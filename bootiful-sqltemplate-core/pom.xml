@@ -4,7 +4,7 @@
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
     <artifactId>bootiful-sqltemplate-core</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>bootiful-sqltemplate-core</name>
