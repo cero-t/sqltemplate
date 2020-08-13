@@ -20,7 +20,7 @@ Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.Jdbc
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate-core</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
     </dependency>
     ...
 </dependencies>
