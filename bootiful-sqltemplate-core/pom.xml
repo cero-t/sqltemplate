@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
-    <artifactId>bootiful-sqltemplate</artifactId>
+    <artifactId>bootiful-sqltemplate-core</artifactId>
     <version>1.0.4</version>
     <packaging>jar</packaging>
 
@@ -22,7 +22,7 @@
         <url>https://github.com/cero-t/sqltemplate</url>
         <connection>scm:git:git://github.com/cero-t/sqltemplate.git</connection>
         <developerConnection>scm:git:git://github.com/cero-t/sqltemplate.git</developerConnection>
-        <tag>1.x</tag>
+        <tag>bootiful-sqltemplate-core-1.0.4</tag>
     </scm>
     <developers>
         <developer>
