@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
-    <artifactId>bootiful-sqltemplate-core</artifactId>
+    <artifactId>bootiful-sqltemplate</artifactId>
     <version>1.0.4</version>
     <packaging>jar</packaging>
 
-    <name>bootiful-sqltemplate</name>
+    <name>bootiful-sqltemplate-core</name>
     <description>Bootiful SQL Template Core</description>
 
     <url>https://github.com/cero-t/sqltemplate</url>
