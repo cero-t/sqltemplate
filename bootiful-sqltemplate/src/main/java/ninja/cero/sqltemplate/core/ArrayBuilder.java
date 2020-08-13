@@ -48,9 +48,9 @@ public class ArrayBuilder extends ArrayExecutor {
         return new MapExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
     }
 
-    public MapQueryBuilder add(String key, Object value) {
+    public MapQueryBuilder addArg(String key, Object value) {
         return new MapQueryBuilder(namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, new HashMap<>())
-                .add(key, value);
+                .addArg(key, value);
     }
 
     public class MapQueryBuilder extends MapExecutor {
@@ -61,7 +61,7 @@ public class ArrayBuilder extends ArrayExecutor {
             this.params = params;
         }
 
-        public MapQueryBuilder add(String key, Object value) {
+        public MapQueryBuilder addArg(String key, Object value) {
             params.put(key, value);
             return this;
         }

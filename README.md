@@ -6,9 +6,10 @@ A simple SQL template engine for Spring Boot applications.
 ## What is Bootiful SQL Template?
 Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.JdbcTemplate` and `org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate` which offers following extension.
 
-* supports SQL files (plain SQL files or FreeMarker template files)
-* add API using plain Java objects such as value object, `java.util.Map` and series of simple objects
-* supports public fields of entity classes besides private fields with accessor methods
+* fluent API
+* reading SQL template file (plain SQL files or FreeMarker template files)
+* binding to/from value object and `java.util.Map` and series of simple objects
+* binding to/from public fields of value object besides private fields with accessor methods
 * supports JSR-310 time types such as `LocalDate`, `LocalTime`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`.
 * supports time zones
 
@@ -19,8 +20,8 @@ Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.Jdbc
 <dependencies>
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
-        <artifactId>bootiful-sqltemplate-core</artifactId>
-        <version>1.0.3</version>
+        <artifactId>bootiful-sqltemplate</artifactId>
+        <version>2.0.0</version>
     </dependency>
     ...
 </dependencies>
@@ -30,7 +31,7 @@ Bootiful SQL Template is a simple wrapper of `org.springframework.jdbc.core.Jdbc
 
 ```java
 @Configuration
-public class SqlTemplateConfiguration {
+public class ApplicationConfig {
 	@Bean
 	public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 		return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);

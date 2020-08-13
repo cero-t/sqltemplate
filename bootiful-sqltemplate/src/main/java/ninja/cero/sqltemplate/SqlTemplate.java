@@ -1,5 +1,8 @@
-package ninja.cero.sqltemplate.core;
+package ninja.cero.sqltemplate;
 
+import ninja.cero.sqltemplate.core.ArrayBuilder;
+import ninja.cero.sqltemplate.core.BatchArgsBuilder;
+import ninja.cero.sqltemplate.core.BatchBuilder;
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
 import ninja.cero.sqltemplate.core.parameter.BeanParameter;
 import ninja.cero.sqltemplate.core.parameter.MapParameter;
@@ -44,15 +47,7 @@ public class SqlTemplate {
         return new ArrayBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
     }
 
-    public int[] batchUpdateByQueries(String... queries) {
-        return jdbcTemplate.batchUpdate(queries);
-    }
-
-    public BatchArgsBuilder batchUpdateByFile(String filename) {
-        return new BatchArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.TEXT_FILE, filename);
-    }
-
-    public BatchArgsBuilder batchUpdateByQuery(String query) {
-        return new BatchArgsBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, TemplateEngine.PLAIN_TEXT, query);
+    public BatchBuilder batchUpdate() {
+        return new BatchBuilder(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder);
     }
 }
