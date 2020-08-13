@@ -7,7 +7,7 @@
     <version>1.0.4</version>
     <packaging>jar</packaging>
 
-    <name>bootiful-sqltemplate-core</name>
+    <name>bootiful-sqltemplate</name>
     <description>Bootiful SQL Template Core</description>
 
     <url>https://github.com/cero-t/sqltemplate</url>
