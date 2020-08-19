@@ -125,7 +125,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         for (int index = 1; index <= columnCount; index++) {
             String column = JdbcUtils.lookupColumnName(metaData, index);
 
-            String name = column.replaceAll(" ", "").toLowerCase();
+            String name = column.replace(" ", "").toLowerCase();
             Object value = null;
             if (privateFields.containsKey(name)) {
                 PropertyDescriptor pd = privateFields.get(name);

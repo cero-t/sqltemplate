@@ -62,8 +62,8 @@ public class StreamResultSetExtractor<T, U> implements ResultSetExtractor<U> {
     @Override
     public U extractData(ResultSet rs) {
         Iterable<T> iterable = () -> new ResultSetIterator(sql, rs, mapper, excTranslator);
-        Stream<T> stream = StreamSupport.stream(iterable.spliterator(), false);
-        return handleStream.apply(stream);
+        try (Stream<T> stream = StreamSupport.stream(iterable.spliterator(), false)) {
+            return handleStream.apply(stream);
+        }
     }
-
 }
