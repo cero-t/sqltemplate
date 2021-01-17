@@ -9,15 +9,17 @@ import java.util.stream.Stream;
 public interface QueryExecutor {
     <T> T forObject(Class<T> clazz);
 
+    Map<String, Object> forMap();
+
     <T> Optional<T> forOptional(Class<T> clazz);
+
+    Optional<Map<String, Object>> forOptional();
 
     <T> List<T> forList(Class<T> clazz);
 
-    <T, U> U forStream(Class<T> clazz, Function<? super Stream<T>, U> handler);
-
-    Map<String, Object> forMap();
-
     List<Map<String, Object>> forList();
+
+    <T, U> U forStream(Class<T> clazz, Function<? super Stream<T>, U> handler);
 
     <U> U forStream(Function<? super Stream<Map<String, Object>>, U> handler);
 

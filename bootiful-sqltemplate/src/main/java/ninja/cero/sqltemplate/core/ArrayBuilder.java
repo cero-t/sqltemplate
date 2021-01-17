@@ -32,25 +32,21 @@ public class ArrayBuilder extends ArrayExecutor {
         this.template = template;
     }
 
-    public QueryExecutor args(Object... args) {
-        return new ArrayExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, args);
+    public QueryExecutor params(Object... params) {
+        return new ArrayExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
     }
 
-    public QueryExecutor args(Object entity) {
-        if (TypeUtils.isSimpleValueType(entity.getClass())) {
-            return new ArrayExecutor(jdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
-        }
-
+    public QueryExecutor param(Object entity) {
         return new EntityExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
     }
 
-    public QueryExecutor args(Map<String, Object> params) {
+    public QueryExecutor param(Map<String, Object> params) {
         return new MapExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
     }
 
-    public MapQueryBuilder addArg(String key, Object value) {
+    public MapQueryBuilder addParam(String key, Object value) {
         return new MapQueryBuilder(namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, new HashMap<>())
-                .addArg(key, value);
+                .addParam(key, value);
     }
 
     public class MapQueryBuilder extends MapExecutor {
@@ -61,7 +57,7 @@ public class ArrayBuilder extends ArrayExecutor {
             this.params = params;
         }
 
-        public MapQueryBuilder addArg(String key, Object value) {
+        public MapQueryBuilder addParam(String key, Object value) {
             params.put(key, value);
             return this;
         }

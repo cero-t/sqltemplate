@@ -30,15 +30,15 @@ public class BatchArgsBuilder {
         this.template = template;
     }
 
-    public BatchArrayArgsBuilder addArgs(Object... args) {
+    public BatchArrayArgsBuilder addParams(Object... args) {
         return new BatchArrayArgsBuilder(args);
     }
 
-    public BatchEntityArgsBuilder addArgs(Object entity) {
+    public BatchEntityArgsBuilder addParam(Object entity) {
         return new BatchEntityArgsBuilder(entity);
     }
 
-    public BatchMapArgsBuilder addArgs(Map<String, Object> map) {
+    public BatchMapArgsBuilder addParam(Map<String, Object> map) {
         return new BatchMapArgsBuilder(map);
     }
 

@@ -51,7 +51,7 @@ public class SqlTemplateTest {
 
         Emp emp = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .args(param)
+                .param(param)
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
     }
@@ -64,7 +64,7 @@ public class SqlTemplateTest {
 
         Emp emp = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .args(param)
+                .param(param)
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
     }
@@ -73,7 +73,7 @@ public class SqlTemplateTest {
     public void testForObject_SingleArg() {
         Emp emp = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7839)
+                .params(7839)
                 .forObject(Emp.class);
         assertEquals(7839, emp.empno);
     }
@@ -82,7 +82,7 @@ public class SqlTemplateTest {
     public void testForObject_MultiArg() {
         Emp emp = sqlTemplate()
                 .file("sql/selectSingleByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
     }
@@ -111,7 +111,7 @@ public class SqlTemplateTest {
 
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
@@ -126,7 +126,7 @@ public class SqlTemplateTest {
 
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
@@ -141,7 +141,7 @@ public class SqlTemplateTest {
 
         List<AccessorEmp> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forList(AccessorEmp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).getEmpno());
@@ -152,7 +152,7 @@ public class SqlTemplateTest {
     public void testForList_SingleArg() {
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(10)
+                .params(10)
                 .forList(Emp.class);
         assertEquals(3, result.size());
         assertEquals(7782, result.get(0).empno);
@@ -163,7 +163,7 @@ public class SqlTemplateTest {
     public void testForList_MultiArg() {
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
@@ -195,7 +195,7 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -210,7 +210,7 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -225,7 +225,7 @@ public class SqlTemplateTest {
 
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forStream(AccessorEmp.class, stream -> stream.mapToInt(AccessorEmp::getEmpno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -236,7 +236,7 @@ public class SqlTemplateTest {
     public void testForStream_SingleArg() {
         int[] result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(10)
+                .params(10)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(3, result.length);
         assertEquals(7782, result[0]);
@@ -247,7 +247,7 @@ public class SqlTemplateTest {
     public void testForStream_MultiArg() {
         int[] result = sqlTemplate()
                 .file("sql/selectByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -277,7 +277,7 @@ public class SqlTemplateTest {
 
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .args(param)
+                .param(param)
                 .forMap();
         assertEquals(7499, result.get("empno"));
     }
@@ -290,7 +290,7 @@ public class SqlTemplateTest {
 
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .args(param)
+                .param(param)
                 .forMap();
         assertEquals(7499, result.get("empno"));
     }
@@ -299,7 +299,7 @@ public class SqlTemplateTest {
     public void testForMap_SingleArg() {
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7839)
+                .params(7839)
                 .forMap();
         assertEquals(7839, result.get("empno"));
     }
@@ -308,7 +308,7 @@ public class SqlTemplateTest {
     public void testForMap_MultiArg() {
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forMap();
         assertEquals(7499, result.get("empno"));
     }
@@ -337,7 +337,7 @@ public class SqlTemplateTest {
 
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forList();
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).get("empno"));
@@ -352,7 +352,7 @@ public class SqlTemplateTest {
 
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forList();
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).get("empno"));
@@ -363,7 +363,7 @@ public class SqlTemplateTest {
     public void testForListMap_SingleArg() {
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(10)
+                .params(10)
                 .forList();
         assertEquals(3, result.size());
         assertEquals(7782, result.get(0).get("empno"));
@@ -374,7 +374,7 @@ public class SqlTemplateTest {
     public void testForListMap_MultiArg() {
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forList();
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).get("empno"));
@@ -397,7 +397,7 @@ public class SqlTemplateTest {
         param.put("job", "SALESMAN");
 
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -411,7 +411,7 @@ public class SqlTemplateTest {
         param.job = "SALESMAN";
 
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
-                .args(param)
+                .param(param)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -421,7 +421,7 @@ public class SqlTemplateTest {
     @Test
     public void testForStreamMap_SingleArg() {
         int[] result = sqlTemplate().file("sql/selectByDeptno.sql")
-                .args(10)
+                .params(10)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(3, result.length);
         assertEquals(7782, result[0]);
@@ -431,7 +431,7 @@ public class SqlTemplateTest {
     @Test
     public void testForStreamMap_MultiArg() {
         int[] result = sqlTemplate().file("sql/selectByArgs.sql")
-                .args(30, "SALESMAN")
+                .params(30, "SALESMAN")
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -450,12 +450,14 @@ public class SqlTemplateTest {
         emp.comm = new BigDecimal(400);
         emp.deptno = 10;
 
-        int count = sqlTemplate().file("sql/insertByParam.sql").args(emp).update();
+        int count = sqlTemplate().file("sql/insertByParam.sql")
+                .param(emp)
+                .update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(1000)
+                .params(1000)
                 .forObject(Emp.class);
         assertEquals(emp.ename, result.ename);
         assertEquals(emp.hiredate, result.hiredate);
@@ -469,12 +471,14 @@ public class SqlTemplateTest {
         param.put("mgr", 7566);
         param.put("empno", 7876);
 
-        int count = sqlTemplate().file("sql/updateByParam.sql").args(param).update();
+        int count = sqlTemplate().file("sql/updateByParam.sql")
+                .param(param)
+                .update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7876)
+                .params(7876)
                 .forObject(Emp.class);
 
         assertEquals("ANALYST", result.job);
@@ -483,24 +487,26 @@ public class SqlTemplateTest {
 
     @Test
     public void testUpdate_deleteByArg() {
-        int count = sqlTemplate().file("sql/deleteByArg.sql").args(7566).update();
+        int count = sqlTemplate().file("sql/deleteByArg.sql")
+                .params(7566)
+                .update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7566)
+                .params(7566)
                 .forObject(Emp.class);
         assertNull(result);
     }
 
     @Test
     public void testUpdate_deleteByArgs() {
-        int count = sqlTemplate().file("sql/deleteByArgs.sql").args(30, "SALESMAN").update();
+        int count = sqlTemplate().file("sql/deleteByArgs.sql").params(30, "SALESMAN").update();
         assertEquals(4, count);
 
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(30)
+                .params(30)
                 .forList(Emp.class);
         assertEquals(2, result.size());
         assertEquals(7698, result.get(0).empno);
@@ -510,8 +516,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forObject() {
         Emp emp = sqlTemplate().file("sql/selectSingleByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
     }
@@ -519,8 +525,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forList() {
         List<Emp> result = sqlTemplate().file("sql/selectByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forList(Emp.class);
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).empno);
@@ -530,8 +536,8 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forStream() {
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -542,8 +548,8 @@ public class SqlTemplateTest {
     public void testQuery_forMap() {
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forMap();
         assertEquals(7499, result.get("empno"));
     }
@@ -552,8 +558,8 @@ public class SqlTemplateTest {
     public void testQuery_forListMap() {
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forList();
         assertEquals(4, result.size());
         assertEquals(7499, result.get(0).get("empno"));
@@ -564,8 +570,8 @@ public class SqlTemplateTest {
     public void testQuery_forStreamMap() {
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .addArg("job", "SALESMAN")
-                .addArg("deptno", 30)
+                .addParam("job", "SALESMAN")
+                .addParam("deptno", 30)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
@@ -684,7 +690,7 @@ public class SqlTemplateTest {
         // execute
         SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
         int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                         entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
                 .update();
 
@@ -713,7 +719,7 @@ public class SqlTemplateTest {
 
         // execute
         int num = sqlTemplate().query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                         entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
                 .update();
 
@@ -757,7 +763,7 @@ public class SqlTemplateTest {
         // execute
         SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
         int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                .args(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
+                .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
                         entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
                 .update();
 
@@ -780,15 +786,15 @@ public class SqlTemplateTest {
     @Test
     public void testUpdateByAdd() {
         int count = sqlTemplate().file("sql/updateByParam.sql")
-                .addArg("job", "TEST")
-                .addArg("mgr", 1234)
-                .addArg("empno", 7876)
+                .addParam("job", "TEST")
+                .addParam("mgr", 1234)
+                .addParam("empno", 7876)
                 .update();
         assertEquals(1, count);
 
         Emp result = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7876)
+                .params(7876)
                 .forObject(Emp.class);
         assertEquals("TEST", result.job);
         assertEquals(1234, result.mgr);
@@ -813,7 +819,7 @@ public class SqlTemplateTest {
     public void testBatchUpdate_byArgs() {
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArgs.sql")
-                .addArgs(30, "SALESMAN")
+                .addParams(30, "SALESMAN")
                 .addArgs(30, "CLERK")
                 .execute();
 
@@ -822,7 +828,7 @@ public class SqlTemplateTest {
 
         Emp result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(30)
+                .params(30)
                 .forObject(Emp.class);
         assertEquals(7698, result.empno);
     }
@@ -842,7 +848,7 @@ public class SqlTemplateTest {
 
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/updateByParam.sql")
-                .addArgs(arg1)
+                .addParam(arg1)
                 .addArgs(arg2)
                 .execute();
 
@@ -851,7 +857,7 @@ public class SqlTemplateTest {
 
         Emp result1 = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7369)
+                .params(7369)
                 .forObject(Emp.class);
         assertEquals("SMITH", result1.ename);
         assertEquals("SALESMAN", result1.job);
@@ -859,7 +865,7 @@ public class SqlTemplateTest {
 
         Emp result2 = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(7499)
+                .params(7499)
                 .forObject(Emp.class);
         assertEquals("ALLEN", result2.ename);
         assertEquals("CLERK", result2.job);
@@ -870,7 +876,7 @@ public class SqlTemplateTest {
     public void testBatchUpdate_bySimpleArgs() {
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArg.sql")
-                .addArgs(7782)
+                .addParam(7782)
                 .addArgs(7934)
                 .execute();
 
@@ -879,7 +885,7 @@ public class SqlTemplateTest {
 
         Emp result = sqlTemplate()
                 .file("sql/selectByDeptno.sql")
-                .args(10)
+                .params(10)
                 .forObject(Emp.class);
         assertEquals(7839, result.empno);
     }
@@ -909,7 +915,7 @@ public class SqlTemplateTest {
 
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/insertByParam.sql")
-                .addArgs(emp1)
+                .addParam(emp1)
                 .addArgs(emp2)
                 .execute();
 
@@ -918,7 +924,7 @@ public class SqlTemplateTest {
 
         Emp result1 = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(1001)
+                .params(1001)
                 .forObject(Emp.class);
         assertEquals(emp1.ename, result1.ename);
         assertEquals(emp1.hiredate, result1.hiredate);
@@ -926,7 +932,7 @@ public class SqlTemplateTest {
 
         Emp result2 = sqlTemplate()
                 .file("sql/selectByEmpno.sql")
-                .args(1002)
+                .params(1002)
                 .forObject(Emp.class);
         assertEquals(emp2.ename, result2.ename);
         assertEquals(emp2.hiredate, result2.hiredate);

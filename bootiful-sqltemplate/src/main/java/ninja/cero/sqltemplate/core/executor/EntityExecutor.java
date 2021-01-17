@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class EntityExecutor implements QueryExecutor {
+public class EntityExecutor extends AbstractQueryExecutor {
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedJdbcTemplate;
     private ParamBuilder paramBuilder;
@@ -37,20 +37,15 @@ public class EntityExecutor implements QueryExecutor {
     }
 
     @Override
-    public <T> T forObject(Class<T> clazz) {
-        List<T> list = forList(clazz);
-        return DataAccessUtils.singleResult(list);
-    }
-
-    @Override
-    public <T> Optional<T> forOptional(Class<T> clazz) {
-        return forStream(clazz, Stream::findFirst);
-    }
-
-    @Override
     public <T> List<T> forList(Class<T> clazz) {
         String sql = templateEngine.get(template, entity);
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), mapperBuilder.mapper(clazz));
+    }
+
+    @Override
+    public List<Map<String, Object>> forList() {
+        String sql = templateEngine.get(template, entity);
+        return namedJdbcTemplate.queryForList(sql, paramBuilder.byBean(entity));
     }
 
     @Override
@@ -59,18 +54,6 @@ public class EntityExecutor implements QueryExecutor {
         SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
         ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, mapperBuilder.mapper(clazz), handler, excTranslator);
         return namedJdbcTemplate.query(sql, paramBuilder.byBean(entity), extractor);
-    }
-
-    @Override
-    public Map<String, Object> forMap() {
-        List<Map<String, Object>> list = forList();
-        return DataAccessUtils.singleResult(list);
-    }
-
-    @Override
-    public List<Map<String, Object>> forList() {
-        String sql = templateEngine.get(template, entity);
-        return namedJdbcTemplate.queryForList(sql, paramBuilder.byBean(entity));
     }
 
     @Override

@@ -12,8 +12,7 @@ Spring Framework（Spring JDBC）が提供する `JdbcTemplate` と `NamedParame
 - SQLテンプレートファイルの利用 (FreeMarkerの書式をサポート)
 - POJOや `java.util.Map` などのオブジェクトに対するマッピング
 - POJOのアクセサメソッド（getter/setter）に加えてpublicフィールドが利用可能
-- JSR-310 Date and Time APIの `LocalDateTime` や `ZonedDateTime` `OffsetDateTime` などを利用可能
-- タイムゾーンをサポート
+- タイムゾーンをサポート (Experimental)
 
 ## Getting Started
 
@@ -183,7 +182,7 @@ Bootiful SQL Templateを利用して、SELECT文を発行するための操作�
 @Component
 public class SampleProcess {
     // (2)
-    protected SqlTemplate sqlTemplate;
+    private SqlTemplate sqlTemplate;
 
     // (3)
     public SampleProcess(SqlTemplate sqlTemplate) {
@@ -193,8 +192,8 @@ public class SampleProcess {
     public void search() {
         // (4)
         List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
-                                    .add("deptno", 30)
-                                    .add("job", "SALESMAN")
+                                    .addParam("deptno", 30)
+                                    .addParam("job", "SALESMAN")
                                     .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename));
     }
@@ -203,7 +202,7 @@ public class SampleProcess {
 
 (1) (2) `SqlTemplate` クラスのインスタンスをインジェクトできるよう、Springの `@Component` アノテーションをつけたクラスのインスタンス変数として `SqlTemplate` を宣言します。
 
-(3) コンストラクタインジェクションを用いて `SqlTemplate` のインスタンスを受け取ります。好みや組織のルール次第で、コンストラクタインジェクションの代わりに `@Autowired` アノテーションを使っても構いません。
+(3) コンストラクタインジェクションを用いて `SqlTemplate` のインスタンスを受け取ります。コンストラクタインジェクションの代わりに `@Autowired` アノテーションを使っても構いません。
 
 (4) `SqlTemplate` のAPIを用いてSELECTの処理を行い、結果を `java.util.List` として受け取っています。
 
@@ -222,7 +221,7 @@ from
     emp
 ```
 
-SQLファイルはクラスパスの通った場所に置いてください。一般的なMaven形式のプロジェクトであれば `src/main/resouces` の下に置くと良いでしょう。好みによっては `src/main/java` の下でデータベースへのアクセス処理を記述するクラスと同じパッケージに配置しても良いでしょう。SQLファイルの拡張子についても特に規定はありません。
+SQLファイルはクラスパスの通った場所に置いてください。一般的なMaven形式のプロジェクトであれば `src/main/resouces` の下に置くと良いでしょう。あるいは `src/main/java` の下でデータベースへのアクセス処理を記述するクラスと同じパッケージに配置しても良いでしょう。SQLファイルの拡張子についても特に規定はありません。
 
 - （参考）ファイルを置く場所の例
     1. `src/main/resources/sql/selectAll.sql`
@@ -240,7 +239,7 @@ SQLファイルはクラスパスの通った場所に置いてください。�
 
 #### 3-3. SQLを文字列で指定する
 
-SQLを文字列で指定するために `query` メソッドを用いることができます。
+`SqlTemplate` クラスで最初に呼び出せるメソッドの一つである `query` について説明します。これはSQLを文字列で指定して実行するためのメソッドです。
 
 たとえば次のような記述ができます。
 
@@ -273,15 +272,15 @@ where
 
 この例では2つの `?` を変数として利用しています。
 
-このように記述したクエリに変数をバインドするために `args` メソッドを利用します。`args` メソッドの引数に `?` と同じ数だけ任意の値を渡します。
+このように記述したクエリに変数をバインドするために `params` メソッドを利用します。`params` メソッドの引数に `?` と同じ数だけ任意の値を渡します。
 
 ```java
-List<Emp> emps = sqlTemplate.file("sql/selectByArgs.sql")
-                            .args(30, "SALESMAN")
+List<Emp> emps = sqlTemplate.file("sql/selectByParams.sql")
+                            .params(30, "SALESMAN")
                             .forList(Emp.class);
 ```
 
-このように指定することで、1番目の `?` には `args` メソッドの第一引数が、2番目の `?` には `args` メソッドの第二引数が渡されます。変数の数に上限はありません。
+このように指定することで、1番目の `?` には `params` メソッドの第一引数が、2番目の `?` には `params` メソッドの第二引数が渡されます。変数の数に上限はありません。
 
 この記述をした結果、上に書いたクエリは次のように値がバインドされます。
 
@@ -321,12 +320,12 @@ where
 
 このように記述したクエリに変数をバインドするためには、3つの方法があります。1つは個別にバインド変数名とバインドする値を指定する方法、2つ目は変数名と同じフィールドを持つ Value Object (POJO) を利用する方法、3つ目が変数名をキーにした `java.util.Map` を利用する方法です。
 
-バインド変数名と値を指定する方法では `addArg` メソッドを利用し、第一引数に変数名、第二引数にバインドする値を指定します。`addArg` メソッドをチェーンさせることで複数の変数を指定することができます。次のようなコードになります。
+一つ目のバインド変数名と値を指定する方法では `addParam` メソッドを利用し、第一引数に変数名、第二引数にバインドする値を指定します。`addParam` メソッドをチェーンさせることで複数の変数を指定することができます。次のようなコードになります。
 
 ```java
 List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
-                            .addArg("deptno", 30)
-                            .addArg("job", "SALESMAN")
+                            .addParam("deptno", 30)
+                            .addParam("job", "SALESMAN")
                             .forList(Emp.class);
 ```
 
@@ -345,7 +344,7 @@ public class SearchCondition {
 }
 ```
 
-次にこのValue Objectのインスタンスを作成し、バインドしたい値を代入したものを `args` メソッドの引数に渡します。
+次にこのValue Objectのインスタンスを作成し、バインドしたい値を代入したものを `param` メソッドの引数に渡します。
 
 ```java
 SearchCondition searchCondition = new SearchCondition();
@@ -353,7 +352,7 @@ searchCondition.deptno = 30;
 searchCondition.job = "SALESMAN";
 
 List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
-                            .args(searchCondition)
+                            .param(searchCondition)
                             .forList(Emp.class);
 ```
 
@@ -363,7 +362,7 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
 
 ##### (4) バインド変数に :(変数名) を用いる - Mapでバインド値を指定する
 
-バインド変数の値指定に `java.util.Map` を利用する場合、`Map` のインスタンスを作成し、`put` メソッドを用いてバインドしたい変数名を第一引数に、値を第二引数にして指定します。その `Map` のインスタンスを `args` メソッドの引数に渡します。
+バインド変数の値指定に `java.util.Map` を利用する場合、`Map` のインスタンスを作成し、`put` メソッドを用いてバインドしたい変数名を第一引数に、値を第二引数にして指定します。その `Map` のインスタンスを `param` メソッドの引数に渡します。
 
 ```java
 Map<String, Object> condition = new HashMap<>();
@@ -371,7 +370,7 @@ condition.put("deptno", 30);
 condition.put("job", "SALESMAN");
 
 List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
-                            .args(condition)
+                            .param(condition)
                             .forList(Emp.class);
 ```
 
@@ -381,24 +380,169 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
 
 #### 3-5. 結果の取り出し - 結果が複数件の場合
 
-`file` メソッドか `query` メソッドでクエリを指定し、必要に応じて `args` メソッドや `addArg` メソッドで変数のバインドを行った後、クエリを実行して検索結果を取得します。クエリを実行するためのメソッドは、結果をどのように受け取るかによって変わります。ここでは結果が複数件あることが想定できる場合のメソッドについて説明します。
+クエリの指定とパラメータの指定をした後、クエリを実行して検索結果を取得します。クエリを実行するためのメソッドは、結果をどのように受け取るかによって変わります。複数件の結果を取得する場合は、`java.util.List` か `java.util.stream.Stream` として取得することができます。その取得方法について説明します。
 
 ##### (1) List<Value Object> として受け取る
 
+複数の検索結果を `java.util.List` として受け取りたい場合 `forList` メソッドを利用します。`forList` メソッドの引数にはValue Objectの `class` を指定することができ、指定した場合はメソッドの戻り値が `List<Value Object>` となります。引数を指定しない場合、戻り値は `List<Map<String, Object>>` となります。
+
+Value Objectの `List` として取得したい場合、まずはクエリ結果のカラム名と同じフィールド名を持つValue Objectを作成します。Value Objectはアクセサメソッド（getter/setter）を用いて作成しても良いですし、publicフィールドを用いても構いません。なお、カラム名がスネークケース（たとえば `user_name` など）であったとしても、フィールド名はキャメールケース（たとえば `userName` など）でもスネークケースでもも構いません。
+
+ここではキャメルケースのpublicフィールドを例にします。
+
+```java
+public class Emp {
+    public Integer empno;
+    public String ename;
+    public String job;
+    public Integer mgr;
+    public LocalDate hiredate;
+    public BigDecimal sal;
+    public BigDecimal comm;
+    public Integer deptno;
+}
+```
+
+次にこのValue Objectの `class` を `forList` メソッドの戻り値に渡します。
+
+```java
+List<Emp> emps = sqlTemplate.query("select * from emp")
+                            .forList(Emp.class);
+```
+
+これで、検索結果を `List<Emp>` として受け取ることができます。
+
+複数件の検索結果を扱いたい場合には、基本的にはこの方法を利用することとなります。
+
 ##### (2) List<Map> として受け取る
+
+検索結果を `List<Map<String, Object>>` として受け取りたい場合 `forList` メソッドを引数なしで利用します。たとえば次のように記述します。
+
+```java
+List<Map<String, Object>> emps = sqlTemplate.query("select * from emp")
+                            .forList();
+```
+
+戻り値の `Map<String, Object>` にはカラム名をキーとした値が格納されます。ここで、カラム名がスネークケースの場合は `Map` のキーもスネークケースのままになります。また、RDBMSがカラム名をすべて大文字で返す場合には、`Map` のキーもすべて大文字となります。このメソッドを用いる場合には、その2点に注意してください。
+
+検索結果を取得するためにValue Objectをわざわざ作りたくない場合に、この方法を利用することができますが、あまりお勧めはしません。
 
 ##### (3) Stream として処理する
 
+検索結果を `java.util.stream.Stream` として処理したい場合 `forStream` メソッドを利用します。この `forStream` メソッドは `Stream` を戻り値として返すのではなく `java.util.function.Function` を引数として受け取って処理をするメソッドです。`Stream` を `close` し忘れることを防ぐためにこのようなAPIの構成にしています（ただし将来的に変更する可能性があります）
+
+`forStream` メソッドの引数にValue Objectの `class` を指定することができ、指定した場合には第二引数に渡す `Function` は `Stream<Value Object>` を処理して変換などの処理を行う関数になります。第一引数の型を指定しない場合は `Stream<Map<String, Object>>` を処理する `Function` のみを渡します。
+
+ここでは例として、Value Objectを扱うStreamのコードを示します。
+
+```java
+Function<Stream<Emp>, Long> summing = stream -> stream.mapToLong(e -> e.sal.longValue()).sum();
+Long sum = sqlTemplate.query("select * from emp")
+        .forStream(Emp.class, summing);
+```
+
+この例ではStreamの処理を利用してEmpのsalの合計値を計算しました。
 
 #### 3-6. 結果の取り出し - 結果が0件か1件の場合
 
+クエリの実行結果は、特に主キーによる検索や集計関数を実行した場合に0件か1件になることが想定されます。この場合は Value Objectか `java.util.Map` か `java.util.Optional`として結果を取り出すことができます。その取得方法について説明します。
 
+##### (1) Value Objectとして受け取る
+
+1件の検索結果をValue Objectとして受け取りたい場合 `forObject` メソッドを利用します。`forObject` メソッドの引数にはValue Objectの `class` を指定します。また作成するValue Objectの作成ルールは複数件の取得の時と同様であるため説明を省略します。
+
+取得したいValue Objectの `class` を `forObject` メソッドの戻り値に渡します。
+
+```java
+Emp emp = sqlTemplate.query("select * from emp where empno = ?")
+        .params(7369)
+        .forObject(Emp.class);
+```
+
+これで、検索結果を `Emp` として受け取ることができます。検索結果が0件の場合は戻り値がnullとなります。
+
+##### (2) Map<String, Object> として受け取る
+
+検索結果を `Map<String, Object>` として受け取りたい場合 `forMap` メソッドを利用します。たとえば次のように記述します。
+
+```java
+Map<String, Object> emp = sqlTemplate.query("select * from emp where empno = ?")
+        .params(7369)
+        .forMap();
+```
+
+戻り値の `Map<String, Object>` にはカラム名をキーとした値が格納されます。ここで、カラム名がスネークケースの場合は `Map` のキーもスネークケースのままになります。また、RDBMSがカラム名をすべて大文字で返す場合には、`Map` のキーもすべて大文字となります。このメソッドを用いる場合には、その2点に注意してください。
+
+検索結果を取得するためにValue Objectをわざわざ作りたくない場合に、この方法を利用することができます。検索結果が0件の場合は戻り値がnullとなります。
+
+##### (3) Optional として受け取る
+
+検索結果を `java.util.Optional` として処理したい場合 `forOptional` メソッドを利用します。`forOptional` メソッドの引数にはValue Objectの `class` を指定することができ、指定した場合はメソッドの戻り値が `Optional<Value Object>` となります。引数を指定しない場合、戻り値は `Optional<Map<String, Object>>` となります。
+
+ここでは例として、Value Objectを扱うStreamのコードを示します。
+
+```java
+Optional<Emp> emp = sqlTemplate.query("select * from emp where empno = ?")
+        .params(7369)
+        .forOptional(Emp.class);
+emp.ifPresent(e -> System.out.println(e.ename)); // Do not show
+```
+
+結果を `Optional` として受け取ることで、検索結果が0件の場合はnullではなく空の `Optional` となるため、null安全な処理を書けるようになります。
 
 #### 3-7. テンプレートエンジンを使う
 
+SQLファイルを用いて検索するための `file` メソッドは、シンプルなSQLを記述するだけでなく、FreeMarker形式のテンプレートを記述することもできます。このテンプレートを用いることでクエリの一部を動的に組み立てることができます。
 
+テンプレートの文法についてはFreeMarkerの公式サイト (https://freemarker.apache.org/) を参照してください。
 
+ここでは例として、パラメータで指定された値だけを用いて検索を行うようなクエリについて説明します。まずは次のようなFreeMarker形式のテンプレートファイルを作成します。ファイルは仮に `src/main/resources/sql/selectByArbitraryParam.sql` とします。
 
+```sql
+select
+    *
+from
+    emp
+where
+    1 = 1
+<#if job??>
+    AND job = :job
+</#if>
+<#if mgr??>
+    AND mgr = :mgr
+</#if>
+<#if deptno??>
+    AND deptno = :deptno
+</#if>
+```
+
+ここではFreeMarkerの `<#if ??>` の文法を用いて、値が指定された場合のみタグの中の文字列（検索条件）を追加するように記述しています。
+
+FreeMarkerに渡すパラメータは、バインド変数の `:(変数名)` と同じ形で渡すことができます。つまり `addParam` メソッドで指定した値や `param` メソッドで指定したValue Objectや `Map` の値が渡されます。たとえば次のようにパラメータを渡したとしましょう。
+
+```java
+List<Emp> emps1 = sqlTemplate.file("sql/selectByArbitraryParam.sql")
+        .addParam("deptno", 30)
+        .forList(Emp.class);
+```
+
+これで `deptno` のみが渡された結果、上に示したテンプレートは次のように解釈されます。
+
+```sql
+select
+    *
+from
+    emp
+where
+    1 = 1
+    AND deptno = :deptno
+```
+
+`deptno` が指定されたため `AND deptno = :deptno` という部分は残り、一方で `mgr` と `job` に関する条件の部分は除去されました。
+
+このようにしてテンプレートにFreeMarkerの文法を用いることで、検索条件を柔軟に変化させることができます。テンプレートの文法は強力であり、理論的にはどのようなクエリを発行することもでき、たとえば `:(変数名)` のバインド変数では指定できないテーブル名なども、テンプレートの文法を使えば指定することができます。ただしその分、うっかりSQLインジェクションに対する脆弱性などを埋め込んでしまうこともあります。その点には注意して利用してください。
+
+（以下、作成中）
 
 ### 4. 更新する - INSERT / UPDATE / DELETE文の発行
 
