@@ -29,7 +29,7 @@ public class TestConfig {
 
     DataSource dataSourceMySQL() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/test");
         dataSource.setUsername("test");
         dataSource.setPassword("test");
@@ -37,7 +37,21 @@ public class TestConfig {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("schema.sql"));
         populator.addScript(new ClassPathResource("data.sql"));
+        DatabasePopulatorUtils.execute(populator, dataSource);
 
+        return dataSource;
+    }
+
+    DataSource dataSourcePostgreSQL() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/test");
+        dataSource.setUsername("test");
+        dataSource.setPassword("test");
+
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("schema.sql"));
+        populator.addScript(new ClassPathResource("data.sql"));
         DatabasePopulatorUtils.execute(populator, dataSource);
 
         return dataSource;

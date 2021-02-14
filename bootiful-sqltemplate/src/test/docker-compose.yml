@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+    bootiful-sqltemplate-mysql:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: test
+            MYSQL_USER: test
+            MYSQL_PASSWORD: test
+            TZ: 'Asia/Tokyo'
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        ports:
+            - "3306:3306"
+    bootiful-sqltemplate-postgresql:
+        image: postgres:11-alpine
+        environment:
+            LANG: "ja_JP.utf8"
+            POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+            POSTGRES_DB: test
+            POSTGRES_USER: test
+            POSTGRES_PASSWORD: test
+        ports:
+            - "5432:5432"
