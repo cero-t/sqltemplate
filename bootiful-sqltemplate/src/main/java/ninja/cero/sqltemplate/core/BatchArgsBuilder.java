@@ -30,16 +30,16 @@ public class BatchArgsBuilder {
         this.template = template;
     }
 
-    public BatchArrayArgsBuilder addParams(Object... args) {
-        return new BatchArrayArgsBuilder(args);
+    public BatchArrayArgsBuilder addBatch(Object... batchArgs) {
+        return new BatchArrayArgsBuilder(batchArgs);
     }
 
-    public BatchEntityArgsBuilder addParam(Object entity) {
-        return new BatchEntityArgsBuilder(entity);
+    public BatchEntityArgsBuilder addBatch(Object batchEntity) {
+        return new BatchEntityArgsBuilder(batchEntity);
     }
 
-    public BatchMapArgsBuilder addParam(Map<String, Object> map) {
-        return new BatchMapArgsBuilder(map);
+    public BatchMapArgsBuilder addBatch(Map<String, Object> batchParam) {
+        return new BatchMapArgsBuilder(batchParam);
     }
 
     public int[] execute() {
@@ -48,44 +48,44 @@ public class BatchArgsBuilder {
     }
 
     public class BatchArrayArgsBuilder {
-        private List<Object[]> arrayArgs = new ArrayList<>();
+        private List<Object[]> batchArgList = new ArrayList<>();
 
-        public BatchArrayArgsBuilder(Object[] args) {
-            arrayArgs.add(args);
+        public BatchArrayArgsBuilder(Object[] batchArgs) {
+            batchArgList.add(batchArgs);
         }
 
-        public BatchArrayArgsBuilder addArgs(Object... args) {
-            arrayArgs.add(args);
+        public BatchArrayArgsBuilder addBatch(Object... batchArgs) {
+            batchArgList.add(batchArgs);
             return this;
         }
 
         public int[] execute() {
             String sql = templateEngine.get(template);
-            Object[][] args = arrayArgs.toArray(new Object[arrayArgs.size()][]);
+            Object[][] args = batchArgList.toArray(new Object[batchArgList.size()][]);
             return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(args));
         }
     }
 
     public class BatchEntityArgsBuilder {
-        private List<Object> entityArgs = new ArrayList<>();
+        private List<Object> batchEntities = new ArrayList<>();
 
-        public BatchEntityArgsBuilder(Object entity) {
-            entityArgs.add(entity);
+        public BatchEntityArgsBuilder(Object batchEntity) {
+            batchEntities.add(batchEntity);
         }
 
-        public BatchEntityArgsBuilder addArgs(Object entity) {
-            entityArgs.add(entity);
+        public BatchEntityArgsBuilder addBatch(Object batchEntity) {
+            batchEntities.add(batchEntity);
             return this;
         }
 
         public int[] execute() {
             String sql = templateEngine.get(template);
-            if (TypeUtils.isSimpleValueType(entityArgs.get(0).getClass())) {
-                Object[] args = entityArgs.toArray(new Object[entityArgs.size()]);
+            if (TypeUtils.isSimpleValueType(batchEntities.get(0).getClass())) {
+                Object[] args = batchEntities.toArray(new Object[batchEntities.size()]);
                 return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(args));
             }
 
-            BeanParameter[] beanParameters = entityArgs.stream()
+            BeanParameter[] beanParameters = batchEntities.stream()
                     .map(paramBuilder::byBean)
                     .toArray(BeanParameter[]::new);
             return namedJdbcTemplate.batchUpdate(sql, beanParameters);
@@ -93,19 +93,19 @@ public class BatchArgsBuilder {
     }
 
     public class BatchMapArgsBuilder {
-        private List<Map<String, Object>> mapArgs = new ArrayList<>();
+        private List<Map<String, Object>> batchParams = new ArrayList<>();
 
-        public BatchMapArgsBuilder(Map<String, Object> params) {
-            mapArgs.add(params);
+        public BatchMapArgsBuilder(Map<String, Object> batchParam) {
+            batchParams.add(batchParam);
         }
 
-        public BatchMapArgsBuilder addArgs(Map<String, Object> params) {
-            mapArgs.add(params);
+        public BatchMapArgsBuilder addBatch(Map<String, Object> batchParam) {
+            batchParams.add(batchParam);
             return this;
         }
 
         public int[] execute() {
-            MapParameter[] mapParameters = mapArgs.stream()
+            MapParameter[] mapParameters = batchParams.stream()
                     .map(paramBuilder::byMap)
                     .toArray(MapParameter[]::new);
 

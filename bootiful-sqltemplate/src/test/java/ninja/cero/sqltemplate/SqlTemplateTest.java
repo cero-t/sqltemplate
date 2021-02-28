@@ -819,8 +819,8 @@ public class SqlTemplateTest {
     public void testBatchUpdate_byArgs() {
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArgs.sql")
-                .addParams(30, "SALESMAN")
-                .addArgs(30, "CLERK")
+                .addBatch(30, "SALESMAN")
+                .addBatch(30, "CLERK")
                 .execute();
 
         // assert
@@ -848,8 +848,8 @@ public class SqlTemplateTest {
 
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/updateByParam.sql")
-                .addParam(arg1)
-                .addArgs(arg2)
+                .addBatch(arg1)
+                .addBatch(arg2)
                 .execute();
 
         // assert
@@ -876,8 +876,8 @@ public class SqlTemplateTest {
     public void testBatchUpdate_bySimpleArgs() {
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArg.sql")
-                .addParam(7782)
-                .addArgs(7934)
+                .addBatch(7782)
+                .addBatch(7934)
                 .execute();
 
         // assert
@@ -915,8 +915,8 @@ public class SqlTemplateTest {
 
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/insertByParam.sql")
-                .addParam(emp1)
-                .addArgs(emp2)
+                .addBatch(emp1)
+                .addBatch(emp2)
                 .execute();
 
         // assert
