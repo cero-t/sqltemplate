@@ -7,6 +7,7 @@ import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.ArrayList;
@@ -40,6 +41,16 @@ public class BatchArgsBuilder {
 
     public BatchMapArgsBuilder addBatch(Map<String, Object> batchParam) {
         return new BatchMapArgsBuilder(batchParam);
+    }
+
+    /**
+     * Add batch parameters.
+     *
+     * @param batchParams parameters, can be `List` of Java Beans or `List` of `java.util.Map`.
+     * @return BatchExecutor
+     */
+    public BatchExecutor addBatches(List<Object> batchParams) {
+        return new BatchExecutor(batchParams);
     }
 
     public int[] execute() {
@@ -81,7 +92,7 @@ public class BatchArgsBuilder {
         public int[] execute() {
             String sql = templateEngine.get(template);
             if (TypeUtils.isSimpleValueType(batchEntities.get(0).getClass())) {
-                Object[] args = batchEntities.toArray(new Object[batchEntities.size()]);
+                Object[] args = batchEntities.toArray(new Object[0]);
                 return jdbcTemplate.batchUpdate(sql, paramBuilder.byBatchArgs(args));
             }
 
@@ -111,6 +122,35 @@ public class BatchArgsBuilder {
 
             String sql = templateEngine.get(template);
             return namedJdbcTemplate.batchUpdate(sql, mapParameters);
+        }
+    }
+
+    public class BatchExecutor {
+        private List<Object> batchParamList = new ArrayList<>();
+
+        public BatchExecutor(List<Object> batchParams) {
+            batchParamList.addAll(batchParams);
+        }
+
+        public int[] execute() {
+            if (batchParamList.size() == 0) {
+                String sql = templateEngine.get(template);
+                return jdbcTemplate.batchUpdate(sql);
+            }
+
+            AbstractSqlParameterSource[] batchParameters;
+            if (batchParamList.get(0) instanceof Map) {
+                batchParameters = batchParamList.stream()
+                        .map(o -> paramBuilder.byMap((Map<String, Object>) o))
+                        .toArray(MapParameter[]::new);
+            } else {
+                batchParameters = batchParamList.stream()
+                        .map(paramBuilder::byBean)
+                        .toArray(BeanParameter[]::new);
+            }
+
+            String sql = templateEngine.get(template);
+            return namedJdbcTemplate.batchUpdate(sql, batchParameters);
         }
     }
 }
