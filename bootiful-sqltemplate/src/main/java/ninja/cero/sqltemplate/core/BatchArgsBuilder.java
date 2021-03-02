@@ -49,7 +49,7 @@ public class BatchArgsBuilder {
      * @param batchParams parameters, can be `List` of Java Beans or `List` of `java.util.Map`.
      * @return BatchExecutor
      */
-    public BatchExecutor addBatches(List<Object> batchParams) {
+    public BatchExecutor addBatches(List<?> batchParams) {
         return new BatchExecutor(batchParams);
     }
 
@@ -128,7 +128,7 @@ public class BatchArgsBuilder {
     public class BatchExecutor {
         private List<Object> batchParamList = new ArrayList<>();
 
-        public BatchExecutor(List<Object> batchParams) {
+        public BatchExecutor(List<?> batchParams) {
             batchParamList.addAll(batchParams);
         }
 

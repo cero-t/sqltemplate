@@ -18,10 +18,7 @@ import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -801,7 +798,7 @@ public class SqlTemplateTest {
     }
 
     @Test
-    public void testBatchUpdate_bySql() {
+    public void testBatchUpdate_byQueries() {
         // execute
         int[] counts = sqlTemplate().batchUpdate()
                 .queries("delete from emp",
@@ -809,6 +806,45 @@ public class SqlTemplateTest {
 
         // assert
         assertArrayEquals(new int[]{14, 1}, counts);
+
+        List<Emp> result = sqlTemplate().file("sql/selectAll.sql").forList(Emp.class);
+        assertEquals(1, result.size());
+        assertEquals(1234, result.get(0).empno);
+    }
+
+    @Test
+    public void testBatchUpdate_byQuery() {
+        // prepare
+        jdbcTemplate.update("DELETE from emp");
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate()
+                .query("insert into emp (empno) values (?)")
+                .addBatch(111)
+                .addBatch(222)
+                .execute();
+
+        // assert
+        assertArrayEquals(new int[]{1, 1}, counts);
+
+        List<Emp> result = sqlTemplate().file("sql/selectAll.sql").forList(Emp.class);
+        assertEquals(2, result.size());
+        assertEquals(111, result.get(0).empno);
+        assertEquals(222, result.get(1).empno);
+    }
+
+    @Test
+    public void testBatchUpdate_byQueryNoBatch() {
+        // prepare
+        jdbcTemplate.update("DELETE from emp");
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate()
+                .query("insert into emp (empno) values (1234)")
+                .execute();
+
+        // assert
+        assertArrayEquals(new int[]{1}, counts);
 
         List<Emp> result = sqlTemplate().file("sql/selectAll.sql").forList(Emp.class);
         assertEquals(1, result.size());
@@ -873,6 +909,46 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testBatchUpdate_byMaps() {
+        // prepare
+        Map<String, Object> arg1 = new HashMap<>();
+        arg1.put("empno", 7369);
+        arg1.put("job", "SALESMAN2");
+        arg1.put("mgr", 7698);
+
+        Map<String, Object> arg2 = new HashMap<>();
+        arg2.put("empno", 7499);
+        arg2.put("job", "CLERK2");
+        arg2.put("mgr", 7902);
+
+        List<Map<String, Object>> maps = Arrays.asList(arg1, arg2);
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate().file("sql/updateByParam.sql")
+                .addBatches(maps)
+                .execute();
+
+        // assert
+        assertArrayEquals(new int[]{1, 1}, counts);
+
+        Emp result1 = sqlTemplate()
+                .file("sql/selectByEmpno.sql")
+                .params(7369)
+                .forObject(Emp.class);
+        assertEquals("SMITH", result1.ename);
+        assertEquals("SALESMAN2", result1.job);
+        assertEquals(7698, result1.mgr);
+
+        Emp result2 = sqlTemplate()
+                .file("sql/selectByEmpno.sql")
+                .params(7499)
+                .forObject(Emp.class);
+        assertEquals("ALLEN", result2.ename);
+        assertEquals("CLERK2", result2.job);
+        assertEquals(7902, result2.mgr);
+    }
+
+    @Test
     public void testBatchUpdate_bySimpleArgs() {
         // execute
         int[] counts = sqlTemplate().batchUpdate().file("sql/deleteByArg.sql")
@@ -917,6 +993,56 @@ public class SqlTemplateTest {
         int[] counts = sqlTemplate().batchUpdate().file("sql/insertByParam.sql")
                 .addBatch(emp1)
                 .addBatch(emp2)
+                .execute();
+
+        // assert
+        assertArrayEquals(new int[]{1, 1}, counts);
+
+        Emp result1 = sqlTemplate()
+                .file("sql/selectByEmpno.sql")
+                .params(1001)
+                .forObject(Emp.class);
+        assertEquals(emp1.ename, result1.ename);
+        assertEquals(emp1.hiredate, result1.hiredate);
+        assertEquals(emp1.deptno, result1.deptno);
+
+        Emp result2 = sqlTemplate()
+                .file("sql/selectByEmpno.sql")
+                .params(1002)
+                .forObject(Emp.class);
+        assertEquals(emp2.ename, result2.ename);
+        assertEquals(emp2.hiredate, result2.hiredate);
+        assertEquals(emp2.deptno, result2.deptno);
+    }
+
+    @Test
+    public void testBatchUpdate_byEntities() {
+        // prepare
+        Emp emp1 = new Emp();
+        emp1.empno = 1001;
+        emp1.ename = "TEST1";
+        emp1.job = "MANAGER";
+        emp1.mgr = 7839;
+        emp1.hiredate = LocalDate.of(2015, 4, 1);
+        emp1.sal = new BigDecimal(4000);
+        emp1.comm = new BigDecimal(400);
+        emp1.deptno = 10;
+
+        Emp emp2 = new Emp();
+        emp2.empno = 1002;
+        emp2.ename = "TEST2";
+        emp2.job = "MANAGER";
+        emp2.mgr = 7839;
+        emp2.hiredate = LocalDate.of(2015, 4, 2);
+        emp2.sal = new BigDecimal(4000);
+        emp2.comm = new BigDecimal(400);
+        emp2.deptno = 20;
+
+        List<Emp> emps = Arrays.asList(emp1, emp2);
+
+        // execute
+        int[] counts = sqlTemplate().batchUpdate().file("sql/insertByParam.sql")
+                .addBatches(emps)
                 .execute();
 
         // assert
