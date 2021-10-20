@@ -18,7 +18,7 @@ jobs:
           server-password: MAVEN_PASSWORD
       - name: Check version
         run: |
-          TAIL=$(./mvnw --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout | awk '{ sub(".*-",""); printf $0; }')"
+          TAIL=$(./mvnw --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout | awk '{ sub(".*-",""); printf $0; }')
           echo "TAIL=${TAIL}" >> $GITHUB_ENV
       - name: SNAPSHOT
         if: env.TAIL == 'SNAPSHOT'
