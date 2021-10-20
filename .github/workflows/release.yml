@@ -1,4 +1,4 @@
-name: RELEASE
+name: Publish relase and update pom.xml
 on:
   workflow_dispatch:
 jobs:
@@ -14,6 +14,8 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+          gpg-passphrase: GPG_PASSPHRASE
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} 
       - name: Change to RELEASE version (remove SNAPSHOT)
         run: |
           POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
@@ -31,6 +33,12 @@ jobs:
           git add .
           git commit -m "release version"
           git push
+      - name: RELEASE
+        run: mvn deploy --batch-mode --activate-profiles release --also-make --projects bootiful-sqltemplate
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       - name: Change to new SNAPSHOT version
         run: |
           POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
