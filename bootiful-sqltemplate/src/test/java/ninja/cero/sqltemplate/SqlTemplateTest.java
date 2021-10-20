@@ -4,6 +4,7 @@ import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,11 @@ public class SqlTemplateTest {
 
     @Autowired
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @BeforeAll
+    public static void prepare() {
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
+    }
 
     @Test
     public void testForObject_NoArgs() {
@@ -587,9 +593,6 @@ public class SqlTemplateTest {
 
     @Test
     public void testForObject_DateTime() {
-        // prepare
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
-
         // execute
         DateTimeEntity result = sqlTemplate()
                 .query("SELECT * FROM date_time")
@@ -610,9 +613,6 @@ public class SqlTemplateTest {
 
     @Test
     public void testForList_SingleDateTime() {
-        // prepare
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
-
         // execute
         // assert
         List<LocalDateTime> localDateTime = sqlTemplate()
@@ -633,9 +633,6 @@ public class SqlTemplateTest {
 
     @Test
     public void testForObject_SingleDateTime() {
-        // prepare
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
-
         // execute
         // assert
         LocalDateTime localDateTime = sqlTemplate().query("SELECT local_date_time FROM date_time").forObject(LocalDateTime.class);
@@ -650,9 +647,6 @@ public class SqlTemplateTest {
 
     @Test
     public void testForListMap_DateTime() {
-        // prepare
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
-
         // execute
         List<Map<String, Object>> maps = sqlTemplate().query("SELECT * FROM date_time").forList();
 
@@ -670,7 +664,6 @@ public class SqlTemplateTest {
     public void testUpdate_DateTime() {
         // prepare
         jdbcTemplate.update("DELETE from date_time");
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         DateTimeEntity entity = new DateTimeEntity();
         entity.utilDate = java.util.Date.from(LocalDateTime.of(2001, 1, 23, 12, 34, 56, 789000000).atZone(ZoneId.systemDefault()).toInstant());
@@ -711,7 +704,6 @@ public class SqlTemplateTest {
     public void testUpdate_DateTime_Null() {
         // prepare
         jdbcTemplate.update("DELETE from date_time");
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
         DateTimeEntity entity = new DateTimeEntity();
 
         // execute
@@ -743,7 +735,6 @@ public class SqlTemplateTest {
     public void testUpdate_DateTime_ZoneAware() {
         // prepare
         jdbcTemplate.update("DELETE from date_time");
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Tokyo")));
 
         DateTimeEntity entity = new DateTimeEntity();
         entity.utilDate = java.util.Date.from(LocalDateTime.of(2001, 1, 23, 12, 34, 56, 789000000).atZone(ZoneId.systemDefault()).toInstant());
