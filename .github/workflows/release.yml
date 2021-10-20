@@ -16,23 +16,23 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-passphrase: GPG_PASSPHRASE
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} 
-#      - name: Change to RELEASE version (remove SNAPSHOT)
-#        run: |
-#          POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
-#          for POM in ${POMS[@]}
-#          do
-#            CURRENT_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout -file $POM)
-#            NEW_VERSION=$(echo ${CURRENT_VERSION} | awk '{ sub("-.*$",""); printf $0; }')
-#            MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
-#            ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
-#          done
-#      - name: Commit and push RELEASE version to GitHub
-#        run: |
-#          git config user.name github-actions
-#          git config user.email github-actions@github.com
-#          git add .
-#          git commit -m "release version"
-#          git push
+      - name: Change to RELEASE version (remove SNAPSHOT)
+        run: |
+          POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
+          for POM in ${POMS[@]}
+          do
+            CURRENT_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout -file $POM)
+            NEW_VERSION=$(echo ${CURRENT_VERSION} | awk '{ sub("-.*$",""); printf $0; }')
+            MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
+            ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
+          done
+      - name: Commit and push RELEASE version to GitHub
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "release version"
+          git push
       - name: RELEASE
         run: mvn deploy --batch-mode --activate-profiles release --also-make --projects bootiful-sqltemplate
         env:
@@ -52,10 +52,10 @@ jobs:
             MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
             ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
           done
-#      - name: Commit and push new SNAPSHOT version to GitHub
-#        run: |
-#          git config user.name github-actions
-#          git config user.email github-actions@github.com
-#          git add .
-#          git commit -m "new snapshot version"
-#          git push
+      - name: Commit and push new SNAPSHOT version to GitHub
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "new snapshot version"
+          git push
