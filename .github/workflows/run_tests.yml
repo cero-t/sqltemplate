@@ -1,0 +1,17 @@
+name: Run tests
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+      - name: Run test
+        run: mvn clean test
