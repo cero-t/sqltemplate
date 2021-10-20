@@ -1,0 +1,30 @@
+name: Publish package to the Maven Central Repository
+on:
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Change to RELEASE version (remove SNAPSHOT)
+        run: |
+          POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
+          for POM in ${POMS[@]}
+          do
+            CURRENT_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout -file $POM)
+            NEW_VERSION=$(echo ${CURRENT_VERSION} | awk '{ sub("-.*$",""); printf $0; }')
+            MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
+            ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
+          done
+      - name: Commit and push to GitHub
+        run: cat pom.xml
+      - name: Create release
+        run: cat bootiful-sqltemplate/pom.xml
