@@ -2,9 +2,12 @@ package ninja.cero.sqltemplate.example;
 
 import ninja.cero.sqltemplate.SqlTemplate;
 import ninja.cero.sqltemplate.example.entity.Emp;
+import ninja.cero.sqltemplate.example.entity.EmpRecord;
 import ninja.cero.sqltemplate.example.entity.SearchCondition;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +122,21 @@ public class SampleProcess {
         emps1.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, BLAKE, TURNER, JAMES
     }
 
+    public void insertWithRecord() {
+        EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
+                LocalDate.of(2015, 4, 1), new BigDecimal(4000),
+                new BigDecimal(400), 10);
+        sqlTemplate.file("sql/insertByParam.sql")
+                .param(emp)
+                .update();
+
+        EmpRecord result = sqlTemplate
+                .file("sql/selectByEmpno.sql")
+                .params(1000)
+                .forObject(EmpRecord.class);
+        System.out.println(result); // EmpRecord[empno=1000, ename=TEST, job=MANAGER, mgr=7839, hiredate=2015-04-01, sal=4000.0, comm=400.0, deptno=10]
+    }
+
     public void process() {
         gettingStarted();
         selectByQuery();
@@ -128,5 +146,6 @@ public class SampleProcess {
         selectSingleResult();
         selectNoResult();
         selectWithTemplate();
+        insertWithRecord();
     }
 }

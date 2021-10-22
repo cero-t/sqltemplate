@@ -31,9 +31,8 @@ public class BeanParameter extends AbstractSqlParameterSource {
     /** Set of the fields for beans with private fields. */
     protected Set<String> privateFields = new HashSet<>();
 
-
     /** Map of the fields for beans with public fields. */
-    protected Map<String, Field> publicFeilds = new HashMap<>();
+    protected Map<String, Field> publicFields = new HashMap<>();
 
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
@@ -63,10 +62,8 @@ public class BeanParameter extends AbstractSqlParameterSource {
         }
 
         Field[] fields = BeanFields.get(entity.getClass());
-        if (fields != null) {
-            for (Field field : fields) {
-                publicFeilds.put(field.getName(), field);
-            }
+        for (Field field : fields) {
+            publicFields.put(field.getName(), field);
         }
     }
 
@@ -75,7 +72,7 @@ public class BeanParameter extends AbstractSqlParameterSource {
      */
     @Override
     public boolean hasValue(String paramName) {
-        return privateFields.contains(paramName) || publicFeilds.containsKey(paramName);
+        return privateFields.contains(paramName) || publicFields.containsKey(paramName);
     }
 
     /**
@@ -86,8 +83,8 @@ public class BeanParameter extends AbstractSqlParameterSource {
         Object value = null;
         if (privateFields.contains(paramName)) {
             value = beanWrapper.getPropertyValue(paramName);
-        } else if (publicFeilds.containsKey(paramName)) {
-            Field field = publicFeilds.get(paramName);
+        } else if (publicFields.containsKey(paramName)) {
+            Field field = publicFields.get(paramName);
             try {
                 value = field.get(entity);
             } catch (IllegalAccessException e) {
@@ -112,8 +109,8 @@ public class BeanParameter extends AbstractSqlParameterSource {
         Class<?> propType = null;
         if (privateFields.contains(paramName)) {
             propType = beanWrapper.getPropertyType(paramName);
-        } else if (publicFeilds.containsKey(paramName)) {
-            propType = publicFeilds.get(paramName).getType();
+        } else if (publicFields.containsKey(paramName)) {
+            propType = publicFields.get(paramName).getType();
         }
 
         if (propType == null) {

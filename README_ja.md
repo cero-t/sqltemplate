@@ -106,9 +106,9 @@ Bootiful SQL Templateは、こんな人のために開発しています。
 
 次のバージョンのJava、Spring Frameworkでのテストを行っています。
 
-- Java 1.8.0 以降
-- Spring Framework 5.0.0 以降
-- Spring Boot 2.0 以降
+- Java 1.8.0 以降 (recordを利用する場合は、Java 17 以降)
+- Spring Framework 5.0.0 以降 (recordを利用する場合は、Spring Framework 5.3.0 以降)
+- Spring Boot 2.0 以降 (recordを利用する場合は、Spring Boot 2.4.0 以降)
 - 動作確認済みのRDBMS
     - MySQL
     - PostgreSQL

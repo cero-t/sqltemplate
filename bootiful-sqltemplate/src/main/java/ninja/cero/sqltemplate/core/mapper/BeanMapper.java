@@ -68,16 +68,14 @@ public class BeanMapper<T> implements RowMapper<T> {
         }
 
         Field[] fields = BeanFields.get(mappedClass);
-        if (fields != null) {
-            for (Field field : fields) {
-                publicFields.put(field.getName()
-                        .toLowerCase(), field);
-                String underscoredName = underscoreName(field.getName());
-                if (!field.getName()
-                        .toLowerCase()
-                        .equals(underscoredName)) {
-                    publicFields.put(underscoredName, field);
-                }
+        for (Field field : fields) {
+            publicFields.put(field.getName()
+                    .toLowerCase(), field);
+            String underscoredName = underscoreName(field.getName());
+            if (!field.getName()
+                    .toLowerCase()
+                    .equals(underscoredName)) {
+                publicFields.put(underscoredName, field);
             }
         }
     }
