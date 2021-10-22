@@ -9,12 +9,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.RecordComponent;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +42,15 @@ public class RecordMapper<T> implements RowMapper<T> {
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
 
+    /** Method of Record#getRecordComponents */
+    private final Method RECORD_GET_RECORD_COMPONENTS;
+
+    /** Method of RecordComponent#getName */
+    private final Method RECORD_COMPONENT_GET_NAME;
+
+    /** Method of RecordComponent#getType */
+    private final Method RECORD_COMPONENT_GET_TYPE;
+
     /**
      * Create a new BeanMapper.
      *
@@ -50,27 +58,34 @@ public class RecordMapper<T> implements RowMapper<T> {
      * @param zoneId      the zoneId of JSR-310 DateTime
      */
     public RecordMapper(Class<T> mappedClass, ZoneId zoneId) {
-        this.mappedClass = mappedClass;
-        this.zoneId = zoneId;
-
-        RecordComponent[] components = mappedClass.getRecordComponents();
-        parameterTypes = Arrays.stream(components)
-                .map(RecordComponent::getType)
-                .toArray(Class<?>[]::new);
         try {
-            constructor = mappedClass.getConstructor(parameterTypes);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Constructor not found. Is it really a record class?", e);
-        }
+            RECORD_GET_RECORD_COMPONENTS = Class.class.getMethod("getRecordComponents");
+            Class<?> c = Class.forName("java.lang.reflect.RecordComponent");
+            RECORD_COMPONENT_GET_NAME = c.getMethod("getName");
+            RECORD_COMPONENT_GET_TYPE = c.getMethod("getType");
 
-        for (int i = 0; i < components.length; i ++) {
-            indexes.put(components[i].getName().toLowerCase(), i);
-            String underscoredName = underscoreName(components[i].getName());
-            if (!components[i].getName()
-                    .toLowerCase()
-                    .equals(underscoredName)) {
-                indexes.put(underscoredName, i);
+            this.mappedClass = mappedClass;
+            this.zoneId = zoneId;
+
+            Object[] components = (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(mappedClass);
+            parameterTypes = new Class<?>[components.length];
+            for (int i = 0; i < components.length; i++) {
+                parameterTypes[i] = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
             }
+
+            constructor = mappedClass.getConstructor(parameterTypes);
+            for (int i = 0; i < components.length; i++) {
+                String name = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
+
+                indexes.put(name.toLowerCase(), i);
+                String underscoredName = underscoreName(name);
+                if (!name.toLowerCase()
+                        .equals(underscoredName)) {
+                    indexes.put(underscoredName, i);
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("java.lang.Record couldn't be supported", e);
         }
     }
 

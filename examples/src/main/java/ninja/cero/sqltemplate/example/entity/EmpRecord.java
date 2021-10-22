@@ -1,4 +1,4 @@
-package ninja.cero.sqltemplate.test.entity;
+package ninja.cero.sqltemplate.example.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -4,12 +4,10 @@ import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
-import ninja.cero.sqltemplate.test.entity.EmpRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,13 +46,13 @@ public class SqlTemplateTest {
         assertEquals(7369, emp.empno);
     }
 
-    @Test
-    public void testForObject_NoArgs_Record() {
-        EmpRecord emp = sqlTemplate()
-                .query("select * from emp where empno = 7369")
-                .forObject(EmpRecord.class);
-        assertEquals(7369, emp.empno());
-    }
+//    @Test
+//    public void testForObject_NoArgs_Record() {
+//        EmpRecord emp = sqlTemplate()
+//                .query("select * from emp where empno = 7369")
+//                .forObject(EmpRecord.class);
+//        assertEquals(7369, emp.empno());
+//    }
 
     @Test
     public void testForObject_MapArg() {
@@ -477,24 +475,24 @@ public class SqlTemplateTest {
         assertEquals(emp.deptno, result.deptno);
     }
 
-    @Test
-    public void testUpdate_insertByRecord() {
-        EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
-                LocalDate.of(2015, 4, 1), new BigDecimal(4000),
-                new BigDecimal(400), 10);
-        int count = sqlTemplate().file("sql/insertByParam.sql")
-                .param(emp)
-                .update();
-        assertEquals(1, count);
-
-        Emp result = sqlTemplate()
-                .file("sql/selectByEmpno.sql")
-                .params(1000)
-                .forObject(Emp.class);
-        assertEquals(emp.ename(), result.ename);
-        assertEquals(emp.hiredate(), result.hiredate);
-        assertEquals(emp.deptno(), result.deptno);
-    }
+//    @Test
+//    public void testUpdate_insertByRecord() {
+//        EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
+//                LocalDate.of(2015, 4, 1), new BigDecimal(4000),
+//                new BigDecimal(400), 10);
+//        int count = sqlTemplate().file("sql/insertByParam.sql")
+//                .param(emp)
+//                .update();
+//        assertEquals(1, count);
+//
+//        Emp result = sqlTemplate()
+//                .file("sql/selectByEmpno.sql")
+//                .params(1000)
+//                .forObject(Emp.class);
+//        assertEquals(emp.ename(), result.ename);
+//        assertEquals(emp.hiredate(), result.hiredate);
+//        assertEquals(emp.deptno(), result.deptno);
+//    }
 
     @Test
     public void testUpdate_updateByMap() {
