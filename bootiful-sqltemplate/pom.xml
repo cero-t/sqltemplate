@@ -4,7 +4,7 @@
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
     <artifactId>bootiful-sqltemplate</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>bootiful-sqltemplate</name>
@@ -48,7 +48,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <resource.delimiter>@</resource.delimiter>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

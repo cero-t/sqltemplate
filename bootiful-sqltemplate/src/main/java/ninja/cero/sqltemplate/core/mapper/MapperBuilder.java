@@ -19,6 +19,8 @@ public class MapperBuilder {
     public <T> RowMapper<T> mapper(Class<T> mappedClass) {
         if (TypeUtils.isSimpleValueType(mappedClass)) {
             return new SingleColumnMapper<>(mappedClass, zoneId);
+        } else if (Record.class.isAssignableFrom(mappedClass)) {
+            return new RecordMapper<>(mappedClass, zoneId);
         }
         return new BeanMapper<>(mappedClass, zoneId);
     }

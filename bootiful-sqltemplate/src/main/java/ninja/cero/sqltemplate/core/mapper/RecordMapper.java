@@ -1,44 +1,44 @@
 package ninja.cero.sqltemplate.core.mapper;
 
-import ninja.cero.sqltemplate.core.util.BeanFields;
 import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.RecordComponent;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Yet another {@link org.springframework.jdbc.core.BeanPropertyRowMapper} implementation for public fields.
+ * {@link org.springframework.jdbc.core.RowMapper} implementation for record class.
  * Supports {@link java.time.LocalDateTime} and {@link java.time.LocalDate} of JSR-310
  *
- * @param <T> The class
+ * @param <T> The record class
  */
-public class BeanMapper<T> implements RowMapper<T> {
+public class RecordMapper<T> implements RowMapper<T> {
     /** Logger available to subclasses */
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The class we are mapping to */
     protected Class<T> mappedClass;
 
-    /** Map of the fields for beans with private fields and accessor methods. */
-    protected Map<String, PropertyDescriptor> privateFields = new HashMap<>();
+    /** The constructor of mapping class */
+    protected Constructor<T> constructor;
 
-    /** Map of the fields for beans with public fields. */
-    protected Map<String, Field> publicFields = new HashMap<>();
+    /** The constructor parameters of mapping class */
+    protected Class<?>[] parameterTypes;
+
+    /** Map of indexes of constructor parameters */
+    protected Map<String, Integer> indexes = new HashMap<>();
 
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
@@ -49,33 +49,27 @@ public class BeanMapper<T> implements RowMapper<T> {
      * @param mappedClass the class we are mapping to
      * @param zoneId      the zoneId of JSR-310 DateTime
      */
-    public BeanMapper(Class<T> mappedClass, ZoneId zoneId) {
+    public RecordMapper(Class<T> mappedClass, ZoneId zoneId) {
         this.mappedClass = mappedClass;
         this.zoneId = zoneId;
 
-        // this.mappedProperties = new HashSet<String>();
-        PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(mappedClass);
-        for (PropertyDescriptor pd : pds) {
-            if (pd.getWriteMethod() != null) {
-                privateFields.put(pd.getName().toLowerCase(), pd);
-                String underscoredName = underscoreName(pd.getName());
-                if (!pd.getName()
-                        .toLowerCase()
-                        .equals(underscoredName)) {
-                    privateFields.put(underscoredName, pd);
-                }
-            }
+        RecordComponent[] components = mappedClass.getRecordComponents();
+        parameterTypes = Arrays.stream(components)
+                .map(RecordComponent::getType)
+                .toArray(Class<?>[]::new);
+        try {
+            constructor = mappedClass.getConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Constructor not found. Is it really a record class?", e);
         }
 
-        Field[] fields = BeanFields.get(mappedClass);
-        for (Field field : fields) {
-            publicFields.put(field.getName()
-                    .toLowerCase(), field);
-            String underscoredName = underscoreName(field.getName());
-            if (!field.getName()
+        for (int i = 0; i < components.length; i ++) {
+            indexes.put(components[i].getName().toLowerCase(), i);
+            String underscoredName = underscoreName(components[i].getName());
+            if (!components[i].getName()
                     .toLowerCase()
                     .equals(underscoredName)) {
-                publicFields.put(underscoredName, field);
+                indexes.put(underscoredName, i);
             }
         }
     }
@@ -114,8 +108,7 @@ public class BeanMapper<T> implements RowMapper<T> {
     @Override
     public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
         Assert.state(this.mappedClass != null, "Mapped class was not specified");
-        T mappedObject = BeanUtils.instantiate(this.mappedClass);
-        BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
+        Object[] parameters = new Object[this.constructor.getParameterCount()];
 
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
@@ -124,30 +117,21 @@ public class BeanMapper<T> implements RowMapper<T> {
             String column = JdbcUtils.lookupColumnName(metaData, index);
 
             String name = column.replace(" ", "").toLowerCase();
-            Object value = null;
-            if (privateFields.containsKey(name)) {
-                PropertyDescriptor pd = privateFields.get(name);
-                value = getColumnValue(rs, index, pd.getPropertyType());
+            if (indexes.containsKey(name)) {
+                int i = indexes.get(name);
+                parameters[i] = getColumnValue(rs, index, parameterTypes[i]);
+
                 if (logger.isDebugEnabled() && rowNumber == 0) {
-                    logger.debug("Mapping column '" + column + "' to property '" + pd.getName() + "' of type " + pd.getPropertyType());
-                }
-                // TODO: care about assign null to primitive field. See BeanPropertyRowMapper
-                bw.setPropertyValue(pd.getName(), value);
-            } else if (publicFields.containsKey(name)) {
-                Field field = this.publicFields.get(name);
-                value = getColumnValue(rs, index, field.getType());
-                if (logger.isDebugEnabled() && rowNumber == 0) {
-                    logger.debug("Mapping column '" + column + "' to property '" + field.getName() + "' of type " + field.getType());
-                }
-                try {
-                    field.set(mappedObject, value);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    logger.debug("Mapping column '" + column + "' to constructor parameter at '" + i + "' of type " + parameterTypes[i]);
                 }
             }
         }
 
-        return mappedObject;
+        try {
+            return constructor.newInstance(parameters);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Couldn't create record instance.", e);
+        }
     }
 
     /**

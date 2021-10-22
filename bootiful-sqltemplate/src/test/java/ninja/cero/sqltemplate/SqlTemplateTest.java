@@ -4,10 +4,12 @@ import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
+import ninja.cero.sqltemplate.test.entity.EmpRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,6 +46,14 @@ public class SqlTemplateTest {
                 .file("sql/selectSingle.sql")
                 .forObject(Emp.class);
         assertEquals(7369, emp.empno);
+    }
+
+    @Test
+    public void testForObject_NoArgs_Record() {
+        EmpRecord emp = sqlTemplate()
+                .query("select * from emp where empno = 7369")
+                .forObject(EmpRecord.class);
+        assertEquals(7369, emp.empno());
     }
 
     @Test
