@@ -46,6 +46,14 @@ public class SqlTemplateTest {
         assertEquals(7369, emp.empno);
     }
 
+//    @Test
+//    public void testForObject_NoArgs_Record() {
+//        EmpRecord emp = sqlTemplate()
+//                .query("select * from emp where empno = 7369")
+//                .forObject(EmpRecord.class);
+//        assertEquals(7369, emp.empno());
+//    }
+
     @Test
     public void testForObject_MapArg() {
         Map<String, Object> param = new HashMap<>();
@@ -466,6 +474,25 @@ public class SqlTemplateTest {
         assertEquals(emp.hiredate, result.hiredate);
         assertEquals(emp.deptno, result.deptno);
     }
+
+//    @Test
+//    public void testUpdate_insertByRecord() {
+//        EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
+//                LocalDate.of(2015, 4, 1), new BigDecimal(4000),
+//                new BigDecimal(400), 10);
+//        int count = sqlTemplate().file("sql/insertByParam.sql")
+//                .param(emp)
+//                .update();
+//        assertEquals(1, count);
+//
+//        Emp result = sqlTemplate()
+//                .file("sql/selectByEmpno.sql")
+//                .params(1000)
+//                .forObject(Emp.class);
+//        assertEquals(emp.ename(), result.ename);
+//        assertEquals(emp.hiredate(), result.hiredate);
+//        assertEquals(emp.deptno(), result.deptno);
+//    }
 
     @Test
     public void testUpdate_updateByMap() {

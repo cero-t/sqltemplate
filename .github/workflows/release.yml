@@ -9,7 +9,7 @@ jobs:
       - name: Set up Maven Central Repository
         uses: actions/setup-java@v2
         with:
-          java-version: '8'
+          java-version: '17'
           distribution: 'adopt'
           server-id: ossrh
           server-username: MAVEN_USERNAME
@@ -28,10 +28,12 @@ jobs:
           done
       - name: Commit and push RELEASE version to GitHub
         run: |
+          RELEASE_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout)
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit -m "release version"
+          git tag ${RELEASE_VERSION}
+          git commit -m "${RELEASE_VERSION} release"
           git push
       - name: RELEASE
         run: mvn deploy --batch-mode --activate-profiles release --also-make --projects bootiful-sqltemplate
@@ -54,8 +56,16 @@ jobs:
           done
       - name: Commit and push new SNAPSHOT version to GitHub
         run: |
+          NEW_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout)
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit -m "new snapshot version"
+          git commit -m "start ${NEW_VERSION}"
+          git push
+      - name: Rebase develop
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout develop
+          git rebase
           git push
