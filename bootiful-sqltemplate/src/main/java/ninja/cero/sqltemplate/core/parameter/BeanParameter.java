@@ -31,7 +31,6 @@ public class BeanParameter extends AbstractSqlParameterSource {
     /** Set of the fields for beans with private fields. */
     protected Set<String> privateFields = new HashSet<>();
 
-
     /** Map of the fields for beans with public fields. */
     protected Map<String, Field> publicFeilds = new HashMap<>();
 
