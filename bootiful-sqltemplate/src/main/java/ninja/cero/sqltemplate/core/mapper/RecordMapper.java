@@ -41,15 +41,6 @@ public class RecordMapper<T> implements RowMapper<T> {
     /** ZoneId for OffsetDateTime and ZonedDateTime */
     protected ZoneId zoneId;
 
-    /** Method of Record#getRecordComponents */
-    private final Method RECORD_GET_RECORD_COMPONENTS;
-
-    /** Method of RecordComponent#getName */
-    private final Method RECORD_COMPONENT_GET_NAME;
-
-    /** Method of RecordComponent#getType */
-    private final Method RECORD_COMPONENT_GET_TYPE;
-
     /**
      * Create a new BeanMapper.
      *
@@ -58,23 +49,23 @@ public class RecordMapper<T> implements RowMapper<T> {
      */
     public RecordMapper(Class<T> mappedClass, ZoneId zoneId) {
         try {
-            RECORD_GET_RECORD_COMPONENTS = Class.class.getMethod("getRecordComponents");
+            Method classGetRecordComponents = Class.class.getMethod("getRecordComponents");
             Class<?> c = Class.forName("java.lang.reflect.RecordComponent");
-            RECORD_COMPONENT_GET_NAME = c.getMethod("getName");
-            RECORD_COMPONENT_GET_TYPE = c.getMethod("getType");
+            Method recordComponentGetName = c.getMethod("getName");
+            Method recordComponentGetType = c.getMethod("getType");
 
             this.mappedClass = mappedClass;
             this.zoneId = zoneId;
 
-            Object[] components = (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(mappedClass);
+            Object[] components = (Object[]) classGetRecordComponents.invoke(mappedClass);
             paramTypes = new Class<?>[components.length];
             for (int i = 0; i < components.length; i++) {
-                paramTypes[i] = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
+                paramTypes[i] = (Class<?>) recordComponentGetType.invoke(components[i]);
             }
 
             constructor = mappedClass.getDeclaredConstructor(paramTypes);
             for (int i = 0; i < components.length; i++) {
-                String name = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
+                String name = (String) recordComponentGetName.invoke(components[i]);
 
                 indexes.put(name.toLowerCase(), i);
                 String underscoredName = underscoreName(name);
