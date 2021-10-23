@@ -72,7 +72,7 @@ public class RecordMapper<T> implements RowMapper<T> {
                 paramTypes[i] = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
             }
 
-            constructor = mappedClass.getConstructor(paramTypes);
+            constructor = mappedClass.getDeclaredConstructor(paramTypes);
             for (int i = 0; i < components.length; i++) {
                 String name = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
 
