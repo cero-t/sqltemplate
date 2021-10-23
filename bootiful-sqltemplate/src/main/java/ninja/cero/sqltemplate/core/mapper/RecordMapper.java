@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -34,7 +33,7 @@ public class RecordMapper<T> implements RowMapper<T> {
     protected Constructor<T> constructor;
 
     /** The constructor parameters of mapping class */
-    protected Class<?>[] parameterTypes;
+    protected Class<?>[] paramTypes;
 
     /** Map of indexes of constructor parameters */
     protected Map<String, Integer> indexes = new HashMap<>();
@@ -68,12 +67,12 @@ public class RecordMapper<T> implements RowMapper<T> {
             this.zoneId = zoneId;
 
             Object[] components = (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(mappedClass);
-            parameterTypes = new Class<?>[components.length];
+            paramTypes = new Class<?>[components.length];
             for (int i = 0; i < components.length; i++) {
-                parameterTypes[i] = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
+                paramTypes[i] = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
             }
 
-            constructor = mappedClass.getConstructor(parameterTypes);
+            constructor = mappedClass.getConstructor(paramTypes);
             for (int i = 0; i < components.length; i++) {
                 String name = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
 
@@ -122,8 +121,7 @@ public class RecordMapper<T> implements RowMapper<T> {
      */
     @Override
     public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
-        Assert.state(this.mappedClass != null, "Mapped class was not specified");
-        Object[] parameters = new Object[this.constructor.getParameterCount()];
+        Object[] params = new Object[constructor.getParameterCount()];
 
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
@@ -134,16 +132,16 @@ public class RecordMapper<T> implements RowMapper<T> {
             String name = column.replace(" ", "").toLowerCase();
             if (indexes.containsKey(name)) {
                 int i = indexes.get(name);
-                parameters[i] = getColumnValue(rs, index, parameterTypes[i]);
+                params[i] = getColumnValue(rs, index, paramTypes[i]);
 
                 if (logger.isDebugEnabled() && rowNumber == 0) {
-                    logger.debug("Mapping column '" + column + "' to constructor parameter at '" + i + "' of type " + parameterTypes[i]);
+                    logger.debug("Mapping column '" + column + "' to constructor parameter at '" + i + "' of type " + paramTypes[i]);
                 }
             }
         }
 
         try {
-            return constructor.newInstance(parameters);
+            return constructor.newInstance(params);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Couldn't create record instance.", e);
         }

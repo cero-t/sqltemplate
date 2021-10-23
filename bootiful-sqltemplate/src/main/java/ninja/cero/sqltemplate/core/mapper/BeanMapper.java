@@ -113,7 +113,6 @@ public class BeanMapper<T> implements RowMapper<T> {
      */
     @Override
     public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
-        Assert.state(this.mappedClass != null, "Mapped class was not specified");
         T mappedObject = BeanUtils.instantiate(this.mappedClass);
         BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
 
