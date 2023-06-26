@@ -1,5 +1,6 @@
 package ninja.cero.sqltemplate.core.mapper;
 
+import ninja.cero.sqltemplate.core.util.EnumJdbcUtils;
 import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,6 +158,9 @@ public class RecordMapper<T> implements RowMapper<T> {
      * @throws SQLException in case of extraction failure
      */
     protected Object getColumnValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
+        if (requiredType.isEnum()) {
+            return EnumJdbcUtils.getColumnValue(rs, index, requiredType);
+        }
         return Jsr310JdbcUtils.getResultSetValue(rs, index, requiredType, zoneId);
     }
 }

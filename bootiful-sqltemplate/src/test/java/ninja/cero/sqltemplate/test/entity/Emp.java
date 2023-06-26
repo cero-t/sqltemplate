@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class Emp {
     public Integer empno;
     public String ename;
-    public String job;
+    public Job job;
     public Integer mgr;
     public LocalDate hiredate;
     public BigDecimal sal;
