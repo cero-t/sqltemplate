@@ -4,6 +4,7 @@ import ninja.cero.sqltemplate.core.util.BeanFields;
 import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.jdbc.core.StatementCreatorUtils;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 
 import java.beans.PropertyDescriptor;
@@ -115,6 +116,10 @@ public class BeanParameter extends AbstractSqlParameterSource {
 
         if (propType == null) {
             return TYPE_UNKNOWN;
+        }
+
+        if (propType.isEnum()) {
+            return StatementCreatorUtils.javaTypeToSqlParameterType(String.class);
         }
 
         return Jsr310JdbcUtils.getSqlType(propType);

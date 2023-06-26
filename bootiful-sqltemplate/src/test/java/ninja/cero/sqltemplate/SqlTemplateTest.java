@@ -4,6 +4,7 @@ import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
+import ninja.cero.sqltemplate.test.entity.Job;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +59,7 @@ public class SqlTemplateTest {
     public void testForObject_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
 
         Emp emp = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
@@ -71,7 +72,7 @@ public class SqlTemplateTest {
     public void testForObject_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         Emp emp = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
@@ -118,7 +119,7 @@ public class SqlTemplateTest {
     public void testForList_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
 
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
@@ -133,7 +134,7 @@ public class SqlTemplateTest {
     public void testForList_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         List<Emp> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
@@ -203,7 +204,7 @@ public class SqlTemplateTest {
     public void testForStream_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
                 .param(param)
@@ -217,7 +218,7 @@ public class SqlTemplateTest {
     public void testForStream_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
@@ -284,7 +285,7 @@ public class SqlTemplateTest {
     public void testForMap_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
 
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
@@ -297,7 +298,7 @@ public class SqlTemplateTest {
     public void testForMap_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
@@ -344,7 +345,7 @@ public class SqlTemplateTest {
     public void testForListMap_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
 
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
@@ -359,7 +360,7 @@ public class SqlTemplateTest {
     public void testForListMap_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
@@ -405,7 +406,7 @@ public class SqlTemplateTest {
     public void testForStreamMap_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);
-        param.put("job", "SALESMAN");
+        param.put("job", Job.SALESMAN);
 
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
                 .param(param)
@@ -419,7 +420,7 @@ public class SqlTemplateTest {
     public void testForStreamMap_EntityArg() {
         Emp param = new Emp();
         param.deptno = 30;
-        param.job = "SALESMAN";
+        param.job = Job.SALESMAN;
 
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
                 .param(param)
@@ -454,7 +455,7 @@ public class SqlTemplateTest {
         Emp emp = new Emp();
         emp.empno = 1000;
         emp.ename = "TEST";
-        emp.job = "MANAGER";
+        emp.job = Job.MANAGER;
         emp.mgr = 7839;
         emp.hiredate = LocalDate.of(2015, 4, 1);
         emp.sal = new BigDecimal(4000);
@@ -497,7 +498,7 @@ public class SqlTemplateTest {
     @Test
     public void testUpdate_updateByMap() {
         Map<String, Object> param = new HashMap<>();
-        param.put("job", "ANALYST");
+        param.put("job", Job.ANALYST);
         param.put("mgr", 7566);
         param.put("empno", 7876);
 
@@ -511,7 +512,7 @@ public class SqlTemplateTest {
                 .params(7876)
                 .forObject(Emp.class);
 
-        assertEquals("ANALYST", result.job);
+        assertSame(Job.ANALYST, result.job);
         assertEquals(7566, result.mgr);
     }
 
@@ -546,7 +547,7 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forObject() {
         Emp emp = sqlTemplate().file("sql/selectSingleByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forObject(Emp.class);
         assertEquals(7499, emp.empno);
@@ -555,7 +556,7 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forList() {
         List<Emp> result = sqlTemplate().file("sql/selectByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forList(Emp.class);
         assertEquals(4, result.size());
@@ -566,7 +567,7 @@ public class SqlTemplateTest {
     @Test
     public void testQuery_forStream() {
         int[] result = sqlTemplate().file("sql/selectByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forStream(Emp.class, stream -> stream.mapToInt(emp -> emp.empno).toArray());
         assertEquals(4, result.length);
@@ -578,7 +579,7 @@ public class SqlTemplateTest {
     public void testQuery_forMap() {
         Map<String, Object> result = sqlTemplate()
                 .file("sql/selectSingleByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forMap();
         assertEquals(7499, result.get("empno"));
@@ -588,7 +589,7 @@ public class SqlTemplateTest {
     public void testQuery_forListMap() {
         List<Map<String, Object>> result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forList();
         assertEquals(4, result.size());
@@ -600,12 +601,33 @@ public class SqlTemplateTest {
     public void testQuery_forStreamMap() {
         int[] result = sqlTemplate()
                 .file("sql/selectByParam.sql")
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .addParam("deptno", 30)
                 .forStream(stream -> stream.mapToInt(map -> (Integer) map.get("empno")).toArray());
         assertEquals(4, result.length);
         assertEquals(7499, result[0]);
         assertEquals(7844, result[3]);
+    }
+
+    @Test
+    public void testForObject_no_enum_constant() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("job", "UNEXCPETED");
+        param.put("mgr", 7566);
+        param.put("empno", 7876);
+
+        int count = sqlTemplate().file("sql/updateByParam.sql")
+            .param(param)
+            .update();
+        assertEquals(1, count);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            sqlTemplate()
+                .file("sql/selectByEmpno.sql")
+                .params(7876)
+                .forObject(Emp.class);
+        });
+        assertEquals("No enum constant " + Job.class.getCanonicalName() + ".UNEXCPETED", exception.getMessage());
     }
 
     @Test
@@ -801,7 +823,7 @@ public class SqlTemplateTest {
     @Test
     public void testUpdateByAdd() {
         int count = sqlTemplate().file("sql/updateByParam.sql")
-                .addParam("job", "TEST")
+                .addParam("job", Job.TEST)
                 .addParam("mgr", 1234)
                 .addParam("empno", 7876)
                 .update();
@@ -811,7 +833,7 @@ public class SqlTemplateTest {
                 .file("sql/selectByEmpno.sql")
                 .params(7876)
                 .forObject(Emp.class);
-        assertEquals("TEST", result.job);
+        assertSame(Job.TEST, result.job);
         assertEquals(1234, result.mgr);
     }
 
@@ -892,12 +914,12 @@ public class SqlTemplateTest {
         // prepare
         Map<String, Object> arg1 = new HashMap<>();
         arg1.put("empno", 7369);
-        arg1.put("job", "SALESMAN");
+        arg1.put("job", Job.SALESMAN);
         arg1.put("mgr", 7698);
 
         Map<String, Object> arg2 = new HashMap<>();
         arg2.put("empno", 7499);
-        arg2.put("job", "CLERK");
+        arg2.put("job", Job.CLERK);
         arg2.put("mgr", 7902);
 
         // execute
@@ -914,7 +936,7 @@ public class SqlTemplateTest {
                 .params(7369)
                 .forObject(Emp.class);
         assertEquals("SMITH", result1.ename);
-        assertEquals("SALESMAN", result1.job);
+        assertSame(Job.SALESMAN, result1.job);
         assertEquals(7698, result1.mgr);
 
         Emp result2 = sqlTemplate()
@@ -922,7 +944,7 @@ public class SqlTemplateTest {
                 .params(7499)
                 .forObject(Emp.class);
         assertEquals("ALLEN", result2.ename);
-        assertEquals("CLERK", result2.job);
+        assertSame(Job.CLERK, result2.job);
         assertEquals(7902, result2.mgr);
     }
 
@@ -931,12 +953,12 @@ public class SqlTemplateTest {
         // prepare
         Map<String, Object> arg1 = new HashMap<>();
         arg1.put("empno", 7369);
-        arg1.put("job", "SALESMAN2");
+        arg1.put("job", Job.SALESMAN2);
         arg1.put("mgr", 7698);
 
         Map<String, Object> arg2 = new HashMap<>();
         arg2.put("empno", 7499);
-        arg2.put("job", "CLERK2");
+        arg2.put("job", Job.CLERK2);
         arg2.put("mgr", 7902);
 
         List<Map<String, Object>> maps = Arrays.asList(arg1, arg2);
@@ -954,7 +976,7 @@ public class SqlTemplateTest {
                 .params(7369)
                 .forObject(Emp.class);
         assertEquals("SMITH", result1.ename);
-        assertEquals("SALESMAN2", result1.job);
+        assertSame(Job.SALESMAN2, result1.job);
         assertEquals(7698, result1.mgr);
 
         Emp result2 = sqlTemplate()
@@ -962,7 +984,7 @@ public class SqlTemplateTest {
                 .params(7499)
                 .forObject(Emp.class);
         assertEquals("ALLEN", result2.ename);
-        assertEquals("CLERK2", result2.job);
+        assertSame(Job.CLERK2, result2.job);
         assertEquals(7902, result2.mgr);
     }
 
@@ -990,7 +1012,7 @@ public class SqlTemplateTest {
         Emp emp1 = new Emp();
         emp1.empno = 1001;
         emp1.ename = "TEST1";
-        emp1.job = "MANAGER";
+        emp1.job = Job.MANAGER;
         emp1.mgr = 7839;
         emp1.hiredate = LocalDate.of(2015, 4, 1);
         emp1.sal = new BigDecimal(4000);
@@ -1000,7 +1022,7 @@ public class SqlTemplateTest {
         Emp emp2 = new Emp();
         emp2.empno = 1002;
         emp2.ename = "TEST2";
-        emp2.job = "MANAGER";
+        emp2.job = Job.MANAGER;
         emp2.mgr = 7839;
         emp2.hiredate = LocalDate.of(2015, 4, 2);
         emp2.sal = new BigDecimal(4000);
@@ -1039,7 +1061,7 @@ public class SqlTemplateTest {
         Emp emp1 = new Emp();
         emp1.empno = 1001;
         emp1.ename = "TEST1";
-        emp1.job = "MANAGER";
+        emp1.job = Job.MANAGER;
         emp1.mgr = 7839;
         emp1.hiredate = LocalDate.of(2015, 4, 1);
         emp1.sal = new BigDecimal(4000);
@@ -1049,7 +1071,7 @@ public class SqlTemplateTest {
         Emp emp2 = new Emp();
         emp2.empno = 1002;
         emp2.ename = "TEST2";
-        emp2.job = "MANAGER";
+        emp2.job = Job.MANAGER;
         emp2.mgr = 7839;
         emp2.hiredate = LocalDate.of(2015, 4, 2);
         emp2.sal = new BigDecimal(4000);

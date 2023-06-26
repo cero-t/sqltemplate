@@ -1,6 +1,7 @@
 package ninja.cero.sqltemplate.core.mapper;
 
 import ninja.cero.sqltemplate.core.util.BeanFields;
+import ninja.cero.sqltemplate.core.util.EnumJdbcUtils;
 import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
@@ -159,6 +159,9 @@ public class BeanMapper<T> implements RowMapper<T> {
      * @throws SQLException in case of extraction failure
      */
     protected Object getColumnValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
+        if (requiredType.isEnum()) {
+            return EnumJdbcUtils.getColumnValue(rs, index, requiredType);
+        }
         return Jsr310JdbcUtils.getResultSetValue(rs, index, requiredType, zoneId);
     }
 }

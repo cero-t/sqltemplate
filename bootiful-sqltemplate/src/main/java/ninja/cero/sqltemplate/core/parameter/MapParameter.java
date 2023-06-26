@@ -1,6 +1,7 @@
 package ninja.cero.sqltemplate.core.parameter;
 
 import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import org.springframework.jdbc.core.StatementCreatorUtils;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
 
 import java.time.ZoneId;
@@ -58,7 +59,9 @@ public class MapParameter extends AbstractSqlParameterSource {
         if (value == null) {
             return TYPE_UNKNOWN;
         }
-
+        if (value.getClass().isEnum()) {
+            return StatementCreatorUtils.javaTypeToSqlParameterType(String.class);
+        }
         return Jsr310JdbcUtils.getSqlType(value.getClass());
     }
 }
