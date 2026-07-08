@@ -286,6 +286,8 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParams.sql")
 
 このように指定することで、1番目の `?` には `params` メソッドの第一引数が、2番目の `?` には `params` メソッドの第二引数が渡されます。変数の数に上限はありません。
 
+> **`NULL` に関する注意:** 各 `?` の値の SQL 型は実行時のオブジェクトから推測されますが、`NULL` は型情報を持ちません。厳格なデータベース（例: PostgreSQL）では、型が文脈から決まらない位置——関数呼び出しの内側や `? IS NULL` など——に `NULL` を渡すと *"could not determine data type of parameter"* エラーになります。その場合は名前付きパラメータ（`:name`）＋ Value Object を使うと、宣言された型から SQL 型が補われます。
+
 この記述をした結果、上に書いたクエリは次のように値がバインドされます。
 
 ```sql

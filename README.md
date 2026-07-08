@@ -286,6 +286,8 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParams.sql")
 
 With this, the first argument of the `params` method is passed to the first `?`, and the second argument to the second `?`. There is no upper limit on the number of variables.
 
+> **Note on `NULL`:** the SQL type of each `?` value is inferred from the runtime object, but a `NULL` carries no type. On strict databases (e.g. PostgreSQL) a `NULL` in a position where the type cannot be inferred from context — inside a function call or `? IS NULL`, for example — fails with *"could not determine data type of parameter"*. In that case, use a named parameter (`:name`) with a Value Object, whose declared field type supplies the SQL type.
+
 As a result, the query above is bound with values as follows.
 
 ```sql
