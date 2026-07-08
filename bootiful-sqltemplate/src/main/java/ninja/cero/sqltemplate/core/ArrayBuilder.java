@@ -37,11 +37,11 @@ public class ArrayBuilder extends ArrayExecutor {
     }
 
     public QueryExecutor param(Object entity) {
-        return new EntityExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
+        return new EntityExecutor(namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, entity);
     }
 
     public QueryExecutor param(Map<String, Object> params) {
-        return new MapExecutor(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
+        return new MapExecutor(namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
     }
 
     public MapQueryBuilder addParam(String key, Object value) {
@@ -53,7 +53,7 @@ public class ArrayBuilder extends ArrayExecutor {
         protected Map<String, Object> params;
 
         public MapQueryBuilder(NamedParameterJdbcTemplate namedJdbcTemplate, ParamBuilder paramBuilder, MapperBuilder mapperBuilder, TemplateEngine templateEngine, String template, Map<String, Object> params) {
-            super(jdbcTemplate, namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
+            super(namedJdbcTemplate, paramBuilder, mapperBuilder, templateEngine, template, params);
             this.params = params;
         }
 

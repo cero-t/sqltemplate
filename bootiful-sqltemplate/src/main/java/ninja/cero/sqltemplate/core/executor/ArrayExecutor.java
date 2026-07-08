@@ -2,12 +2,9 @@ package ninja.cero.sqltemplate.core.executor;
 
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
-import ninja.cero.sqltemplate.core.stream.StreamResultSetExtractor;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.support.SQLExceptionTranslator;
 
 import java.util.List;
 import java.util.Map;
@@ -40,25 +37,23 @@ public class ArrayExecutor extends AbstractQueryExecutor {
     @Override
     public List<Map<String, Object>> forList() {
         String sql = templateEngine.get(template, params);
-        // TODO: queryForMap使える？
         return jdbcTemplate.query(sql, paramBuilder.byArgs(params), new ColumnMapRowMapper());
     }
 
     @Override
     public <T, U> U forStream(Class<T> clazz, Function<? super Stream<T>, U> handler) {
         String sql = templateEngine.get(template, params);
-        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-        ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, mapperBuilder.mapper(clazz), handler, excTranslator);
-        return jdbcTemplate.query(sql, paramBuilder.byArgs(params), extractor);
+        try (Stream<T> stream = jdbcTemplate.queryForStream(sql, paramBuilder.byArgs(params), mapperBuilder.mapper(clazz))) {
+            return handler.apply(stream);
+        }
     }
 
     @Override
     public <U> U forStream(Function<? super Stream<Map<String, Object>>, U> handler) {
         String sql = templateEngine.get(template, params);
-        SQLExceptionTranslator excTranslator = jdbcTemplate.getExceptionTranslator();
-        // TODO: can it work with zoneId?
-        ResultSetExtractor<U> extractor = new StreamResultSetExtractor<>(sql, new ColumnMapRowMapper(), handler, excTranslator);
-        return jdbcTemplate.query(sql, paramBuilder.byArgs(params), extractor);
+        try (Stream<Map<String, Object>> stream = jdbcTemplate.queryForStream(sql, paramBuilder.byArgs(params), new ColumnMapRowMapper())) {
+            return handler.apply(stream);
+        }
     }
 
     @Override
