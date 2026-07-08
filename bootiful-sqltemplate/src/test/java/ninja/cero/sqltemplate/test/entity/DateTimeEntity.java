@@ -17,4 +17,6 @@ public class DateTimeEntity {
 
     public OffsetDateTime offsetDateTime;
     public OffsetTime offsetTime;
+
+    public Instant instant;
 }

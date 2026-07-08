@@ -32,4 +32,5 @@ CREATE TABLE date_time(
     ,zoned_date_time TIMESTAMP(6) NULL DEFAULT NULL
     ,offset_date_time TIMESTAMP(6) NULL DEFAULT NULL
     ,offset_time TIME(3)
+    ,instant TIMESTAMP(6) NULL DEFAULT NULL
 );

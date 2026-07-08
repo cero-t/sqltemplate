@@ -744,6 +744,7 @@ public class SqlTemplateTest {
         assertEquals("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]", result.zonedDateTime.toString());
         assertEquals("2001-01-29T12:35:03.789+09:00", result.offsetDateTime.toString());
         assertEquals("12:35:04+09:00", result.offsetTime.toString());
+        assertEquals("2001-01-30T03:35:05.789Z", result.instant.toString());
     }
 
     @Test
@@ -778,6 +779,9 @@ public class SqlTemplateTest {
 
         LocalTime localTime = sqlTemplate().query("SELECT local_time FROM date_time").forObject(LocalTime.class);
         assertEquals("12:35:01", localTime.toString());
+
+        Instant instant = sqlTemplate().query("SELECT instant FROM date_time").forObject(Instant.class);
+        assertEquals("2001-01-30T03:35:05.789Z", instant.toString());
     }
 
     @Test
@@ -811,12 +815,14 @@ public class SqlTemplateTest {
         entity.zonedDateTime = LocalDateTime.of(2001, 1, 28, 12, 35, 2, 789000000).atZone(ZoneId.systemDefault());
         entity.offsetDateTime = LocalDateTime.of(2001, 1, 29, 12, 35, 3, 789000000).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+        entity.instant = LocalDateTime.of(2001, 1, 30, 12, 35, 5, 789000000).atZone(ZoneId.systemDefault()).toInstant();
 
         // execute
         SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate);
-        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime,
+                        entity.instant)
                 .update();
 
         // assert
@@ -833,6 +839,7 @@ public class SqlTemplateTest {
         assertEquals("2001-01-28T12:35:02.789+09:00[Asia/Tokyo]", result.zonedDateTime.toString());
         assertEquals("2001-01-29T12:35:03.789+09:00", result.offsetDateTime.toString());
         assertEquals("12:35:04+09:00", result.offsetTime.toString());
+        assertEquals("2001-01-30T03:35:05.789Z", result.instant.toString());
     }
 
     @Test
@@ -842,9 +849,10 @@ public class SqlTemplateTest {
         DateTimeEntity entity = new DateTimeEntity();
 
         // execute
-        int num = sqlTemplate().query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        int num = sqlTemplate().query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime,
+                        entity.instant)
                 .update();
 
         // assert
@@ -864,6 +872,7 @@ public class SqlTemplateTest {
         assertNull(result.zonedDateTime);
         assertNull(result.offsetDateTime);
         assertNull(result.offsetTime);
+        assertNull(result.instant);
     }
 
     @Test
@@ -882,12 +891,14 @@ public class SqlTemplateTest {
         entity.zonedDateTime = LocalDateTime.of(2001, 1, 28, 12, 35, 2, 789000000).atZone(ZoneId.systemDefault());
         entity.offsetDateTime = LocalDateTime.of(2001, 1, 29, 12, 35, 3, 789000000).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
         entity.offsetTime = LocalTime.of(12, 35, 4).atOffset(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+        entity.instant = LocalDateTime.of(2001, 1, 30, 12, 35, 5, 789000000).atZone(ZoneId.systemDefault()).toInstant();
 
         // execute
         SqlTemplate template = new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
-        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        int num = template.query("INSERT INTO date_time VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .params(entity.utilDate, entity.sqlDate, entity.sqlTime, entity.sqlTimestamp, entity.localDateTime,
-                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime)
+                        entity.localDate, entity.localTime, entity.zonedDateTime, entity.offsetDateTime, entity.offsetTime,
+                        entity.instant)
                 .update();
 
         // assert
@@ -904,6 +915,8 @@ public class SqlTemplateTest {
         assertEquals("2001-01-28T03:35:02.789Z[GMT]", result.zonedDateTime.toString());
         assertEquals("2001-01-29T03:35:03.789Z", result.offsetDateTime.toString());
         assertEquals("03:35:04Z", result.offsetTime.toString());
+        // Instant is zoneId-independent: same value as the default-zone test above.
+        assertEquals("2001-01-30T03:35:05.789Z", result.instant.toString());
     }
 
     @Test

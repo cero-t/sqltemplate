@@ -792,6 +792,8 @@ The `ZoneId` specified here is used for conversion when writing to and reading f
 
 For example, consider storing a `ZonedDateTime` of `2001-01-28T12:35:02.789+09:00[Asia/Tokyo]` in an environment whose system default time zone is `Asia/Tokyo`. If you use a `SqlTemplate` configured with `ZoneId.of("GMT")`, this value is converted to GMT and stored, and the read-back result is `2001-01-28T03:35:02.789Z[GMT]` (the same instant expressed in GMT).
 
+Note that `java.time.Instant` is also supported, but because it represents an absolute point on the timeline (UTC), it is converted directly through the epoch (`Timestamp#from` / `Timestamp#toInstant`) and is **not** affected by the configured `ZoneId`. In the same environment as above, an `Instant` is stored and read back as the same instant whether the `SqlTemplate` uses `Asia/Tokyo` or `GMT`.
+
 #### 6-2. Mapping enum values
 
 `enum` types are supported for both bind variables and query results. An enum is mapped to and from a string column (the `CHAR` / `VARCHAR` family) by its name (`Enum#name()`), independently of the JDBC driver's own enum handling.

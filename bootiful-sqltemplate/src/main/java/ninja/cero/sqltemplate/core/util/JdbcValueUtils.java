@@ -41,6 +41,10 @@ public class JdbcValueUtils {
         } else if (value instanceof ZonedDateTime zonedDateTime) {
             ZonedDateTime adjusted = zonedDateTime.withZoneSameInstant(zoneId);
             return Timestamp.valueOf(adjusted.toLocalDateTime());
+        } else if (value instanceof Instant instant) {
+            // An Instant is an absolute point on the timeline, so it is converted straight through
+            // the epoch (Timestamp.from / toInstant). zoneId is intentionally NOT applied here.
+            return Timestamp.from(instant);
         } else if (value instanceof Enum<?> enumValue) {
             // Bind enums by name() so read and write stay symmetric.
             return enumValue.name();
@@ -66,6 +70,8 @@ public class JdbcValueUtils {
             return getAsOffsetTime(rs, index, zoneId);
         } else if (ZonedDateTime.class.equals(requiredType)) {
             return getAsZonedDateTime(rs, index, zoneId);
+        } else if (Instant.class.equals(requiredType)) {
+            return getAsInstant(rs, index);
         } else if (requiredType != null && requiredType.isEnum()) {
             return getAsEnum(rs, index, requiredType);
         }
@@ -96,6 +102,9 @@ public class JdbcValueUtils {
             return Types.TIME;
         }
         if (ZonedDateTime.class.isAssignableFrom(type)) {
+            return Types.TIMESTAMP;
+        }
+        if (Instant.class.isAssignableFrom(type)) {
             return Types.TIMESTAMP;
         }
         if (OffsetDateTime.class.isAssignableFrom(type)) {
@@ -198,6 +207,21 @@ public class JdbcValueUtils {
         Timestamp timestamp = rs.getTimestamp(index);
         if (timestamp != null) {
             return timestamp.toLocalDateTime().atZone(zoneId);
+        }
+        return null;
+    }
+
+    /**
+     * Get the column value as Instant.
+     * @param rs    ResultSet
+     * @param index column index
+     * @return column value
+     * @throws SQLException in case of extraction failure
+     */
+    protected static Instant getAsInstant(ResultSet rs, int index) throws SQLException {
+        Timestamp timestamp = rs.getTimestamp(index);
+        if (timestamp != null) {
+            return timestamp.toInstant();
         }
         return null;
     }

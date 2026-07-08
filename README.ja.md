@@ -792,6 +792,8 @@ public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemp
 
 たとえばシステムのデフォルトタイムゾーンが `Asia/Tokyo` の環境で、`ZonedDateTime` として `2001-01-28T12:35:02.789+09:00[Asia/Tokyo]` を保存する場合を考えます。`ZoneId.of("GMT")` を指定した `SqlTemplate` を用いると、この値はGMTに変換されて保存され、読み出した結果は `2001-01-28T03:35:02.789Z[GMT]`（同じ時刻をGMTで表したもの）となります。
 
+なお `java.time.Instant` もサポートしていますが、`Instant` はタイムライン上の絶対時刻（UTC）を表すため、エポックを介して直接変換され（`Timestamp#from` / `Timestamp#toInstant`）、指定した `ZoneId` の影響を受けません。上と同じ環境でも、`Instant` は `SqlTemplate` が `Asia/Tokyo` でも `GMT` でも同じ時刻として保存・読み出しされます。
+
 #### 6-2. Enumをマッピングする
 
 `enum` 型は、バインド変数と検索結果の両方でサポートしています。enumは文字列カラム（`CHAR` / `VARCHAR` 系）との間で、その名前（`Enum#name()`）によって相互に変換されます。JDBCドライバ自身のenum対応には依存しません。
