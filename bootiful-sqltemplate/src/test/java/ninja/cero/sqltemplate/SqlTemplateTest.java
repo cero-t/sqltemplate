@@ -56,6 +56,15 @@ public class SqlTemplateTest {
     }
 
     @Test
+    public void testForObject_NoArgs_NonPublicRecord() {
+        PackagePrivateEmp emp = sqlTemplate()
+                .query("select empno, ename from emp where empno = 7369")
+                .forObject(PackagePrivateEmp.class);
+        assertEquals(7369, emp.empno());
+        assertEquals("SMITH", emp.ename());
+    }
+
+    @Test
     public void testForObject_MapArg() {
         Map<String, Object> param = new HashMap<>();
         param.put("deptno", 30);

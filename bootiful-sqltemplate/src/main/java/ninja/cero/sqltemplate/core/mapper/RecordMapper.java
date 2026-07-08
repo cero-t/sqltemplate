@@ -58,7 +58,9 @@ public class RecordMapper<T> implements RowMapper<T> {
         }
 
         try {
-            constructor = mappedClass.getConstructor(paramTypes);
+            // getDeclaredConstructor (+ setAccessible) so non-public records are supported too
+            constructor = mappedClass.getDeclaredConstructor(paramTypes);
+            constructor.setAccessible(true);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Couldn't find the canonical constructor of record " + mappedClass.getName(), e);
         }
