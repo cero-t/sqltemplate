@@ -10,7 +10,7 @@ Spring Framework（Spring JDBC）が提供する `JdbcTemplate` と `NamedParame
 
 - Fluent API
 - SQLテンプレートファイルの利用 (FreeMarkerの書式をサポート)
-- POJOや `java.util.Map` などのオブジェクトに対するマッピング
+- POJOや `java.util.Map`、Javaの `record` などのオブジェクトに対するマッピング
 - POJOのアクセサメソッド（getter/setter）に加えてpublicフィールドが利用可能
 - タイムゾーンをサポート (Experimental)
 
@@ -24,24 +24,24 @@ Spring Framework（Spring JDBC）が提供する `JdbcTemplate` と `NamedParame
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-jdbc</artifactId>
-        <version>2.0.0.RELEASE</version>
+        <version>4.0.7</version>
     </dependency>
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>2.0.0</version>
+        <version>4.0.0</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.200</version>
+        <version>2.3.232</version>
     </dependency>
     ...
 </dependencies>
 ```
 
-- Spring BootアプリケーションのConfigurationクラスに `ninja.cero.sqltempalte.SqlTemplate` のBean定義を追加します。
+- Spring BootアプリケーションのConfigurationクラスに `ninja.cero.sqltemplate.SqlTemplate` のBean定義を追加します。
 
 ```java
 @Configuration
@@ -106,13 +106,17 @@ Bootiful SQL Templateは、こんな人のために開発しています。
 
 次のバージョンのJava、Spring Frameworkでのテストを行っています。
 
-- Java 1.8.0 以降 (recordを利用する場合は、Java 17 以降)
-- Spring Framework 5.0.0 以降 (recordを利用する場合は、Spring Framework 5.3.0 以降)
-- Spring Boot 2.0 以降 (recordを利用する場合は、Spring Boot 2.4.0 以降)
+- Java 17 以降
+- Spring Framework 7.0 以降
+- Spring Boot 4.0 以降
 - 動作確認済みのRDBMS
     - MySQL
     - PostgreSQL
     - H2Database
+
+> **旧バージョン (Java 8 / Spring Boot 2・3 系) について**
+>
+> `4.0.0` 以降は Java 17・Spring Framework 7.0・Spring Boot 4.0 をベースラインとしています。Java 8 や Spring Boot 2・3 系で利用したい場合は、`2.x` ブランチおよびバージョン `2.1.x` を参照してください。
 
 #### 2-2. 依存モジュールの追加
 
@@ -125,18 +129,18 @@ Mavenの `pom.xml`
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-jdbc</artifactId>
-        <version>2.0.0.RELEASE</version>
+        <version>4.0.7</version>
     </dependency>
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>2.0.0</version>
+        <version>4.0.0</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.200</version>
+        <version>2.3.232</version>
     </dependency>
     ...
 </dependencies>
@@ -147,8 +151,8 @@ Gradleの `build.gradle`
 dependencies {
     ...
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:2.0.0'
-    implementation 'com.h2database:h2:1.4.200'
+    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.0'
+    implementation 'com.h2database:h2:2.3.232'
     ...
 }
 ```
@@ -157,7 +161,7 @@ dependencies {
 
 #### 2-3. Bean定義の追加
 
-SpringのBean定義として `ninja.cero.sqltempalte.SqlTemplate` を追加します。コンストラクタの引数にはSpring JDBCの `org.springframework.jdbc.core.JdbcTemplate` と `org.springframework.jdbc.core.NamedParameterJdbcTemplate` の2つを渡します。それ以外のコンストラクタについては [6. その他の機能] を参照してください。
+SpringのBean定義として `ninja.cero.sqltemplate.SqlTemplate` を追加します。コンストラクタの引数にはSpring JDBCの `org.springframework.jdbc.core.JdbcTemplate` と `org.springframework.jdbc.core.NamedParameterJdbcTemplate` の2つを渡します。それ以外のコンストラクタについては [6. その他の機能] を参照してください。
 
 ```java
 @Configuration
@@ -293,7 +297,7 @@ inner join dept
     on emp.deptno = dept.deptno
 where
     dept.deptno = 30
-    and emp.job = 'SALESEMAN'
+    and emp.job = 'SALESMAN'
 ```
 
 なお、クエリは `PreparedStatement` が利用されるため、SQLインジェクションの心配はありません。
@@ -542,20 +546,244 @@ where
 
 このようにしてテンプレートにFreeMarkerの文法を用いることで、検索条件を柔軟に変化させることができます。テンプレートの文法は強力であり、理論的にはどのようなクエリを発行することもでき、たとえば `:(変数名)` のバインド変数では指定できないテーブル名なども、テンプレートの文法を使えば指定することができます。ただしその分、うっかりSQLインジェクションに対する脆弱性などを埋め込んでしまうこともあります。その点には注意して利用してください。
 
-（以下、作成中）
-
 ### 4. 更新する - INSERT / UPDATE / DELETE文の発行
+
+Bootiful SQL Templateを利用して、INSERT / UPDATE / DELETE文を発行するための操作について説明します。基本的な使い方はSELECT文の場合とほとんど同じで、クエリの指定方法（`file` / `query`）やバインド変数の指定方法（`params` / `param` / `addParam`）はそのまま利用できます。SELECT文と異なるのは、結果を取り出すために `update` メソッドを呼び出す点です。
 
 #### 4-1. 使い方の例
 
+```java
+@Component
+public class SampleProcess {
+    private SqlTemplate sqlTemplate;
+
+    public SampleProcess(SqlTemplate sqlTemplate) {
+        this.sqlTemplate = sqlTemplate;
+    }
+
+    public void update() {
+        // (1)
+        int count = sqlTemplate.file("sql/updateByParam.sql")
+                               .addParam("job", "ANALYST")
+                               .addParam("mgr", 7566)
+                               .addParam("empno", 7876)
+                               .update();
+        System.out.println(count + "件更新しました");
+    }
+}
+```
+
+(1) `SqlTemplate` のAPIを用いてUPDATEの処理を行い、更新された件数を `int` として受け取っています。`file` や `query` でクエリを指定し、必要に応じてバインド変数を指定した後、最後に `update` メソッドを呼び出す点がSELECTとの違いです。
+
 #### 4-2. SQLファイルを使う / SQLを文字列で指定する
 
-#### 4-3. 検索条件の指定
+クエリの指定方法はSELECT文の場合と同じです。SQLファイルを使う場合は `file` メソッドに、SQLを文字列で直接指定する場合は `query` メソッドにクエリを渡します。INSERT / UPDATE / DELETEのいずれの文も発行できます。
+
+たとえばINSERT文を記述したSQLファイル (`sql/insertByParam.sql`) は次のようになります。
+
+```sql
+INSERT
+    INTO
+        emp
+    VALUES
+        (:empno, :ename, :job, :mgr, :hiredate, :sal, :comm, :deptno)
+```
+
+UPDATE文 (`sql/updateByParam.sql`) は次のようになります。
+
+```sql
+UPDATE
+        emp
+    SET
+        job = :job
+        ,mgr = :mgr
+    WHERE
+        empno = :empno
+```
+
+DELETE文 (`sql/deleteByArg.sql`) は次のようになります。
+
+```sql
+DELETE
+    FROM
+        emp
+    WHERE
+        empno = ?
+```
+
+`file` メソッドで指定するSQLファイルでは、SELECT文の場合と同様にFreeMarker形式のテンプレートも利用できます（[3-7. テンプレートエンジンを使う] を参照）。
+
+#### 4-3. バインド変数の指定
+
+バインド変数の指定方法もSELECT文の場合と同じで、次の4つの方法が利用できます。詳細は [3-4. 検索条件の指定] を参照してください。
+
+- `?` を用いて `params` メソッドで値を列挙する
+- `:(変数名)` を用いて `addParam` メソッドで個別に指定する
+- `:(変数名)` を用いて `param` メソッドにValue Object (POJO) を渡す
+- `:(変数名)` を用いて `param` メソッドに `java.util.Map` を渡す
+
+Value Objectを用いる例を示します。クエリの `:(変数名)` と同じフィールド名を持つValue Objectを用意し、値を代入して `param` メソッドに渡します。
+
+```java
+Emp emp = new Emp();
+emp.empno = 1000;
+emp.ename = "TEST";
+emp.job = "MANAGER";
+emp.mgr = 7839;
+emp.hiredate = LocalDate.of(2015, 4, 1);
+emp.sal = new BigDecimal(4000);
+emp.comm = new BigDecimal(400);
+emp.deptno = 10;
+
+int count = sqlTemplate.file("sql/insertByParam.sql")
+                       .param(emp)
+                       .update();
+```
+
+なお、Value ObjectにはJavaの `record` を利用することもできます。
+
+```java
+public record EmpRecord(Integer empno, String ename, String job, Integer mgr,
+                        LocalDate hiredate, BigDecimal sal, BigDecimal comm, Integer deptno) {
+}
+```
+
+```java
+EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
+        LocalDate.of(2015, 4, 1), new BigDecimal(4000), new BigDecimal(400), 10);
+
+int count = sqlTemplate.file("sql/insertByParam.sql")
+                       .param(emp)
+                       .update();
+```
+
+`?` を用いる場合は `params` メソッドで値を列挙します。
+
+```java
+int count = sqlTemplate.file("sql/deleteByArg.sql")
+                       .params(7566)
+                       .update();
+```
 
 #### 4-4. 結果の取り出し
 
+INSERT / UPDATE / DELETE文では、最後に `update` メソッドを呼び出すことでクエリを実行します。`update` メソッドの戻り値は、そのクエリによって影響を受けた行数（`int`）です。
+
+```java
+int count = sqlTemplate.file("sql/deleteByArgs.sql")
+                       .params(30, "SALESMAN")
+                       .update();
+// deptno = 30 かつ job = 'SALESMAN' の行が4件削除された場合、count は 4 になる
+```
+
+バインド変数を持たないクエリの場合は `params` や `param` を省略して、`file` または `query` の直後に `update` を呼び出すこともできます。
+
+```java
+int count = sqlTemplate.query("delete from emp").update();
+```
+
 ### 5. バッチ更新する
+
+複数の更新処理をまとめて発行（バッチ更新）したい場合は `batchUpdate` メソッドを利用します。バッチ更新には大きく分けて、複数の異なるSQLをまとめて実行する方法と、1つのSQLに対して複数のパラメータを適用して実行する方法の2種類があります。いずれの場合も、戻り値は各更新の件数を格納した `int[]` です。
+
+#### 5-1. 複数の異なるSQLをまとめて実行する
+
+内容の異なる複数のSQLをまとめて実行したい場合は、`batchUpdate` に続けて `queries` メソッドを呼び出し、実行したいSQLを列挙します。
+
+```java
+int[] counts = sqlTemplate.batchUpdate()
+        .queries("delete from emp",
+                 "insert into emp (empno) values (1234)");
+```
+
+この方法ではバインド変数は利用できません。列挙したSQLがそのまま順番に実行され、各SQLの更新件数が `int[]` として返されます。
+
+#### 5-2. 1つのSQLに複数のパラメータを適用する
+
+同じSQLに対して異なるパラメータを繰り返し適用したい場合は、`batchUpdate` に続けて `file`（SQLファイル）または `query`（SQL文字列）でクエリを指定し、`addBatch` メソッドでパラメータの組を追加していき、最後に `execute` メソッドで実行します。
+
+`addBatch` メソッドは、SELECT文のバインド変数と同様に複数の指定方法を持ちます。
+
+##### (1) ? を用いる場合
+
+`?` を用いたクエリには、`addBatch` メソッドの引数に値を列挙します。
+
+```java
+int[] counts = sqlTemplate.batchUpdate()
+        .query("insert into emp (empno) values (?)")
+        .addBatch(111)
+        .addBatch(222)
+        .execute();
+```
+
+##### (2) :(変数名) を用いる場合 - Value Object
+
+`:(変数名)` を用いたクエリには、値を代入したValue Objectを `addBatch` メソッドに渡すことができます。
+
+```java
+int[] counts = sqlTemplate.batchUpdate().file("sql/insertByParam.sql")
+        .addBatch(emp1)
+        .addBatch(emp2)
+        .execute();
+```
+
+##### (3) :(変数名) を用いる場合 - Map
+
+変数名をキーにした `java.util.Map` を `addBatch` メソッドに渡すこともできます。
+
+```java
+int[] counts = sqlTemplate.batchUpdate().file("sql/updateByParam.sql")
+        .addBatch(arg1)  // Map<String, Object>
+        .addBatch(arg2)
+        .execute();
+```
+
+##### (4) List でまとめて渡す
+
+Value Objectや `Map` を1件ずつ `addBatch` で追加する代わりに、`addBatches` メソッドに `java.util.List` を渡すことで一括で指定することもできます。`List` の要素はValue Objectでも `Map` でも構いません。
+
+```java
+List<Emp> emps = Arrays.asList(emp1, emp2);
+
+int[] counts = sqlTemplate.batchUpdate().file("sql/insertByParam.sql")
+        .addBatches(emps)
+        .execute();
+```
+
+いずれの場合も、戻り値の `int[]` には、追加したパラメータの組ごとの更新件数が、追加した順番で格納されます。
 
 ### 6. その他の機能
 
-#### 6-1. タイムゾーンを扱う
+`SqlTemplate` には、これまでに説明した2引数のコンストラクタ以外に、いくつかのコンストラクタが用意されています。ここではそれらを用いた機能について説明します。
+
+#### 6-1. タイムゾーンを扱う (Experimental)
+
+> この機能は Experimental（実験的）です。挙動が将来変更される可能性があります。
+
+`SqlTemplate` のコンストラクタに `java.time.ZoneId` を渡すことで、タイムゾーンを考慮した日時の変換を行えます。
+
+```java
+@Bean
+public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, ZoneId.of("GMT"));
+}
+```
+
+ここで指定した `ZoneId` は、タイムゾーンを持つJSR-310の型（`OffsetDateTime` / `ZonedDateTime` / `OffsetTime`）をデータベースへ書き込む際・読み出す際の変換に用いられます。`ZoneId` を指定しない場合は、システムのデフォルトタイムゾーン (`ZoneId.systemDefault()`) が用いられます。
+
+たとえばシステムのデフォルトタイムゾーンが `Asia/Tokyo` の環境で、`ZonedDateTime` として `2001-01-28T12:35:02.789+09:00[Asia/Tokyo]` を保存する場合を考えます。`ZoneId.of("GMT")` を指定した `SqlTemplate` を用いると、この値はGMTに変換されて保存され、読み出した結果は `2001-01-28T03:35:02.789Z[GMT]`（同じ時刻をGMTで表したもの）となります。
+
+#### 6-2. パラメータのバインドやマッピングをカスタマイズする
+
+`SqlTemplate` のコンストラクタに `ParamBuilder` と `MapperBuilder` を渡すことで、バインド変数の値の変換や、検索結果のオブジェクトへのマッピングの挙動をカスタマイズできます。
+
+```java
+@Bean
+public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    return new SqlTemplate(jdbcTemplate, namedParameterJdbcTemplate, new ParamBuilder(), new MapperBuilder());
+}
+```
+
+`ParamBuilder` は、バインドするパラメータ（`params` / `param` / `addParam` で指定した値）を Spring JDBC が扱う形へ変換する処理を担います。`MapperBuilder` は、検索結果を `forObject` / `forList` などで指定したValue Objectへマッピングする `RowMapper` を生成する処理を担います。標準とは異なる変換やマッピングを行いたい場合は、これらのクラスを継承した独自の実装を渡すことができます。
+
+なお、[6-1. タイムゾーンを扱う] で説明した `ZoneId` を渡すコンストラクタは、内部的には、指定された `ZoneId` を持つ `ParamBuilder` と `MapperBuilder` を生成しています。
