@@ -718,12 +718,9 @@ public class SqlTemplateTest {
 
     @Test
     public void testForObject_noFile() {
-        try {
-            sqlTemplate().file("x").forObject(Emp.class);
-            throw new RuntimeException("Test failed");
-        } catch (UncheckedIOException ex) {
-            assertTrue(ex.getCause().getMessage().contains("not found"));
-        }
+        UncheckedIOException ex = assertThrows(UncheckedIOException.class,
+                () -> sqlTemplate().file("x").forObject(Emp.class));
+        assertTrue(ex.getCause().getMessage().contains("not found"));
     }
 
     @Test

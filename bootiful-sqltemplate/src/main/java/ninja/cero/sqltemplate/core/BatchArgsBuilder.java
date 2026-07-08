@@ -133,7 +133,7 @@ public class BatchArgsBuilder {
         }
 
         public int[] execute() {
-            if (batchParamList.size() == 0) {
+            if (batchParamList.isEmpty()) {
                 String sql = templateEngine.get(template);
                 return jdbcTemplate.batchUpdate(sql);
             }

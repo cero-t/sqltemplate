@@ -2,12 +2,12 @@ package ninja.cero.sqltemplate.core.template;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FreeMarkerTest {
@@ -64,14 +64,10 @@ public class FreeMarkerTest {
     }
 
     @Test
-    public void testGet_TemplateNotFound() throws Exception {
-        // execute
-        try {
-            new FreeMarker().get("x", "");
-            throw new RuntimeException("Expected exception not occurred");
-        } catch (UncheckedIOException ex) {
-            assertTrue(ex.getMessage().contains("not found"));
-        }
+    public void testGet_TemplateNotFound() {
+        UncheckedIOException ex = assertThrows(UncheckedIOException.class,
+                () -> new FreeMarker().get("x", ""));
+        assertTrue(ex.getMessage().contains("not found"));
     }
 
     public static class Param {

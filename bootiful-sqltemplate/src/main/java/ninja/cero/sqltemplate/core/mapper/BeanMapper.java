@@ -80,12 +80,12 @@ public class BeanMapper<T> implements RowMapper<T> {
     }
 
     /**
-     * {@see org.springframework.jdbc.core.BeanPropertyRowMapper#un}
      * Convert a name in camelCase to an underscored name in lower case.
      * Any upper case letters are converted to lower case with a preceding underscore.
      *
      * @param name the string containing original name
      * @return the converted name
+     * @see org.springframework.jdbc.core.BeanPropertyRowMapper#underscoreName(String)
      */
     private String underscoreName(String name) {
         if (!StringUtils.hasLength(name)) {

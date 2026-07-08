@@ -31,6 +31,7 @@ public class ArrayParameter extends ArgumentPreparedStatementSetter {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
         // A SqlParameterValue carries its own type; otherwise bind with the type of the value.
         if (argValue instanceof SqlParameterValue) {
