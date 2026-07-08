@@ -21,7 +21,7 @@ public interface TemplateEngine {
      */
     String get(String resource);
 
-    public static TemplateEngine TEXT_FILE = new TextFile();
-    public static TemplateEngine PLAIN_TEXT = new PlainText();
-    public static TemplateEngine FREEMARKER = new FreeMarker();
+    TemplateEngine TEXT_FILE = new TextFile();
+    TemplateEngine PLAIN_TEXT = new PlainText();
+    TemplateEngine FREEMARKER = new FreeMarker();
 }
