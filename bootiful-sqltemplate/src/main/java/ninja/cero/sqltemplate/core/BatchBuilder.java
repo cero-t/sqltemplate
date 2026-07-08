@@ -1,17 +1,10 @@
 package ninja.cero.sqltemplate.core;
 
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
-import ninja.cero.sqltemplate.core.parameter.BeanParameter;
-import ninja.cero.sqltemplate.core.parameter.MapParameter;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
-import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BatchBuilder {
     protected JdbcTemplate jdbcTemplate;

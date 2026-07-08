@@ -14,15 +14,15 @@ public class TextFileTest {
         String[] results = result.split("\n");
 
         int i = 0;
-        assertEquals(results[i++], "SELECT");
-        assertEquals(results[i++], "        *");
-        assertEquals(results[i++], "    FROM");
-        assertEquals(results[i++], "        emp");
-        assertEquals(results[i++], "    WHERE");
-        assertEquals(results[i++], "        deptno = ?");
-        assertEquals(results[i++], "        AND job = ?");
-        assertEquals(results[i++], "    ORDER BY");
-        assertEquals(results[i++], "        empno");
+        assertEquals("SELECT", results[i++]);
+        assertEquals("        *", results[i++]);
+        assertEquals("    FROM", results[i++]);
+        assertEquals("        emp", results[i++]);
+        assertEquals("    WHERE", results[i++]);
+        assertEquals("        deptno = ?", results[i++]);
+        assertEquals("        AND job = ?", results[i++]);
+        assertEquals("    ORDER BY", results[i++]);
+        assertEquals("        empno", results[i++]);
         assertEquals(i, results.length);
     }
 
@@ -35,15 +35,15 @@ public class TextFileTest {
         String[] results = result.split("\n");
 
         int i = 0;
-        assertEquals(results[i++], "SELECT");
-        assertEquals(results[i++], "        *");
-        assertEquals(results[i++], "    FROM");
-        assertEquals(results[i++], "        emp");
-        assertEquals(results[i++], "    WHERE");
-        assertEquals(results[i++], "        deptno = ?");
-        assertEquals(results[i++], "        AND job = ?");
-        assertEquals(results[i++], "    ORDER BY");
-        assertEquals(results[i++], "        empno");
+        assertEquals("SELECT", results[i++]);
+        assertEquals("        *", results[i++]);
+        assertEquals("    FROM", results[i++]);
+        assertEquals("        emp", results[i++]);
+        assertEquals("    WHERE", results[i++]);
+        assertEquals("        deptno = ?", results[i++]);
+        assertEquals("        AND job = ?", results[i++]);
+        assertEquals("    ORDER BY", results[i++]);
+        assertEquals("        empno", results[i++]);
         assertEquals(i, results.length);
     }
 }

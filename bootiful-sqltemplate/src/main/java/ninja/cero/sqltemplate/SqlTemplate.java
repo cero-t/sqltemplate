@@ -1,19 +1,14 @@
 package ninja.cero.sqltemplate;
 
 import ninja.cero.sqltemplate.core.ArrayBuilder;
-import ninja.cero.sqltemplate.core.BatchArgsBuilder;
 import ninja.cero.sqltemplate.core.BatchBuilder;
 import ninja.cero.sqltemplate.core.mapper.MapperBuilder;
-import ninja.cero.sqltemplate.core.parameter.BeanParameter;
-import ninja.cero.sqltemplate.core.parameter.MapParameter;
 import ninja.cero.sqltemplate.core.parameter.ParamBuilder;
 import ninja.cero.sqltemplate.core.template.TemplateEngine;
-import ninja.cero.sqltemplate.core.util.TypeUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.time.ZoneId;
-import java.util.Map;
 
 public class SqlTemplate {
     protected final JdbcTemplate jdbcTemplate;

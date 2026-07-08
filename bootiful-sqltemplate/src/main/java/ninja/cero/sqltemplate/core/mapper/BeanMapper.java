@@ -53,7 +53,6 @@ public class BeanMapper<T> implements RowMapper<T> {
         this.mappedClass = mappedClass;
         this.zoneId = zoneId;
 
-        // this.mappedProperties = new HashSet<String>();
         PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(mappedClass);
         for (PropertyDescriptor pd : pds) {
             if (pd.getWriteMethod() != null) {

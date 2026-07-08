@@ -25,14 +25,14 @@ public class FreeMarkerTest {
         String[] results = result.split("\n");
 
         int i = 0;
-        assertEquals(results[i++], "SELECT");
-        assertEquals(results[i++], "        *");
-        assertEquals(results[i++], "    FROM");
-        assertEquals(results[i++], "        emp");
-        assertEquals(results[i++], "    WHERE");
-        assertEquals(results[i++], "        1 = 1");
-        assertEquals(results[i++], "        AND job = :job");
-        assertEquals(results[i++], "        AND deptno = :deptno");
+        assertEquals("SELECT", results[i++]);
+        assertEquals("        *", results[i++]);
+        assertEquals("    FROM", results[i++]);
+        assertEquals("        emp", results[i++]);
+        assertEquals("    WHERE", results[i++]);
+        assertEquals("        1 = 1", results[i++]);
+        assertEquals("        AND job = :job", results[i++]);
+        assertEquals("        AND deptno = :deptno", results[i++]);
         assertEquals(i, results.length);
     }
 
@@ -51,15 +51,15 @@ public class FreeMarkerTest {
         String[] results = result.split("\n");
 
         int i = 0;
-        assertEquals(results[i++], "SELECT");
-        assertEquals(results[i++], "        *");
-        assertEquals(results[i++], "    FROM");
-        assertEquals(results[i++], "        emp");
-        assertEquals(results[i++], "    WHERE");
-        assertEquals(results[i++], "        1 = 1");
-        assertEquals(results[i++], "        AND job = :job");
-        assertEquals(results[i++], "        AND mgr = :mgr");
-        assertEquals(results[i++], "        AND deptno = :deptno");
+        assertEquals("SELECT", results[i++]);
+        assertEquals("        *", results[i++]);
+        assertEquals("    FROM", results[i++]);
+        assertEquals("        emp", results[i++]);
+        assertEquals("    WHERE", results[i++]);
+        assertEquals("        1 = 1", results[i++]);
+        assertEquals("        AND job = :job", results[i++]);
+        assertEquals("        AND mgr = :mgr", results[i++]);
+        assertEquals("        AND deptno = :deptno", results[i++]);
         assertEquals(i, results.length);
     }
 
