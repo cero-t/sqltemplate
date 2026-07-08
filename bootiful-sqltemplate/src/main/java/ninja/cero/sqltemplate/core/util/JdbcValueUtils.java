@@ -84,11 +84,10 @@ public class JdbcValueUtils {
      * Enums are bound as {@link Types#VARCHAR}; JSR-310 types map to their SQL equivalents.
      */
     public static int getSqlType(Class<?> type) {
-        int sqlType = StatementCreatorUtils.javaTypeToSqlParameterType(type);
-        if (sqlType != SqlTypeValue.TYPE_UNKNOWN) {
-            return sqlType;
-        }
-
+        // Resolve JSR-310 / enum types with our own mapping BEFORE Spring's: convertIfNecessary turns
+        // these into naive java.sql values, so the SQL type must be naive too. Spring's
+        // javaTypeToSqlParameterType maps OffsetDateTime/OffsetTime to *_WITH_TIMEZONE, which strict
+        // drivers (e.g. PostgreSQL) reject against the naive Timestamp/Time we actually bind.
         if (Enum.class.isAssignableFrom(type)) {
             return Types.VARCHAR;
         }
@@ -114,7 +113,7 @@ public class JdbcValueUtils {
             return Types.TIME;
         }
 
-        return SqlTypeValue.TYPE_UNKNOWN;
+        return StatementCreatorUtils.javaTypeToSqlParameterType(type);
     }
 
     /**
