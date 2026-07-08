@@ -1,77 +1,41 @@
-# DISABLED (pending Phase 6 / Central Portal migration).
-# OSSRH (oss.sonatype.org) reached end-of-life on 2025-06-30, so the deploy
-# steps below no longer work. This workflow is manual-only (workflow_dispatch)
-# and must NOT be run until it is rewritten for the Central Portal in Phase 6.
-# The version-bump / branch steps still assume the old `develop` flow and also
-# need to be updated for the 2.x / 4.x branch layout.
-name: Publish relase and update pom.xml
+# Builds, signs and uploads bootiful-sqltemplate to the Maven Central Portal
+# when a release tag (e.g. 4.0.0) is pushed. Use release.sh to cut a release;
+# it bumps the version and pushes the tag that triggers this workflow.
+#
+# This workflow only deploys — it never writes back to the repository
+# (permissions: contents: read). autoPublish is false in the release profile,
+# so after the upload you must publish the deployment manually in the Portal UI
+# at https://central.sonatype.com.
+#
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   CENTRAL_USERNAME / CENTRAL_PASSWORD - Central Portal user token (the
+#                                         username/password pair shown on token generation)
+#   GPG_PRIVATE_KEY / GPG_PASSPHRASE    - GPG key used to sign the artifacts
+name: Publish release
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+permissions:
+  contents: read
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Maven Central Repository
-        uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17 and Central Portal credentials
+        uses: actions/setup-java@v4
         with:
-          java-version: '8'
-          distribution: 'adopt'
-          server-id: ossrh
+          java-version: '17'
+          distribution: 'temurin'
+          server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-          gpg-passphrase: GPG_PASSPHRASE
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} 
-      - name: Change to RELEASE version (remove SNAPSHOT)
-        run: |
-          POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
-          for POM in ${POMS[@]}
-          do
-            CURRENT_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout -file $POM)
-            NEW_VERSION=$(echo ${CURRENT_VERSION} | awk '{ sub("-.*$",""); printf $0; }')
-            MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
-            ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
-          done
-      - name: Commit and push RELEASE version to GitHub
-        run: |
-          RELEASE_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout)
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git tag ${RELEASE_VERSION}
-          git commit -m "${RELEASE_VERSION} release"
-          git push
-      - name: RELEASE
-        run: mvn deploy --batch-mode --activate-profiles release --also-make --projects bootiful-sqltemplate
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: Build, sign and upload to the Central Portal
+        run: ./mvnw --batch-mode --no-transfer-progress -Prelease --projects bootiful-sqltemplate clean deploy
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      - name: Change to new SNAPSHOT version
-        run: |
-          POMS=(pom.xml bootiful-sqltemplate/pom.xml examples/pom.xml)
-          for POM in ${POMS[@]}
-          do
-            CURRENT_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout -file $POM)
-            MINOR=$(echo ${CURRENT_VERSION} | awk '{ sub("\\.[0-9]+$",""); printf $0; }')
-            REVISION=$(echo ${CURRENT_VERSION} | awk '{ sub(".+\\.",""); printf $0; }')
-            NEW_REVISION=$((REVISION + 1))
-            NEW_VERSION=$(echo ${MINOR}.${NEW_REVISION}-SNAPSHOT)
-            MODULE_NAME=$(mvn --non-recursive help:evaluate -Dexpression=project.artifactId -q -DforceStdout -file $POM)
-            ./mvnw versions:set -DgenerateBackupPoms=false -DgroupId=ninja.cero.bootiful-sqltemplate -DartifactId=${MODULE_NAME} -DoldVersion=${CURRENT_VERSION} -DnewVersion=${NEW_VERSION}
-          done
-      - name: Commit and push new SNAPSHOT version to GitHub
-        run: |
-          NEW_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout)
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "start ${NEW_VERSION}"
-          git push
-      - name: Rebase develop
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git checkout develop
-          git rebase
-          git push
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
