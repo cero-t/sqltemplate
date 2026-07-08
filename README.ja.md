@@ -29,7 +29,7 @@ Spring Framework（Spring JDBC）が提供する `JdbcTemplate` と `NamedParame
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
@@ -134,7 +134,7 @@ Mavenの `pom.xml`
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
@@ -151,7 +151,7 @@ Gradleの `build.gradle`
 dependencies {
     ...
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.0'
+    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.1'
     implementation 'com.h2database:h2:2.3.232'
     ...
 }
@@ -225,7 +225,7 @@ from
     emp
 ```
 
-SQLファイルはクラスパスの通った場所に置いてください。一般的なMaven形式のプロジェクトであれば `src/main/resouces` の下に置くと良いでしょう。あるいは `src/main/java` の下でデータベースへのアクセス処理を記述するクラスと同じパッケージに配置しても良いでしょう。SQLファイルの拡張子についても特に規定はありません。
+SQLファイルはクラスパスの通った場所に置いてください。一般的なMaven形式のプロジェクトであれば `src/main/resources` の下に置くと良いでしょう。あるいは `src/main/java` の下でデータベースへのアクセス処理を記述するクラスと同じパッケージに配置しても良いでしょう。SQLファイルの拡張子についても特に規定はありません。
 
 - （参考）ファイルを置く場所の例
     1. `src/main/resources/sql/selectAll.sql`
@@ -362,7 +362,7 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
                             .forList(Emp.class);
 ```
 
-このように指定することで `SearchCondigion` インスタンスのフィールド値の値が、クエリの `:(変数名)` にバインドされます。バインドした結果は `?` で変数を指定した場合と同等です。
+このように指定することで `SearchCondition` インスタンスのフィールドの値が、クエリの `:(変数名)` にバインドされます。バインドした結果は `?` で変数を指定した場合と同等です。
 
 この方法は、Web APIやUIなど外部から検索条件をValue Objectとして受け取り、その値を用いてクエリを実行するような場合に利用することを想定しています。
 
@@ -392,7 +392,7 @@ List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
 
 複数の検索結果を `java.util.List` として受け取りたい場合 `forList` メソッドを利用します。`forList` メソッドの引数にはValue Objectの `class` を指定することができ、指定した場合はメソッドの戻り値が `List<Value Object>` となります。引数を指定しない場合、戻り値は `List<Map<String, Object>>` となります。
 
-Value Objectの `List` として取得したい場合、まずはクエリ結果のカラム名と同じフィールド名を持つValue Objectを作成します。Value Objectはアクセサメソッド（getter/setter）を用いて作成しても良いですし、publicフィールドを用いても構いません。なお、カラム名がスネークケース（たとえば `user_name` など）であったとしても、フィールド名はキャメールケース（たとえば `userName` など）でもスネークケースでもも構いません。
+Value Objectの `List` として取得したい場合、まずはクエリ結果のカラム名と同じフィールド名を持つValue Objectを作成します。Value Objectはアクセサメソッド（getter/setter）を用いて作成しても良いですし、publicフィールドを用いても構いません。なお、カラム名がスネークケース（たとえば `user_name` など）であったとしても、フィールド名はキャメルケース（たとえば `userName` など）でもスネークケースでも構いません。
 
 ここではキャメルケースのpublicフィールドを例にします。
 
@@ -484,7 +484,7 @@ Emp emp = sqlTemplate.query("select * from emp where empno = ?")
         .forObject(Emp.class);
 ```
 
-これで、検索結果を `Emp` として受け取ることができます。検索結果が0件の場合は戻り値がnullとなります。
+これで、検索結果を `Emp` として受け取ることができます。検索結果が0件の場合は戻り値がnullとなります。検索結果が2件以上ある場合は `IncorrectResultSizeDataAccessException` がスローされるため、`forObject` は最大でも1件しか返らないことが分かっている場合に利用してください。
 
 ##### (2) Map<String, Object> として受け取る
 
@@ -498,13 +498,13 @@ Map<String, Object> emp = sqlTemplate.query("select * from emp where empno = ?")
 
 戻り値の `Map<String, Object>` にはカラム名をキーとした値が格納されます。ここで、カラム名がスネークケースの場合は `Map` のキーもスネークケースのままになります。また、RDBMSがカラム名をすべて大文字で返す場合には、`Map` のキーもすべて大文字となります。このメソッドを用いる場合には、その2点に注意してください。
 
-検索結果を取得するためにValue Objectをわざわざ作りたくない場合に、この方法を利用することができます。検索結果が0件の場合は戻り値がnullとなります。
+検索結果を取得するためにValue Objectをわざわざ作りたくない場合に、この方法を利用することができます。検索結果が0件の場合は戻り値がnullとなります。`forObject` と同様に、検索結果が2件以上ある場合は `IncorrectResultSizeDataAccessException` がスローされます。
 
 ##### (3) Optional として受け取る
 
 検索結果を `java.util.Optional` として処理したい場合 `forOptional` メソッドを利用します。`forOptional` メソッドの引数にはValue Objectの `class` を指定することができ、指定した場合はメソッドの戻り値が `Optional<Value Object>` となります。引数を指定しない場合、戻り値は `Optional<Map<String, Object>>` となります。
 
-ここでは例として、Value Objectを扱うStreamのコードを示します。
+ここでは例として、Value Objectを扱うコードを示します。
 
 ```java
 Optional<Emp> emp = sqlTemplate.query("select * from emp where empno = ?")
@@ -706,6 +706,8 @@ int count = sqlTemplate.query("delete from emp").update();
 ### 5. バッチ更新する
 
 複数の更新処理をまとめて発行（バッチ更新）したい場合は `batchUpdate` メソッドを利用します。バッチ更新には大きく分けて、複数の異なるSQLをまとめて実行する方法と、1つのSQLに対して複数のパラメータを適用して実行する方法の2種類があります。いずれの場合も、戻り値は各更新の件数を格納した `int[]` です。
+
+> **補足:** SELECT や単発の更新で使う `file` メソッドと異なり、`batchUpdate` 配下の `file` メソッドは SQL ファイルをそのまま読み込みます。FreeMarker のテンプレート構文は処理**されません**。
 
 #### 5-1. 複数の異なるSQLをまとめて実行する
 

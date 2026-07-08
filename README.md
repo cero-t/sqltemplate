@@ -29,7 +29,7 @@ It is implemented as a wrapper around `JdbcTemplate` and `NamedParameterJdbcTemp
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
     </dependency>
     <!-- Feel free to replace with any JDBC driver you use -->
     <dependency>
@@ -134,7 +134,7 @@ Maven `pom.xml`
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
     </dependency>
     <!-- Feel free to replace with any JDBC driver you use -->
     <dependency>
@@ -151,7 +151,7 @@ Gradle `build.gradle`
 dependencies {
     ...
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.0'
+    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.1'
     implementation 'com.h2database:h2:2.3.232'
     ...
 }
@@ -484,7 +484,7 @@ Emp emp = sqlTemplate.query("select * from emp where empno = ?")
         .forObject(Emp.class);
 ```
 
-Now you can receive the result as `Emp`. If there are zero results, the return value is null.
+Now you can receive the result as `Emp`. If there are zero results, the return value is null. If the query returns two or more rows, an `IncorrectResultSizeDataAccessException` is thrown, so use `forObject` only where at most one row is expected.
 
 ##### (2) Receiving as Map<String, Object>
 
@@ -498,7 +498,7 @@ Map<String, Object> emp = sqlTemplate.query("select * from emp where empno = ?")
 
 The returned `Map<String, Object>` holds values keyed by column name. Note that if a column name is in snake case, the `Map` key remains in snake case. Also, if the RDBMS returns column names in all uppercase, the `Map` keys are also all uppercase. Keep these two points in mind when using this method.
 
-You can use this approach when you do not want to bother creating a Value Object to receive the result. If there are zero results, the return value is null.
+You can use this approach when you do not want to bother creating a Value Object to receive the result. If there are zero results, the return value is null. As with `forObject`, two or more rows cause an `IncorrectResultSizeDataAccessException`.
 
 ##### (3) Receiving as Optional
 
@@ -706,6 +706,8 @@ int count = sqlTemplate.query("delete from emp").update();
 ### 5. Batch updates
 
 To issue multiple update operations together (a batch update), use the `batchUpdate` method. Batch updates fall broadly into two categories: executing multiple different SQL statements together, and applying multiple sets of parameters to a single SQL statement. In either case, the return value is an `int[]` holding the update count of each operation.
+
+> **Note:** Unlike the `file` method used for SELECT and single updates, the `file` method under `batchUpdate` loads the SQL file as-is. FreeMarker template syntax is **not** processed.
 
 #### 5-1. Executing multiple different SQL statements together
 
