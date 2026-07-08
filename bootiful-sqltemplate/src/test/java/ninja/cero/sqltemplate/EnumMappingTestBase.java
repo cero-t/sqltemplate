@@ -1,12 +1,10 @@
 package ninja.cero.sqltemplate;
 
-import ninja.cero.sqltemplate.test.TestConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Map, positional and batch parameters, and the single-column mapper.
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 @Transactional
-public class EnumMappingTest {
+public abstract class EnumMappingTestBase {
     @Autowired
     JdbcTemplate jdbcTemplate;
 

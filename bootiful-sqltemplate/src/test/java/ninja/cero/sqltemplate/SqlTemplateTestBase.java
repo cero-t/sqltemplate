@@ -1,6 +1,5 @@
 package ninja.cero.sqltemplate;
 
-import ninja.cero.sqltemplate.test.TestConfig;
 import ninja.cero.sqltemplate.test.entity.AccessorEmp;
 import ninja.cero.sqltemplate.test.entity.DateTimeEntity;
 import ninja.cero.sqltemplate.test.entity.Emp;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +24,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 @Transactional
-public class SqlTemplateTest {
+public abstract class SqlTemplateTestBase {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
