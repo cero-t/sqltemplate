@@ -735,6 +735,8 @@ int[] counts = sqlTemplate.batchUpdate()
         .execute();
 ```
 
+> **`NULL` に関する注意:** `?`（位置指定）のバッチパラメータでは、各値の SQL 型は実行時のオブジェクトから推測されますが、`NULL` は型情報を持ちません。厳格なデータベース（例: PostgreSQL）では、型が文脈から決まらない位置——関数呼び出しの内側や `? IS NULL` など——に `NULL` を渡すと *"could not determine data type of parameter"* エラーになります。`NULL` が入りうる列をバッチ更新する場合は、宣言された型から SQL 型を補える下記 (2) の Value Object 形式を推奨します。
+
 ##### (2) :(変数名) を用いる場合 - Value Object
 
 `:(変数名)` を用いたクエリには、値を代入したValue Objectを `addBatch` メソッドに渡すことができます。

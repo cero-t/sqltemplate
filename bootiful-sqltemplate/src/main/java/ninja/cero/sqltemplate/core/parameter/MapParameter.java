@@ -54,11 +54,7 @@ public class MapParameter extends AbstractSqlParameterSource {
         if (sqlType != TYPE_UNKNOWN) {
             return sqlType;
         }
-        Object value = values.get(paramName);
-        if (value == null) {
-            return TYPE_UNKNOWN;
-        }
 
-        return JdbcValueUtils.getSqlType(value.getClass());
+        return JdbcValueUtils.getSqlType(values.get(paramName));
     }
 }

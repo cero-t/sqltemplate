@@ -118,6 +118,14 @@ public class JdbcValueUtils {
     }
 
     /**
+     * Determine the SQL type for a parameter <em>value</em> (delegates to {@link #getSqlType(Class)}).
+     * A {@code null} value has no type and yields {@link SqlTypeValue#TYPE_UNKNOWN}.
+     */
+    public static int getSqlType(Object value) {
+        return (value == null) ? SqlTypeValue.TYPE_UNKNOWN : getSqlType(value.getClass());
+    }
+
+    /**
      * Get a string column (CHAR / VARCHAR family) as an enum constant, matched by {@link Enum#name()}.
      *
      * @throws IllegalArgumentException if the column is not a string type, or no constant matches

@@ -735,6 +735,8 @@ int[] counts = sqlTemplate.batchUpdate()
         .execute();
 ```
 
+> **Note on `NULL`:** with `?` (positional) batch parameters the SQL type of each value is inferred from the runtime object, but a `NULL` carries no type. On strict databases (e.g. PostgreSQL) a `NULL` in a position where the type cannot be inferred from context — inside a function call or `? IS NULL`, for example — fails with *"could not determine data type of parameter"*. If a batched column can be `NULL`, prefer the Value Object form (2) below, which supplies the SQL type from the declared field type.
+
 ##### (2) Using :(name) - Value Object
 
 For a query using `:(name)`, you can pass a Value Object with assigned values to the `addBatch` method.
