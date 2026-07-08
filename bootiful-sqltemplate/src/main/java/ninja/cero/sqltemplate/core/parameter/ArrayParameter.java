@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.parameter;
 
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
@@ -30,6 +30,6 @@ public class ArrayParameter extends ArgumentPreparedStatementSetter {
      * {@inheritDoc}
      */
     protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
-        super.doSetValue(ps, parameterPosition, Jsr310JdbcUtils.convertIfNecessary(argValue, zoneId));
+        super.doSetValue(ps, parameterPosition, JdbcValueUtils.convertIfNecessary(argValue, zoneId));
     }
 }

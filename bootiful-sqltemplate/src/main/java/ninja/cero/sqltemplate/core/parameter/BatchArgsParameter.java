@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.parameter;
 
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.jdbc.core.StatementCreatorUtils;
@@ -28,7 +28,7 @@ public class BatchArgsParameter implements BatchPreparedStatementSetter {
         for (Object param : params) {
             colIndex++;
             StatementCreatorUtils.setParameterValue(ps, colIndex, SqlTypeValue.TYPE_UNKNOWN,
-                    Jsr310JdbcUtils.convertIfNecessary(param, zoneId));
+                    JdbcValueUtils.convertIfNecessary(param, zoneId));
         }
     }
 

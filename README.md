@@ -773,7 +773,37 @@ The `ZoneId` specified here is used for conversion when writing to and reading f
 
 For example, consider storing a `ZonedDateTime` of `2001-01-28T12:35:02.789+09:00[Asia/Tokyo]` in an environment whose system default time zone is `Asia/Tokyo`. If you use a `SqlTemplate` configured with `ZoneId.of("GMT")`, this value is converted to GMT and stored, and the read-back result is `2001-01-28T03:35:02.789Z[GMT]` (the same instant expressed in GMT).
 
-#### 6-2. Customizing parameter binding and mapping
+#### 6-2. Mapping enum values
+
+`enum` types are supported for both bind variables and query results. An enum is mapped to and from a string column (the `CHAR` / `VARCHAR` family) by its name (`Enum#name()`), independently of the JDBC driver's own enum handling.
+
+Declare an enum and use it as a field (or record component) type — for example, giving the `job` column of the `Emp` shown earlier an enum type:
+
+```java
+public enum Job {
+    ANALYST, CLERK, MANAGER, PRESIDENT, SALESMAN
+}
+```
+
+When an enum is passed as a bind variable it is stored as its `name()`; when a string column is read into an enum field it is converted back to the matching constant. This applies to every parameter style (`params` / `param` / `addParam`, Value Object, `Map`, and batch) and every result type (record / public field / accessor / single column).
+
+```java
+// Write: Job.SALESMAN is bound as the string "SALESMAN"
+List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
+                            .addParam("deptno", 30)
+                            .addParam("job", Job.SALESMAN)
+                            .forList(Emp.class);
+
+// Read: the "SALESMAN" column value is mapped back to Job.SALESMAN
+Job job = sqlTemplate.query("select job from emp where empno = ?")
+                     .params(7499)
+                     .forObject(Job.class);
+System.out.println(job); // SALESMAN
+```
+
+If the stored string does not match any constant, an `IllegalArgumentException` ("No enum constant ...") is thrown. Only string columns are supported (matched by the enum's `name()`); mapping to a numeric column by `ordinal()` is not.
+
+#### 6-3. Customizing parameter binding and mapping
 
 By passing a `ParamBuilder` and a `MapperBuilder` to the `SqlTemplate` constructor, you can customize the conversion of bind variable values and the mapping of query results to objects.
 

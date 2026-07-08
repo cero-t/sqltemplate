@@ -1,7 +1,7 @@
 package ninja.cero.sqltemplate.core.parameter;
 
 import ninja.cero.sqltemplate.core.util.BeanFields;
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
@@ -96,7 +96,7 @@ public class BeanParameter extends AbstractSqlParameterSource {
             return null;
         }
 
-        return Jsr310JdbcUtils.convertIfNecessary(value, zoneId);
+        return JdbcValueUtils.convertIfNecessary(value, zoneId);
     }
 
     @Override
@@ -117,6 +117,6 @@ public class BeanParameter extends AbstractSqlParameterSource {
             return TYPE_UNKNOWN;
         }
 
-        return Jsr310JdbcUtils.getSqlType(propType);
+        return JdbcValueUtils.getSqlType(propType);
     }
 }

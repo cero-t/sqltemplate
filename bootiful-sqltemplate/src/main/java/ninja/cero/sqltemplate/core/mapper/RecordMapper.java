@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.mapper;
 
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -146,6 +146,6 @@ public class RecordMapper<T> implements RowMapper<T> {
      * @throws SQLException in case of extraction failure
      */
     protected Object getColumnValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
-        return Jsr310JdbcUtils.getResultSetValue(rs, index, requiredType, zoneId);
+        return JdbcValueUtils.getResultSetValue(rs, index, requiredType, zoneId);
     }
 }

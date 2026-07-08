@@ -773,7 +773,37 @@ public SqlTemplate sqlTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemp
 
 たとえばシステムのデフォルトタイムゾーンが `Asia/Tokyo` の環境で、`ZonedDateTime` として `2001-01-28T12:35:02.789+09:00[Asia/Tokyo]` を保存する場合を考えます。`ZoneId.of("GMT")` を指定した `SqlTemplate` を用いると、この値はGMTに変換されて保存され、読み出した結果は `2001-01-28T03:35:02.789Z[GMT]`（同じ時刻をGMTで表したもの）となります。
 
-#### 6-2. パラメータのバインドやマッピングをカスタマイズする
+#### 6-2. Enumをマッピングする
+
+`enum` 型は、バインド変数と検索結果の両方でサポートしています。enumは文字列カラム（`CHAR` / `VARCHAR` 系）との間で、その名前（`Enum#name()`）によって相互に変換されます。JDBCドライバ自身のenum対応には依存しません。
+
+enumを定義し、フィールド（またはrecordコンポーネント）の型として使います。たとえば、先ほどの `Emp` の `job` カラムをenum型にする場合は次のようになります。
+
+```java
+public enum Job {
+    ANALYST, CLERK, MANAGER, PRESIDENT, SALESMAN
+}
+```
+
+enumをバインド変数として渡すと `name()` の文字列として保存され、文字列カラムをenumのフィールドへ読み込むと対応する定数に変換されます。これはすべてのパラメータ指定方法（`params` / `param` / `addParam`、Value Object、`Map`、バッチ）と、すべての結果の型（record / public フィールド / アクセサ / 単一カラム）に適用されます。
+
+```java
+// 書き込み: Job.SALESMAN は文字列 "SALESMAN" としてバインドされる
+List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
+                            .addParam("deptno", 30)
+                            .addParam("job", Job.SALESMAN)
+                            .forList(Emp.class);
+
+// 読み込み: "SALESMAN" というカラム値は Job.SALESMAN に変換される
+Job job = sqlTemplate.query("select job from emp where empno = ?")
+                     .params(7499)
+                     .forObject(Job.class);
+System.out.println(job); // SALESMAN
+```
+
+保存されている文字列がどの定数にも一致しない場合は `IllegalArgumentException`（"No enum constant ..."）がスローされます。サポートするのは文字列カラム（enumの `name()` による対応）のみで、`ordinal()` を用いた数値カラムへのマッピングには対応していません。
+
+#### 6-3. パラメータのバインドやマッピングをカスタマイズする
 
 `SqlTemplate` のコンストラクタに `ParamBuilder` と `MapperBuilder` を渡すことで、バインド変数の値の変換や、検索結果のオブジェクトへのマッピングの挙動をカスタマイズできます。
 

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public record EmpRecord(Integer empno,
                         String ename,
-                        String job,
+                        Job job,
                         Integer mgr,
                         LocalDate hiredate,
                         BigDecimal sal,

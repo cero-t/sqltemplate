@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.mapper;
 
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 
@@ -20,7 +20,7 @@ public class SingleColumnMapper<T> extends SingleColumnRowMapper<T> {
     @Override
     protected Object getColumnValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
         if (requiredType != null) {
-            return Jsr310JdbcUtils.getResultSetValue(rs, index, requiredType, zoneId);
+            return JdbcValueUtils.getResultSetValue(rs, index, requiredType, zoneId);
         }
         return JdbcUtils.getResultSetValue(rs, index);
     }

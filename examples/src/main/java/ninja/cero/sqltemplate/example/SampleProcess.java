@@ -3,6 +3,7 @@ package ninja.cero.sqltemplate.example;
 import ninja.cero.sqltemplate.SqlTemplate;
 import ninja.cero.sqltemplate.example.entity.Emp;
 import ninja.cero.sqltemplate.example.entity.EmpRecord;
+import ninja.cero.sqltemplate.example.entity.Job;
 import ninja.cero.sqltemplate.example.entity.SearchCondition;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,7 @@ public class SampleProcess {
 
     public void selectByFile() {
         List<Emp> emps = sqlTemplate.file("sql/selectByParams.sql")
-                .params(30, "SALESMAN")
+                .params(30, Job.SALESMAN)
                 .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
     }
@@ -45,13 +46,13 @@ public class SampleProcess {
     public void selectWithParam() {
         List<Emp> emps = sqlTemplate.file("sql/selectByParam.sql")
                 .addParam("deptno", 30)
-                .addParam("job", "SALESMAN")
+                .addParam("job", Job.SALESMAN)
                 .forList(Emp.class);
         emps.forEach(e -> System.out.println(e.ename)); // ALLEN, WARD, MARTIN, TURNER
 
         SearchCondition searchCondition = new SearchCondition();
         searchCondition.deptno = 30;
-        searchCondition.job = "SALESMAN";
+        searchCondition.job = Job.SALESMAN;
         emps = sqlTemplate.file("sql/selectByParam.sql")
                 .param(searchCondition)
                 .forList(Emp.class);
@@ -59,7 +60,7 @@ public class SampleProcess {
 
         Map<String, Object> condition = new HashMap<>();
         condition.put("deptno", 30);
-        condition.put("job", "SALESMAN");
+        condition.put("job", Job.SALESMAN);
         emps = sqlTemplate.file("sql/selectByParam.sql")
                 .param(condition)
                 .forList(Emp.class);
@@ -123,7 +124,7 @@ public class SampleProcess {
     }
 
     public void insertWithRecord() {
-        EmpRecord emp = new EmpRecord(1000, "TEST", "MANAGER", 7839,
+        EmpRecord emp = new EmpRecord(1000, "TEST", Job.MANAGER, 7839,
                 LocalDate.of(2015, 4, 1), new BigDecimal(4000),
                 new BigDecimal(400), 10);
         sqlTemplate.file("sql/insertByParam.sql")

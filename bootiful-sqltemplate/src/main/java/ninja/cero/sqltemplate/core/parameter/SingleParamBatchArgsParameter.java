@@ -1,6 +1,6 @@
 package ninja.cero.sqltemplate.core.parameter;
 
-import ninja.cero.sqltemplate.core.util.Jsr310JdbcUtils;
+import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.jdbc.core.StatementCreatorUtils;
@@ -25,7 +25,7 @@ public class SingleParamBatchArgsParameter implements BatchPreparedStatementSett
         Object param = batchParams[i];
 
         StatementCreatorUtils.setParameterValue(ps, 1, SqlTypeValue.TYPE_UNKNOWN,
-                Jsr310JdbcUtils.convertIfNecessary(param, zoneId));
+                JdbcValueUtils.convertIfNecessary(param, zoneId));
     }
 
     @Override

@@ -6,7 +6,7 @@ import java.util.Date;
 public class Emp {
     public Integer empno;
     public String ename;
-    public String job;
+    public Job job;
     public Integer mgr;
     public Date hiredate;
     public BigDecimal sal;
