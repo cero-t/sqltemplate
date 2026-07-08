@@ -2,16 +2,20 @@ name: Run tests
 on:
   push:
     branches:
-      - develop
+      - 4.x
+  pull_request:
+    branches:
+      - 4.x
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Maven Central Repository
-        uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
       - name: Run test
         run: mvn clean test

@@ -1,3 +1,9 @@
+# DISABLED (pending Phase 6 / Central Portal migration).
+# OSSRH (oss.sonatype.org) reached end-of-life on 2025-06-30, so the deploy
+# steps below no longer work. This workflow is manual-only (workflow_dispatch)
+# and must NOT be run until it is rewritten for the Central Portal in Phase 6.
+# The version-bump / branch steps still assume the old `develop` flow and also
+# need to be updated for the 2.x / 4.x branch layout.
 name: Publish relase and update pom.xml
 on:
   workflow_dispatch:
