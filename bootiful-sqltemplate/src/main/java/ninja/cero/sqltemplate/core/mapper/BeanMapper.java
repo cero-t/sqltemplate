@@ -113,7 +113,7 @@ public class BeanMapper<T> implements RowMapper<T> {
      */
     @Override
     public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
-        T mappedObject = BeanUtils.instantiate(this.mappedClass);
+        T mappedObject = BeanUtils.instantiateClass(this.mappedClass);
         BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mappedObject);
 
         ResultSetMetaData metaData = rs.getMetaData();

@@ -21,13 +21,8 @@ public class MapperBuilder {
             return new SingleColumnMapper<>(mappedClass, zoneId);
         }
 
-        try {
-            Class<?> recordClass = Class.forName("java.lang.Record");
-            if (recordClass.isAssignableFrom(mappedClass)) {
-                return new RecordMapper<>(mappedClass, zoneId);
-            }
-        } catch (ClassNotFoundException e) {
-            // ignore
+        if (mappedClass.isRecord()) {
+            return new RecordMapper<>(mappedClass, zoneId);
         }
 
         return new BeanMapper<>(mappedClass, zoneId);
