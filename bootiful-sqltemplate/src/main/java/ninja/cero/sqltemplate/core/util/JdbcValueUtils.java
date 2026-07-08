@@ -164,7 +164,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static LocalDateTime getAsLocalDateTime(ResultSet rs, int index) throws SQLException {
+    private static LocalDateTime getAsLocalDateTime(ResultSet rs, int index) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(index);
         if (timestamp != null) {
             return timestamp.toLocalDateTime();
@@ -179,7 +179,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static LocalDate getAsLocalDate(ResultSet rs, int index) throws SQLException {
+    private static LocalDate getAsLocalDate(ResultSet rs, int index) throws SQLException {
         Date date = rs.getDate(index);
         if (date != null) {
             return date.toLocalDate();
@@ -194,7 +194,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static LocalTime getAsLocalTime(ResultSet rs, int index) throws SQLException {
+    private static LocalTime getAsLocalTime(ResultSet rs, int index) throws SQLException {
         Time time = rs.getTime(index);
         if (time != null) {
             return time.toLocalTime();
@@ -210,7 +210,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static ZonedDateTime getAsZonedDateTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
+    private static ZonedDateTime getAsZonedDateTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(index);
         if (timestamp != null) {
             return timestamp.toLocalDateTime().atZone(zoneId);
@@ -225,7 +225,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static Instant getAsInstant(ResultSet rs, int index) throws SQLException {
+    private static Instant getAsInstant(ResultSet rs, int index) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(index);
         if (timestamp != null) {
             return timestamp.toInstant();
@@ -241,7 +241,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static OffsetDateTime getAsOffsetDateTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
+    private static OffsetDateTime getAsOffsetDateTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(index);
         if (timestamp != null) {
             return timestamp.toLocalDateTime().atZone(zoneId).toOffsetDateTime();
@@ -257,7 +257,7 @@ public class JdbcValueUtils {
      * @return column value
      * @throws SQLException in case of extraction failure
      */
-    protected static OffsetTime getAsOffsetTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
+    private static OffsetTime getAsOffsetTime(ResultSet rs, int index, ZoneId zoneId) throws SQLException {
         Time time = rs.getTime(index);
         if (time != null) {
             return time.toLocalTime().atOffset(zoneId.getRules().getOffset(Instant.now()));
