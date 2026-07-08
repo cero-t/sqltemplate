@@ -79,7 +79,15 @@ public class SampleProcess {
         Function<Stream<Emp>, Long> summing = stream -> stream.mapToLong(e -> e.sal.longValue()).sum();
         Long sum = sqlTemplate.query("select * from emp")
                 .forStream(Emp.class, summing);
-        System.out.println(sum);
+        System.out.println(sum); // 29025
+
+        // Receiving a Stream directly. The Stream must be closed by the caller,
+        // so wrap it in a try-with-resources block.
+        try (Stream<Emp> stream = sqlTemplate.query("select * from emp")
+                .forStream(Emp.class)) {
+            long sum2 = stream.mapToLong(e -> e.sal.longValue()).sum();
+            System.out.println(sum2); // 29025
+        }
     }
 
     public void selectSingleResult() {

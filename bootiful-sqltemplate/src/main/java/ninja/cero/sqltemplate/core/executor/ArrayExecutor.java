@@ -57,6 +57,18 @@ public class ArrayExecutor extends AbstractQueryExecutor {
     }
 
     @Override
+    public <T> Stream<T> forStream(Class<T> clazz) {
+        String sql = templateEngine.get(template, params);
+        return jdbcTemplate.queryForStream(sql, paramBuilder.byArgs(params), mapperBuilder.mapper(clazz));
+    }
+
+    @Override
+    public Stream<Map<String, Object>> forStream() {
+        String sql = templateEngine.get(template, params);
+        return jdbcTemplate.queryForStream(sql, paramBuilder.byArgs(params), new ColumnMapRowMapper());
+    }
+
+    @Override
     public int update() {
         String sql = templateEngine.get(template, params);
         return jdbcTemplate.update(sql, paramBuilder.byArgs(params));

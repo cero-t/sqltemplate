@@ -21,6 +21,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -282,6 +283,103 @@ public class SqlTemplateTest {
         assertEquals(14, result.length);
         assertEquals(7369, result[0]);
         assertEquals(7934, result[13]);
+    }
+
+    @Test
+    public void testForStreamDirect_NoArg() {
+        try (Stream<Emp> stream = sqlTemplate()
+                .file("sql/selectAll.sql")
+                .forStream(Emp.class)) {
+            int[] result = stream.mapToInt(emp -> emp.empno).toArray();
+            assertEquals(14, result.length);
+            assertEquals(7369, result[0]);
+            assertEquals(7934, result[13]);
+        }
+    }
+
+    @Test
+    public void testForStreamDirect_EntityArg() {
+        Emp param = new Emp();
+        param.deptno = 30;
+        param.job = "SALESMAN";
+
+        try (Stream<Emp> stream = sqlTemplate()
+                .file("sql/selectByParam.sql")
+                .param(param)
+                .forStream(Emp.class)) {
+            int[] result = stream.mapToInt(emp -> emp.empno).toArray();
+            assertEquals(4, result.length);
+            assertEquals(7499, result[0]);
+            assertEquals(7844, result[3]);
+        }
+    }
+
+    @Test
+    public void testForStreamDirect_MapArg() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("deptno", 30);
+        param.put("job", "SALESMAN");
+        try (Stream<Emp> stream = sqlTemplate()
+                .file("sql/selectByParam.sql")
+                .param(param)
+                .forStream(Emp.class)) {
+            int[] result = stream.mapToInt(emp -> emp.empno).toArray();
+            assertEquals(4, result.length);
+            assertEquals(7499, result[0]);
+            assertEquals(7844, result[3]);
+        }
+    }
+
+    @Test
+    public void testForStreamDirect_MultiArg() {
+        try (Stream<Emp> stream = sqlTemplate()
+                .file("sql/selectByArgs.sql")
+                .params(30, "SALESMAN")
+                .forStream(Emp.class)) {
+            int[] result = stream.mapToInt(emp -> emp.empno).toArray();
+            assertEquals(4, result.length);
+            assertEquals(7499, result[0]);
+            assertEquals(7844, result[3]);
+        }
+    }
+
+    @Test
+    public void testForStreamDirect_ReturnSimple() {
+        try (Stream<Integer> stream = sqlTemplate().file("sql/selectEmpno.sql")
+                .forStream(Integer.class)) {
+            int[] result = stream.mapToInt(empno -> empno).toArray();
+            assertEquals(14, result.length);
+            assertEquals(7369, result[0]);
+            assertEquals(7934, result[13]);
+        }
+    }
+
+    @Test
+    public void testForStreamMapDirect_NoArg() {
+        try (Stream<Map<String, Object>> stream = sqlTemplate()
+                .file("sql/selectAll.sql")
+                .forStream()) {
+            int[] result = stream.mapToInt(map -> (Integer) map.get("empno")).toArray();
+            assertEquals(14, result.length);
+            assertEquals(7369, result[0]);
+            assertEquals(7934, result[13]);
+        }
+    }
+
+    @Test
+    public void testForStreamMapDirect_MapArg() {
+        Map<String, Object> param = new HashMap<>();
+        param.put("deptno", 30);
+        param.put("job", "SALESMAN");
+        try (Stream<Map<String, Object>> stream = sqlTemplate()
+                .file("sql/selectByParam.sql")
+                .param(param)
+                .forStream()) {
+            int[] result = stream.mapToInt(map -> (Integer) map.get("empno")).toArray();
+            assertEquals(4, result.length);
+            assertEquals(7499, result[0]);
+            assertEquals(7844, result[3]);
+        }
     }
 
     @Test

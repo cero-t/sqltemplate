@@ -433,7 +433,11 @@ You can use this approach when you do not want to bother creating a Value Object
 
 ##### (3) Processing as a Stream
 
-To process the results as a `java.util.stream.Stream`, use the `forStream` method. The `forStream` method does not return a `Stream`; instead it receives a `java.util.function.Function` as an argument and performs processing. The API is designed this way to prevent forgetting to `close` the `Stream` (though this may change in the future).
+To process the results as a `java.util.stream.Stream`, use the `forStream` method. There are two ways to use `forStream`.
+
+**(3-a) Passing a `Function` (recommended)**
+
+If you pass a `java.util.function.Function` as an argument, the `Stream` is handed to that function for processing and you receive only the result. The `Stream` is closed automatically by the library, so there is no risk of a resource leak from forgetting to close it. Normally you should use this form.
 
 You can specify the `class` of a Value Object as an argument of the `forStream` method; in that case the second argument `Function` processes a `Stream<Value Object>` to perform conversions and so on. If you do not specify the first-argument type, you pass only a `Function` that processes a `Stream<Map<String, Object>>`.
 
@@ -446,6 +450,21 @@ Long sum = sqlTemplate.query("select * from emp")
 ```
 
 In this example, Stream processing is used to compute the total of the `sal` values of `Emp`.
+
+**(3-b) Receiving a `Stream` directly**
+
+If you call `forStream` without a `Function`, you receive the `Stream` itself as the return value. This is useful when you want to return the results directly to the caller (for example, returning `Stream<Emp>` from a controller method). Specifying the `class` of a Value Object as the first argument returns a `Stream<Value Object>`; omitting it returns a `Stream<Map<String, Object>>`.
+
+**A `Stream` obtained this way must always be closed by the caller.** If you do not close it, the underlying JDBC resources (such as the `Connection`) are not released and will leak. Using a try-with-resources block, as shown below, is the safest approach.
+
+```java
+try (Stream<Emp> stream = sqlTemplate.query("select * from emp")
+        .forStream(Emp.class)) {
+    long sum = stream.mapToLong(e -> e.sal.longValue()).sum();
+}
+```
+
+Note that this `Stream` does not read the entire result into memory at once; like `JdbcTemplate#queryForStream`, it reads rows lazily one at a time. With Spring Boot, you can set the fetch size via the `spring.jdbc.template.fetch-size` property, which is applied to the auto-configured `JdbcTemplate` and the `NamedParameterJdbcTemplate` derived from it (both of which `SqlTemplate` uses). However, whether the database actually fetches rows incrementally depends on the JDBC driver: many drivers buffer the entire result set on the client side by default, so you typically need to run the query within a transaction and may need driver-specific settings. Refer to your driver's documentation for details.
 
 #### 3-6. Retrieving results - when there are zero or one rows
 

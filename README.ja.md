@@ -433,7 +433,11 @@ List<Map<String, Object>> emps = sqlTemplate.query("select * from emp")
 
 ##### (3) Stream として処理する
 
-検索結果を `java.util.stream.Stream` として処理したい場合 `forStream` メソッドを利用します。この `forStream` メソッドは `Stream` を戻り値として返すのではなく `java.util.function.Function` を引数として受け取って処理をするメソッドです。`Stream` を `close` し忘れることを防ぐためにこのようなAPIの構成にしています（ただし将来的に変更する可能性があります）
+検索結果を `java.util.stream.Stream` として処理したい場合 `forStream` メソッドを利用します。`forStream` には2つの使い方があります。
+
+**(3-a) `Function` を渡す方法（推奨）**
+
+`java.util.function.Function` を引数として渡すと、その関数に `Stream` を渡して処理し、結果だけを受け取ります。`Stream` はライブラリ側で自動的に `close` されるため、閉じ忘れによるリソースリークの心配がありません。通常はこちらを使ってください。
 
 `forStream` メソッドの引数にValue Objectの `class` を指定することができ、指定した場合には第二引数に渡す `Function` は `Stream<Value Object>` を処理して変換などの処理を行う関数になります。第一引数の型を指定しない場合は `Stream<Map<String, Object>>` を処理する `Function` のみを渡します。
 
@@ -446,6 +450,21 @@ Long sum = sqlTemplate.query("select * from emp")
 ```
 
 この例ではStreamの処理を利用してEmpのsalの合計値を計算しました。
+
+**(3-b) `Stream` を直接受け取る方法**
+
+`Function` を渡さずに `forStream` を呼ぶと、`Stream` をそのまま戻り値として受け取れます。取得結果をそのまま呼び出し元へ返したい場合（たとえばコントローラのメソッドから `Stream<Emp>` を返す場合）などに利用できます。第一引数にValue Objectの `class` を指定すると `Stream<Value Object>` が、指定しない場合は `Stream<Map<String, Object>>` が返ります。
+
+**この方法で受け取った `Stream` は、必ず呼び出し元で `close` してください。** `close` しないと、内部の JDBC リソース（`Connection` など）が解放されずリークします。次のように try-with-resources を使うのが確実です。
+
+```java
+try (Stream<Emp> stream = sqlTemplate.query("select * from emp")
+        .forStream(Emp.class)) {
+    long sum = stream.mapToLong(e -> e.sal.longValue()).sum();
+}
+```
+
+なお、この `Stream` は結果を一度にすべてメモリへ読み込むのではなく、`JdbcTemplate#queryForStream` と同じく1行ずつ遅延的に読み出します。Spring Boot を使っている場合、フェッチ件数は `spring.jdbc.template.fetch-size` プロパティで設定でき、これは自動構成された `JdbcTemplate` と、そこから派生する `NamedParameterJdbcTemplate`（どちらも `SqlTemplate` が利用します）の両方に適用されます。ただし、実際にデータベースから少しずつフェッチできるかは利用する JDBC ドライバの挙動に依存します。多くのドライバはデフォルトで結果セット全体をクライアント側にバッファリングするため、通常はトランザクション内でクエリを実行する必要があり、さらにドライバ固有の設定が必要になる場合もあります（詳細は利用するドライバのドキュメントを参照してください）。
 
 #### 3-6. 結果の取り出し - 結果が0件か1件の場合
 

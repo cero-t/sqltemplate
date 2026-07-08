@@ -23,5 +23,21 @@ public interface QueryExecutor {
 
     <U> U forStream(Function<? super Stream<Map<String, Object>>, U> handler);
 
+    /**
+     * Executes the query and returns the result as a {@link Stream}.
+     * <p>Unlike {@link #forStream(Class, Function)}, the returned {@code Stream} is <em>not</em>
+     * closed automatically. The caller must close it (for example, with a try-with-resources block),
+     * otherwise the underlying JDBC resources (Connection, etc.) will leak.
+     */
+    <T> Stream<T> forStream(Class<T> clazz);
+
+    /**
+     * Executes the query and returns the result as a {@link Stream} of {@code Map<String, Object>}.
+     * <p>Unlike {@link #forStream(Function)}, the returned {@code Stream} is <em>not</em>
+     * closed automatically. The caller must close it (for example, with a try-with-resources block),
+     * otherwise the underlying JDBC resources (Connection, etc.) will leak.
+     */
+    Stream<Map<String, Object>> forStream();
+
     int update();
 }

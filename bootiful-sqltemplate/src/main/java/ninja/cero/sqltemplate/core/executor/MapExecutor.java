@@ -57,6 +57,18 @@ public class MapExecutor extends AbstractQueryExecutor {
     }
 
     @Override
+    public <T> Stream<T> forStream(Class<T> clazz) {
+        String sql = templateEngine.get(template, params);
+        return namedJdbcTemplate.queryForStream(sql, paramBuilder.byMap(params), mapperBuilder.mapper(clazz));
+    }
+
+    @Override
+    public Stream<Map<String, Object>> forStream() {
+        String sql = templateEngine.get(template, params);
+        return namedJdbcTemplate.queryForStream(sql, paramBuilder.byMap(params), new ColumnMapRowMapper());
+    }
+
+    @Override
     public int update() {
         String sql = templateEngine.get(template, params);
         return namedJdbcTemplate.update(sql, paramBuilder.byMap(params));

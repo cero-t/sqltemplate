@@ -57,6 +57,18 @@ public class EntityExecutor extends AbstractQueryExecutor {
     }
 
     @Override
+    public <T> Stream<T> forStream(Class<T> clazz) {
+        String sql = templateEngine.get(template, entity);
+        return namedJdbcTemplate.queryForStream(sql, paramBuilder.byBean(entity), mapperBuilder.mapper(clazz));
+    }
+
+    @Override
+    public Stream<Map<String, Object>> forStream() {
+        String sql = templateEngine.get(template, entity);
+        return namedJdbcTemplate.queryForStream(sql, paramBuilder.byBean(entity), new ColumnMapRowMapper());
+    }
+
+    @Override
     public int update() {
         String sql = templateEngine.get(template, entity);
         return namedJdbcTemplate.update(sql, paramBuilder.byBean(entity));
