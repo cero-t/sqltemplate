@@ -19,4 +19,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Run test
-        run: mvn clean test
+        run: mvn clean verify
