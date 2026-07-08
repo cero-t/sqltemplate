@@ -9,21 +9,21 @@ import java.time.*;
 
 public class Jsr310JdbcUtils {
     public static Object convertIfNecessary(Object value, ZoneId zoneId) {
-        if (value instanceof LocalDateTime) {
-            return Timestamp.valueOf((LocalDateTime) value);
-        } else if (value instanceof LocalDate) {
-            return Date.valueOf((LocalDate) value);
-        } else if (value instanceof LocalTime) {
-            return Time.valueOf((LocalTime) value);
-        } else if (value instanceof OffsetDateTime) {
-            OffsetDateTime offsetDateTime = ((OffsetDateTime) value).withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
-            return Timestamp.valueOf(offsetDateTime.toLocalDateTime());
-        } else if (value instanceof OffsetTime) {
-            OffsetTime offsetTime = ((OffsetTime) value).withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
-            return Time.valueOf(offsetTime.toLocalTime());
-        } else if (value instanceof ZonedDateTime) {
-            ZonedDateTime zonedDateTime = ((ZonedDateTime) value).withZoneSameInstant(zoneId);
-            return Timestamp.valueOf(zonedDateTime.toLocalDateTime());
+        if (value instanceof LocalDateTime localDateTime) {
+            return Timestamp.valueOf(localDateTime);
+        } else if (value instanceof LocalDate localDate) {
+            return Date.valueOf(localDate);
+        } else if (value instanceof LocalTime localTime) {
+            return Time.valueOf(localTime);
+        } else if (value instanceof OffsetDateTime offsetDateTime) {
+            OffsetDateTime adjusted = offsetDateTime.withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
+            return Timestamp.valueOf(adjusted.toLocalDateTime());
+        } else if (value instanceof OffsetTime offsetTime) {
+            OffsetTime adjusted = offsetTime.withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
+            return Time.valueOf(adjusted.toLocalTime());
+        } else if (value instanceof ZonedDateTime zonedDateTime) {
+            ZonedDateTime adjusted = zonedDateTime.withZoneSameInstant(zoneId);
+            return Timestamp.valueOf(adjusted.toLocalDateTime());
         }
 
         return value;
