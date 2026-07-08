@@ -33,8 +33,8 @@ public class JdbcValueUtils {
         } else if (value instanceof LocalTime localTime) {
             return Time.valueOf(localTime);
         } else if (value instanceof OffsetDateTime offsetDateTime) {
-            OffsetDateTime adjusted = offsetDateTime.withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
-            return Timestamp.valueOf(adjusted.toLocalDateTime());
+            // Use the zone offset at the value's own instant (like ZonedDateTime below), not at Instant.now().
+            return Timestamp.valueOf(offsetDateTime.atZoneSameInstant(zoneId).toLocalDateTime());
         } else if (value instanceof OffsetTime offsetTime) {
             OffsetTime adjusted = offsetTime.withOffsetSameInstant(zoneId.getRules().getOffset(Instant.now()));
             return Time.valueOf(adjusted.toLocalTime());
