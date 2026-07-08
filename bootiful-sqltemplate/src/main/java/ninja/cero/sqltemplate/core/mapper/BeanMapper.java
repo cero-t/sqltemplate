@@ -2,6 +2,7 @@ package ninja.cero.sqltemplate.core.mapper;
 
 import ninja.cero.sqltemplate.core.util.BeanFields;
 import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
+import ninja.cero.sqltemplate.core.util.NameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -9,8 +10,6 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -57,7 +56,7 @@ public class BeanMapper<T> implements RowMapper<T> {
         for (PropertyDescriptor pd : pds) {
             if (pd.getWriteMethod() != null) {
                 privateFields.put(pd.getName().toLowerCase(), pd);
-                String underscoredName = underscoreName(pd.getName());
+                String underscoredName = NameUtils.underscoreName(pd.getName());
                 if (!pd.getName()
                         .toLowerCase()
                         .equals(underscoredName)) {
@@ -70,41 +69,13 @@ public class BeanMapper<T> implements RowMapper<T> {
         for (Field field : fields) {
             publicFields.put(field.getName()
                     .toLowerCase(), field);
-            String underscoredName = underscoreName(field.getName());
+            String underscoredName = NameUtils.underscoreName(field.getName());
             if (!field.getName()
                     .toLowerCase()
                     .equals(underscoredName)) {
                 publicFields.put(underscoredName, field);
             }
         }
-    }
-
-    /**
-     * Convert a name in camelCase to an underscored name in lower case.
-     * Any upper case letters are converted to lower case with a preceding underscore.
-     *
-     * @param name the string containing original name
-     * @return the converted name
-     * @see org.springframework.jdbc.core.BeanPropertyRowMapper#underscoreName(String)
-     */
-    private String underscoreName(String name) {
-        if (!StringUtils.hasLength(name)) {
-            return "";
-        }
-        StringBuilder result = new StringBuilder();
-        result.append(name.substring(0, 1)
-                .toLowerCase());
-        for (int i = 1; i < name.length(); i++) {
-            String s = name.substring(i, i + 1);
-            String slc = s.toLowerCase();
-            if (!s.equals(slc)) {
-                result.append("_")
-                        .append(slc);
-            } else {
-                result.append(s);
-            }
-        }
-        return result.toString();
     }
 
     /**

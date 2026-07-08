@@ -1,11 +1,11 @@
 package ninja.cero.sqltemplate.core.mapper;
 
 import ninja.cero.sqltemplate.core.util.JdbcValueUtils;
+import ninja.cero.sqltemplate.core.util.NameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
@@ -69,40 +69,12 @@ public class RecordMapper<T> implements RowMapper<T> {
             String name = components[i].getName();
 
             indexes.put(name.toLowerCase(), i);
-            String underscoredName = underscoreName(name);
+            String underscoredName = NameUtils.underscoreName(name);
             if (!name.toLowerCase()
                     .equals(underscoredName)) {
                 indexes.put(underscoredName, i);
             }
         }
-    }
-
-    /**
-     * Convert a name in camelCase to an underscored name in lower case.
-     * Any upper case letters are converted to lower case with a preceding underscore.
-     *
-     * @param name the string containing original name
-     * @return the converted name
-     * @see org.springframework.jdbc.core.BeanPropertyRowMapper#underscoreName(String)
-     */
-    private String underscoreName(String name) {
-        if (!StringUtils.hasLength(name)) {
-            return "";
-        }
-        StringBuilder result = new StringBuilder();
-        result.append(name.substring(0, 1)
-                .toLowerCase());
-        for (int i = 1; i < name.length(); i++) {
-            String s = name.substring(i, i + 1);
-            String slc = s.toLowerCase();
-            if (!s.equals(slc)) {
-                result.append("_")
-                        .append(slc);
-            } else {
-                result.append(s);
-            }
-        }
-        return result.toString();
     }
 
     /**
