@@ -28,6 +28,15 @@ set_version() {
     ./mvnw -q versions:set -DnewVersion="$1" -DprocessAllModules -DgenerateBackupPoms=false
 }
 
+# Bump the bootiful-sqltemplate dependency version shown in the READMEs to $1.
+# Mirrors what set_version does for the POMs so the documented version cannot
+# drift. Only the version tied to our own artifactId is touched, never the
+# Spring Boot one (spring-boot-starter-jdbc has its own <version>).
+update_readme_versions() {
+    perl -0pi -e 's{(<artifactId>bootiful-sqltemplate</artifactId>\s*<version>)[0-9]+\.[0-9]+\.[0-9]+(</version>)}{${1}'"$1"'${2}}g' README.md README.ja.md
+    perl -pi -e 's{(bootiful-sqltemplate:bootiful-sqltemplate:)[0-9]+\.[0-9]+\.[0-9]+}{${1}'"$1"'}g' README.md README.ja.md
+}
+
 CURRENT="$(./mvnw -q --non-recursive help:evaluate -Dexpression=project.version -DforceStdout)"
 case "$CURRENT" in
     *-SNAPSHOT) ;;
@@ -50,8 +59,9 @@ echo "Tag to push:          $RELEASE (triggers the release workflow)"
 read -r -p "Proceed? [y/N] " ans
 case "$ans" in y|Y) ;; *) echo "aborted."; exit 1 ;; esac
 
-# 1) release version, commit, tag
+# 1) release version, update READMEs, commit, tag
 set_version "$RELEASE"
+update_readme_versions "$RELEASE"
 git commit -aqm "$RELEASE release"
 git tag "$RELEASE"
 
