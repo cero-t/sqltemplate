@@ -5,7 +5,7 @@
 
     <groupId>ninja.cero.bootiful-sqltemplate</groupId>
     <artifactId>examples</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
+    <version>4.0.2</version>
 
     <name>bootiful-sqltemplate-example</name>
     <description>Bootiful SQL Template Example</description>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>ninja.cero.bootiful-sqltemplate</groupId>
             <artifactId>bootiful-sqltemplate</artifactId>
-            <version>4.0.2-SNAPSHOT</version>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
