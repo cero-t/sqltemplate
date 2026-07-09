@@ -29,7 +29,7 @@ Spring Framework（Spring JDBC）が提供する `JdbcTemplate` と `NamedParame
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
@@ -134,7 +134,7 @@ Mavenの `pom.xml`
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </dependency>
     <!-- 任意のJDBCドライバと差し替えて構いません -->
     <dependency>
@@ -151,7 +151,7 @@ Gradleの `build.gradle`
 dependencies {
     ...
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.1'
+    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.2'
     implementation 'com.h2database:h2:2.3.232'
     ...
 }

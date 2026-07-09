@@ -29,7 +29,7 @@ It is implemented as a wrapper around `JdbcTemplate` and `NamedParameterJdbcTemp
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </dependency>
     <!-- Feel free to replace with any JDBC driver you use -->
     <dependency>
@@ -134,7 +134,7 @@ Maven `pom.xml`
     <dependency>
         <groupId>ninja.cero.bootiful-sqltemplate</groupId>
         <artifactId>bootiful-sqltemplate</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </dependency>
     <!-- Feel free to replace with any JDBC driver you use -->
     <dependency>
@@ -151,7 +151,7 @@ Gradle `build.gradle`
 dependencies {
     ...
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.1'
+    implementation 'ninja.cero.bootiful-sqltemplate:bootiful-sqltemplate:4.0.2'
     implementation 'com.h2database:h2:2.3.232'
     ...
 }
